@@ -1,0 +1,46 @@
+/* Swiper Container */
+.swiper {
+  width: 100%;
+}
+
+/* Slides */
+.swiper-slide {
+  display: flex;
+  justify-content: center;
+}
+
+/* Custom Navigation Buttons */
+.swiper-button-next,
+.swiper-button-prev {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(6px);
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  color: white !important;
+  transition: 0.3s;
+}
+
+.swiper-button-next:hover,
+.swiper-button-prev:hover {
+  background: rgba(255, 255, 255, 0.35);
+  transform: scale(1.1);
+}
+
+/* Icon Size */
+.swiper-button-next::after,
+.swiper-button-prev::after {
+  font-size: 20px !important;
+  font-weight: bold;
+}
+
+/* Pagination Dots */
+.swiper-pagination-bullet {
+  background: white !important;
+  opacity: 0.4;
+}
+
+.swiper-pagination-bullet-active {
+  background: #00e1ff !important;
+  opacity: 1;
+}

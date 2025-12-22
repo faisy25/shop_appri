@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Helper Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        
+        .nav-btn {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .nav-btn:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+        }
+        
+        .nav-btn.active {
+            background: #764ba2;
+            box-shadow: 0 4px 15px rgba(118, 75, 162, 0.4);
+        }
+        
+        .section {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+        
+        .section.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .method-card {
+            background: #f8f9fa;
+            padding: 25px;
+            margin-bottom: 30px;
+            border-radius: 10px;
+            border-left: 5px solid #667eea;
+        }
+        
+        .method-title {
+            font-size: 1.8em;
+            color: #667eea;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 5px 10px;
+            background: #667eea;
+            color: white;
+            border-radius: 5px;
+            font-size: 0.5em;
+            font-weight: normal;
+        }
+        
+        .diagram {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 2px solid #e0e0e0;
+        }
+        
+        .flow-step {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            position: relative;
+        }
+        
+        .flow-step::after {
+            content: '↓';
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 20px;
+            color: #667eea;
+        }
+        
+        .flow-step:last-child::after {
+            content: '';
+        }
+        
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .code-comment {
+            color: #75715e;
+        }
+        
+        .code-string {
+            color: #e6db74;
+        }
+        
+        .code-keyword {
+            color: #f92672;
+        }
+        
+        .code-function {
+            color: #a6e22e;
+        }
+        
+        .sql-result {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        
+        .table-visual {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .table-visual th {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        .table-visual td {
+            padding: 12px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .table-visual tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        
+        .deleted-row {
+            text-decoration: line-through;
+            opacity: 0.5;
+            background: #ffebee !important;
+        }
+        
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .warning-box {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .success-box {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .comparison-item {
+            padding: 20px;
+            border-radius: 8px;
+        }
+        
+        .comparison-item.before {
+            background: #ffebee;
+            border: 2px solid #f44336;
+        }
+        
+        .comparison-item.after {
+            background: #e8f5e9;
+            border: 2px solid #4caf50;
+        }
+        
+        @media (max-width: 768px) {
+            .comparison {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav {
+                justify-content: center;
+            }
+            
+            .header h1 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 Database Helper Complete Guide</h1>
+            <p>Master MySQL2 CRUD Operations with Soft Delete</p>
+        </div>
+        
+        <div class="content">
+            <div class="nav">
+                <button class="nav-btn active" onclick="showSection('overview')">Overview</button>
+                <button class="nav-btn" onclick="showSection('getAll')">getAll()</button>
+                <button class="nav-btn" onclick="showSection('getOne')">getOne()</button>
+                <button class="nav-btn" onclick="showSection('getAllDeleted')">getAllWithDeleted()</button>
+                <button class="nav-btn" onclick="showSection('create')">Create</button>
+                <button class="nav-btn" onclick="showSection('update')">Update</button>
+                <button class="nav-btn" onclick="showSection('delete')">Delete</button>
+                <button class="nav-btn" onclick="showSection('softDelete')">Soft Delete</button>
+                <button class="nav-btn" onclick="showSection('advanced')">Advanced</button>
+            </div>
+
+            <!-- Overview Section -->
+            <div id="overview" class="section active">
+                <div class="method-card">
+                    <h2 class="method-title">🎯 What is this Database Helper?</h2>
+                    <p>A comprehensive utility that simplifies MySQL database operations with built-in soft delete support.</p>
+                    
+                    <div class="info-box">
+                        <strong>🔑 Key Features:</strong>
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li>Automatic soft delete handling (is_deleted flag)</li>
+                            <li>SQL injection prevention</li>
+                            <li>Complex WHERE conditions support</li>
+                            <li>JOIN operations</li>
+                            <li>Transaction support</li>
+                            <li>Bulk operations</li>
+                        </ul>
+                    </div>
+                    
+                    <h3 style="margin-top: 30px; color: #667eea;">📊 Sample Database Table</h3>
+                    <table class="table-visual">
+                        <thead>
+                            <tr>
+                                <th>product_id</th>
+                                <th>name</th>
+                                <th>price</th>
+                                <th>qty</th>
+                                <th>is_deleted</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>Laptop</td>
+                                <td>999.99</td>
+                                <td>10</td>
+                                <td>0</td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>Mouse</td>
+                                <td>29.99</td>
+                                <td>50</td>
+                                <td>0</td>
+                            </tr>
+                            <tr class="deleted-row">
+                                <td>3</td>
+                                <td>Keyboard</td>
+                                <td>79.99</td>
+                                <td>0</td>
+                                <td>1</td>
+                            </tr>
+                            <tr>
+                                <td>4</td>
+                                <td>Monitor</td>
+                                <td>299.99</td>
+                                <td>15</td>
+                                <td>0</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <div class="warning-box">
+                        <strong>⚠️ Important:</strong> is_deleted = 0 means active, is_deleted = 1 means soft-deleted
+                    </div>
+                </div>
+
+                <div class="method-card">
+                    <h2 class="method-title">🔄 How Soft Delete Works</h2>
+                    <div class="diagram">
+                        <div class="flow-step">User requests to delete product_id = 3</div>
+                        <div class="flow-step">System sets is_deleted = 1 (not physically deleted)</div>
+                        <div class="flow-step">Product remains in database but hidden from normal queries</div>
+                        <div class="flow-step">Can be restored later if needed</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- getAll Section -->
+            <div id="getAll" class="section">
+                <div class="method-card">
+                    <h2 class="method-title">
+                        📋 getAll() 
+                        <span class="badge">Excludes Deleted</span>
+                    </h2>
+                    
+                    <p><strong>Purpose:</strong> Get all records from a table, automatically excluding soft-deleted records.</p>
+                    
+                    <h3 style="margin-top: 20px;">🔍 How it Works:</h3>
+                    <div class="diagram">
+                        <div class="flow-step">You call: getAll({ table: 'product' })</div>
+                        <div class="flow-step">Helper adds: is_deleted = 0 automatically</div>
+                        <div class="flow-step">SQL: SELECT * FROM product WHERE is_deleted = 0</div>
+                        <div class="flow-step">Returns only active products</div>
+                    </div>
+                    
+                    <h3 style="margin-top: 30px;">💻 Basic Example:</h3>
+                    <div class="code-block">
+<span class="code-comment">// Import the helper</span>
+<span class="code-keyword">import</span> dbHelper <span class="code-keyword">from</span> <span class="code-string">'./util/database/dbHelper.js'</span>;
+
+<span class="code-comment">// Get all products (excludes deleted)</span>
+<span class="code-keyword">const</span> products = <span class="code-keyword">await</span> dbHelper.<span class="code-function">getAll</span>({
+  table: <span class="code-string">'product'</span>
+});
+
+<span class="code-comment">// Result: [{ product_id: 1, name: 'Laptop', ... }, ...]</span>
+                    </div>
+                    
+                    <div class="sql-result">
+                        <strong>Generated SQL:</strong><br>
+                        <code>SELECT * FROM product WHERE is_deleted = 0</code>
+                    </div>
+                    
+                    <h3 style="margin-top: 30px;">🎨 Advanced Examples:</h3>
+                    
+                    <h4 style="margin-top: 20px;">1️⃣ Select Specific Columns</h4>
+                    <div class="code-block">
+<span class="code-keyword">const</span> products = <span class="code-keyword">await</span> dbHelper.<span class="code-function">getAll</span>({
+  table: <span class="code-string">'product'</span>,
+  selectColumns: [<span class="code-string">'product_id'</span>, <span class="code-string">'name'</span>, <span class="code-string">'price'</span>]
+});
+                    </div>
+                    <div class="sql-result">
+                        <strong>SQL:</strong> <code>SELECT product_id, name, price FROM product WHERE is_deleted = 0</code>
+                    </div>
+                    
+                    <h4 style="margin-top: 20px;">2️⃣ With WHERE Condition</h4>
+                    <div class="code-block">
+<span class="code-keyword">const</span> products = <span class="code-keyword">await</span> dbHelper.<span class="code-function">getAll</span>({
+  table: <span class="code-string">'product'</span>,
+  where: { 
+    <span class="code-string">'price >'</span>: <span class="code-string">100</span>,
+    qty: <span class="code-string">10</span>
+  }
+});
+                    </div>
+                    <div class="sql-result">
+                        <strong>SQL:</strong> <code>SELECT * FROM product WHERE price > 100 AND qty = 10 AND is_deleted = 0</code>
+                    </div>
+                    
+                    <h4 style="margin-top: 20px;">3️⃣ With ORDER BY and LIMIT</h4>
+                    <div class="code-block">
+<span class="code-keyword">const</span> products = <span class="code-keyword">await</span> dbHelper.<span class="code-function">getAll</span>({
+  table: <span class="code-string">'product'</span>,
+  orderBy: [{ key: <span class="code-string">'price'</span>, value: <span class="code-string">'DESC'</span> }],
+  limit: <span class="code-string">10</span>,
+  offset: <span class="code-string">0</span>
+});
+                    </div>
+                    <div class="sql-result">
+                        <strong>SQL:</strong> <code>SELECT * FROM product WHERE is_deleted = 0 ORDER BY price DESC LIMIT 10 OFFSET 0</code>
+                    </div>
+                    
+                    <h4 style="margin-top: 20px;">4️⃣ With WHERE IN</h4>
+                    <div class="code-block">
+<span class="code-keyword">const</span> products = <span class="code-keyword">await</span> dbHelper.<span class="code-function">getAll</span>({
+  table: <span class="code-string">'product'</span>,
+  whereIn: { 
+    product_id: [<span class="code-string">1</span>, <span class="code-string">2</span>, <span class="code-string">4</span>] 
+  }
+});
+                    </div>
+                    <div class="sql-result">
+                        <strong>SQL:</strong> <code>SELECT * FROM product WHERE product_id IN (1, 2, 4) AND is_deleted = 0</code>
+                    </div>
+                    
+                    <h4 style="margin-top: 20px;">5️⃣ Search with LIKE (OR)</h4>
+                    <div class="code-block">
+<span class="code-keyword">const</span> products = <span class="code-keyword">await</span> dbHelper.<span class="code-function">getAll</span>({
+  table: <span class="code-string">'product'</span>,
+  orLike: [
+    { key: <span class="code-string">'name'</span>, value: <span class="code-string">'lap'</span> },
+    { key: <span class="code-string">'description'</span>, value: <span class="code-string">'lap'</span> }
+  ]
+});
+                    </div>
+                    <div class="sql-result">
+                        <strong>SQL:</strong> <code>SELECT * FROM product WHERE (name LIKE '%lap%' OR description LIKE '%lap%') AND is_deleted = 0</code>
+                    </div>
+                    
+                    <div class="success-box">
+                        <strong>✅ Result:</strong> Returns array of products, automatically excluding any with is_deleted = 1
+                    </div>
+                </div>
+            </div>
+
+            <!-- getOne Section -->
+            <div id="getOne" class="section">
+                <div class="method-card">
+                    <h2 class="method-title">
+                        🎯 getOne() 
+                        <span class="badge">Single Record</span>
+                    </h2>
+                    
+                    <p><strong>Purpose:</strong> Get a single record, automatically excluding soft-deleted records.</p>
+                    
+                    <h3 style="margin-top: 20px;">💻 Basic Example:</h3>
+                    <div class="code-block">
+<span class="code-comment">// Get product by ID</span>
+<span class="code-keyword">const</span> product = <span class="code-keyword">await</span> dbHelper.<span class="code-function">getOne</span>({
+  table: <span class="code-string">'product'</span>,
+  where: { product_id: <span class="code-string">1</span> }
+});
+
+<span class="code-comment">// Result: { product_id: 1, name: 'Laptop', price: 999.99, ... }</span>
+<span class="code-comment">// OR null if not found</span>
+                    </div>
+                    
+                    <div class="sql-result">
+                        <strong>Generated SQL:</strong><br>
+                        <code>SELECT * FROM product WHERE product_id = 1 AND is_deleted = 0 LIMIT 1</code>
+                    </div>
+                    
+                    <h3 style="margin-top: 30px;">🔄 Visual Comparison:</h3>
+                    <div class="comparison">
+                        <div class="comparison-item before">
+                            <h4>❌ If product_id = 3 (deleted)</h4>
+                            <div class="code-block" style="margin-top: 10px;">
+<span class="code-keyword">const</span> product = <span class="code-keyword">await</span> getOne({
+  table: <span class="code-string">'product'</span>,
+  where: { product_id: <span class="code-string">3</span> }
+});
+<span class="code-comment">// Result: null</span>
+                            </div>
+                        </div>
+                        <div class="comparison-item after">
+                            <h4>✅ If product_id = 1 (active)</h4>
+                            <div class="code-block" style="margin-top: 10px;">
+<span class="code-keyword">const</span> product = <span class="code-keyword">await</span> getOne({
+  table: <span class="code-string">'product'</span>,
+  where: { product_id: <span class="code-string">1</span> }
+});
+<span class="code-comment">// Result: { product_id: 1, ... }</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="info-box">
+                        <strong>💡 Key Points:</strong>
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li>Returns <strong>single object</strong> or <strong>null</strong></li>
+                            <li>Automatically adds <span class="highlight">is_deleted = 0</span></li>
+                            <li>Returns <strong>false</strong> on database error</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- getAllWithDeleted Section -->
+            <div id="getAllDeleted" class="section">
+                <div class="method-card">
+                    <h2 class="method-title">
+                        🗑️ getAllWithDeleted() 
+                        <span class="badge">Includes Deleted</span>
+                    </h2>
+                    
+                    <p><strong>Purpose:</strong> Get all records including soft-deleted ones.</p>
+                    
+                    <h3 style="margin-top: 20px;">🔍 Difference from getAll():</h3>
+                    <div class="comparison">
+                        <div class="comparison-item before">
+                            <h4>getAll()</h4>
+                            <p>WHERE is_deleted = 0</p>
+                            <p><strong>Returns:</strong> Active records only</p>
+                        </div>
+                        <div class="comparison-item after">
+                            <h4>getAllWithDeleted()</h4>
+                            <p>No is_deleted filter</p>
+                            <p><strong>Returns:</strong> All records</p>
+                        </div>
+                    </div>
+                    
+                    <h3 style="margin-top: 30px;">💻 Examples:</h3>
+                    
+                    <h4>1️⃣ Get All Records (Including Deleted)</h4>
+                    <div class="code-block">
+<span class="code-keyword">const</span> allProducts = <span class="code-keyword">await</span> dbHelper.<span class="code-function">getAllWithDeleted</span>({
+  table: <span class="code-string">'product'</span>
+});
+<span class="code-comment">// Returns: All 4 products including product_id = 3 (deleted)</span>
+                    </div>
+                    
+                    <h4 style="margin-top: 20px;">2️⃣ Get Only Deleted Records</h4>
+                    <div class="code-block">
+<span class="code-keyword">const</span> deletedProducts = <span class="code-keyword">await</span> dbHelper.<span class="code-function">getAllWithDeleted</span>({
+  table: <span class="code-string">'product'</span>,
+  where: { is_deleted: <span class="code-string">1</span> }
+});
+<span class="code-comment">// Returns: Only soft-deleted products</span>
+                    </div>
+                    
+                    <div class="sql-result">
+                        <strong>SQL:</strong> <code>SELECT * FROM product WHERE is_deleted = 1</code>
+                    </div>
+                    
+                    <h4 style="margin-top: 20px;">3️⃣ Get Specific Product (Even if Deleted)</h4>
+                    <div class="code-block">
+<span class="code-keyword">const</span> product = <span class="code-keyword">await</span> dbHelper.<span class="code-function">getOneWithDeleted</span>({
+  table: <span class="code-string">'product'</span>,
+  where: { product_id: <span class="code-string">3</span> }
+});
+<span class="code-comment">// Returns: { product_id: 3, name: 'Keyboard', is_deleted: 1, ... }</span>
+                    </div>
+                    
+                    <div class="warning-box">
+                        <strong>⚠️ Use Case:</strong> Admin panels, data recovery, audit trails
+                    </div>
+                </div>
+            </div>
+
+            <!-- Create Section -->
+            <div id="create" class="section">
+                <div class="method-card">
+                    <h2 class="method-title">
+                        ➕ createOne() & createMany()
+                        <span class="badge">INSERT</span>
+                    </h2>
+                    
+                    <h3>📝 createOne() - Insert Single Record</h3>
+                    <div class="code-block">
+<span class="code-keyword">const</span> result = <span class="code-keyword">await</span> dbHelper.<span class="code-function">createOne</span>(<span class="code-string">'product'</span>, {
+  name: <span class="code-string">'Webcam'</span>,
+  price: <span class="code-string">89.99</span>,
+  qty: <span class="code-string">20</span>,
+  is_deleted: <span class="code-string">0</span>
+});
+
+<span class="code-comment">// Result: { success: true, insertId: 5, affectedRows: 1 }</span>
+                    </div>
+                    
+                    <div class="sql-result">
+                        <strong>SQL:</strong><br>
+                        <code>INSERT INTO product (name, price, qty, is_deleted) VALUES ('Webcam', 89.99, 20, 0)</code>
+                    </div>
+                    
+                    <h3 style="margin-top: 30px;">📦 createMany() - Bulk Insert</h3>
+                    <div class="code-block">
+<span class="code-keyword">const</span> result = <span class="code-keyword">await</span> dbHelper.<span class="code-function">createMany</span>(<span class="code-string">'product'</span>, [
+  { name: <span class="code-string">'Headphones'</span>, price: <span class="code-string">49.99</span>, qty: <span class="code-string">30</span>, is_deleted: <span class="code-string">0</span> },
+  { name: <span class="code-string">'Speaker'</span>, price: <span class="code-string">129.99</span>, qty: <span class="code-string">15</span>, is_deleted: <span class="code-string">0</span> },
+  { name: <span class="code-string">'Microphone'</span>, price: <span class="code-string">79.99</span>, qty: <span class="code-string">25</span>, is_deleted: <span class="code-string">0</span> }
+]);
+
+<span class="code-comment">// Result: { success: true, insertId: 6, affectedRows: 3 }</span>
+                    </div>
+                    
+                    <div class="sql-result">
+                        <strong>SQL:</strong><br>
+                        <code>INSERT INTO product (name, price, qty, is_deleted) VALUES ('Headphones', 49.99, 30, 0), ('Speaker', 129.99, 15, 0), ('Microphone', 79.99, 25, 0)</code>
+                    </div>
+                    
+                    <div class="diagram">
+                        <h4 style="margin-bottom: 15px;">🔄 Insert Flow:</h4>
+                        <div class="flow-step">Prepare data object(s)</div>
+                        <div class="flow-step">Call createOne() or createMany()</div>
+                        <div class="flow-step">Helper builds INSERT query</div>
+                        <div class="flow-step">Execute query with parameterized values</div>
+                        <div class="flow-step">Return insertId and affectedRows</div>
+                    </div>
+                    
+                    <div class="success-box">
+                        <strong>✅ Benefits:</strong>
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li><strong>createMany()</strong> is faster than multiple createOne() calls</li>
+                            <li>All inserts happen in single query</li>
+                            <li>Automatic SQL injection prevention</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Update Section -->
+            <div id="update" class="section">
+                <div class="method-card">
+                    <h2 class="method-title">
+                        ✏️ updateOne() & updateMany()
+                        <span class="badge">Only Non-Deleted</span>
+                    </h2>
+                    
+                    <h3>🎯 updateOne() - Update Single Record</h3>
+                    <div class="code-block">
+<span class="code-keyword">const</span> result = <span class="code-keyword">await</span> dbHelper.<span class="code-function">updateOne</span>(
+  <span class="code-string">'product'</span>,                    <span class="code-comment">// table</span>
+  { price: <span class="code-string">899.99</span>, qty: <span class="code-string">8</span> },  <span class="code-comment">// data to update</span>
+  { product_id: <span class="code-string">1</span> }              <span class="code-comment">// where condition</span>
+);
+
+<span class="code-comment">// Result: { success: true, affectedRows: 1, changedRows: 1 }</span>
+                    </div>
+                    
+                    <div class="sql-result">
+                        <strong>SQL:</strong><br>
+                        <code>UPDATE product SET price = 899.99, qty = 8 WHERE product_id = 1 AND is_deleted = 0</code>
+                    </div>
+                    
+                    <div class="warning-box">
+                        <strong>⚠️ Important:</strong> Only updates if <span class="highlight">is_deleted = 0</span>
+                    </div>
+                    
+                    <h4 style="margin-top: 20px;">❌ What Happens with Deleted Records?</h4>
+                    <div class="code-block">
+<span class="code-comment">// Try to update product_id = 3 (which is deleted)</span>
+<span class="code-keyword">const</span> result = <span class="code-keyword">await</span> dbHelper.<span class="code-function">updateOne</span>(
+  <span class="code-string">'product'</span>,
+  { price: <span class="code-string">199.99</span> },
+  { product_id: <span class="code-string">3</span> }  <span class="code-comment">// This is deleted!</span>
+);
+
+<span class="code-comment">// Result: { success: false, affectedRows: 0, changedRows: 0 }</span>
+<span class="code-comment">// Because: WHERE product_id = 3 AND is_deleted = 0 (no match!)</span>
+                    </div>
+                    
+                    <h3 style="margin-top: 30px;">📦 updateMany() - Bulk Update with Different Values</h3>
+                    <div class="code-block">
+<span class="code-keyword">const</span> result = <span class="code-keyword">await</span> dbHelper.<span class="code-function">updateMany</span>(
+  <span class="code-string">'product'</span>,
+  [
+    { product_id: <span class="code-string">1</span>, price: <span class="code-string">949.99</span>, qty: <span class="code-string">12</span> },
+    { product_id: <span class="code-string">2</span>, price: <span class="code-string">34.99</span>, qty: <span class="code-string">60</span> },
+    { product_id: <span class="code-string">4</span>, price: <span class="code-string">279.99</span>, qty: <span class="code-string">18</span> }
+  ],
+  <span class="code-string">'product_id'</span>  <span class="code-comment">// whereKey</span>
+);
+
+<span class="code-comment">// Result: { success: true, affectedRows: 3, changedRows: 3 }</span>
+                    </div>
+                    
+                    <div class="sql-result">
+                        <strong>SQL (Generated using CASE):</strong><br>
+                        <code>UPDATE product SET 
+  price = CASE 
+    WHEN product_id = 1 THEN 949.99
+    WHEN product_id = 2 THEN 34.99
+    WHEN product_id = 4 THEN 279.99
+    ELSE price END,
+  qty = CASE 
+    WHEN product_id = 1 THEN 12
+    WHEN product_id = 2 THEN 60
+    WHEN product_id = 4 THEN 18
+    ELSE qty END
+WHERE product_id IN (1, 2, 4) AND is_deleted = 0</code>
+                    </div>
+                    
+                    <div class="diagram">
+                        <h4 style="margin-bottom: 15px;">🔄 updateMany() Flow:</h4>
+                        <div class="flow-step">Receive array of objects with different values</div>
+                        <div class="flow-step">Build CASE statements for each column</div>
+                        <div class="flow-step">Add WHERE IN for all IDs + is_deleted = 0</div>
+                        <div class="flow-step">Execute single UPDATE query</div>
+                        <div class="flow-step">Return affected rows count</div>
+                    </div>
+                    
+                    <div class="success-box">
+                        <strong>✅ Why updateMany() is Better:</strong>
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li>Single query instead of multiple UPDATE calls</li>
+                            <li>Much faster for bulk operations</li>
+                            <li>Reduces database round trips</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Delete Section -->
+            <div id="delete" class="section">
+                <div class="method-card">
+                    <h2 class="method-title">
+                        🗑️ deleteOne() & deleteMany()
+                        <span class="badge">Hard Delete</span>
+                    </h2>
+                    
+                    <div class="warning-box">
+                        <strong>⚠️ WARNING:</strong> These methods <strong>permanently delete</strong> records from the database. Use with caution!
+                    </div>
+                    
+                    <h3 style="margin-top: 20px;">💥 deleteOne() - Permanent Delete</h3>
+                    <div class="code-block">
+<span class="code-keyword">const</span> result = <span class="code-keyword">await</span> dbHelper.<span class="code-function">deleteOne</span>(
+  <span class="code-string">'product'</span>,
+  { product_id: <span class="code-string">1</span> }
+);
+
+<span class="code-comment">// Result: { success: true, affectedRows: 1 }</span>
+<span class="code-comment">// Product is GONE from database!</span>
+                    </div>
+                    
+                    <div class="sql-result">
+                        <strong>SQL:</strong><br>
+                        <code>DELETE FROM product WHERE product_id = 1 LIMIT 1</code>
+                    </div>
+                    
+                    <h3 style="margin-top: 30px;">📦 deleteMany() - Bulk Delete</h3>
+                    <div class="code-block">
+<span class="code-keyword">const</span> result = <span class="code-keyword">await</span> dbHelper.<span class="code-function">deleteMany</span>(
+  <span class="code-string">'product'</span>,
+  { <span class="code-string">'qty <'</span>: <span class="code-string">5</span> }  <span class="code-comment">// Delete all products with qty < 5</span>
+);
+
+<span class="code-comment">// Result: { success: true, affectedRows: 2 }</span>
+                    </div>
+                    
+                    <div class="sql-result">
+                        <strong>SQL:</strong><br>
+                        <code>DELETE FROM product WHERE qty < 5</code>
+                    </div>
+                    
+                    <div class="comparison">
+                        <div class="comparison-item before">
+                            <h4>❌ Hard Delete (deleteOne/deleteMany)</h4>
+                            <ul style="margin-left: 20px; margin-top: 10px;">
+                                <li>Permanently removes data</li>
+                                <li>Cannot be recovered</li>
+                                <li>Breaks foreign key relationships</li>
+                                <li>No audit trail</li>
+                            </ul>
+                        </div>
+                        <div class="comparison-item after">
+                            <h4>✅ Soft Delete (softDeleteOne/softDeleteMany)</h4>
+                            <ul style="margin-left: 20px; margin-top: 10px;">
+                                <li>Just sets is_deleted = 1</li>
+                                <li>Can be restored</li>
+                                <li>Maintains relationships</li>
+                                <li>Keeps audit trail</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="info-box">
+                        <strong>💡 Best Practice:</strong> Use soft delete (softDeleteOne/softDeleteMany) instead of hard delete in most cases.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Soft Delete Section -->
+            <div id="softDelete" class="section">
+                <div class="method-card">
+                    <h2 class="method-title">
+                        🛡️ softDeleteOne() & softDeleteMany()
+                        <span class="badge">Recommended</span>
+                    </h2>
+                    
+                    <p><strong>Purpose:</strong> Mark records as deleted without removing them from the database.</p>
+                    
+                    <h3 style="margin-top: 20px;">✨ softDeleteOne()</h3>
+                    <div class="code-block">
+<span class="code-keyword">const</span> result = <span class="code-keyword">await</span> dbHelper.<span class="code-function">softDeleteOne</span>(
+  <span class="code-string">'product'</span>,
+  { product_id: <span class="code-string">2</span> }
+);
+
+<span class="code-comment">// Result: { success: true, affectedRows: 1, changedRows: 1 }</span>
+                    </div>
+                    
+                    <div class="sql-result">
+                        <strong>SQL:</strong><br>
+                        <code>UPDATE product SET is_deleted = 1 WHERE product_id = 2 AND is_deleted = 0</code>
+                    </div>
+                    
+                    <h3 style="margin-top: 30px;">📊 Before & After Soft Delete:</h3>
+                    
+                    <h4>Before:</h4>
+                    <table class="table-visual">
+                        <thead>
+                            <tr>
+                                <th>product_id</th>
+                                <th>name</th>
+                                <th>is_deleted</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>2</td>
+                                <td>Mouse</td>
+                                <td>0</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <h4>After softDeleteOne('product', { product_id: 2 }):</h4>
+                    <table class="table-visual">
+                        <thead>
+                            <tr>
+                                <th>product_id</th>
+                                <th>name</th>
+                                <th>is_deleted</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="deleted-row">
+                                <td>2</td>
+                                <td>Mouse</td>
+                                <td>1</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <h3 style="margin-top: 30px;">📦 softDeleteMany()</h3>
+                    <div class="code-block">
+<span class="code-keyword">const</span> result = <span class="code-keyword">await</span> dbHelper.<span class="code-function">softDeleteMany</span>(
+  <span class="code-string">'product'</span>,
+  { <span class="code-string">'qty <='</span>: <span class="code-string">0</span> }  <span class="code-comment">// Soft delete out-of-stock products</span>
+);
+                    </div>
+                    
+                    <div class="sql-result">
+                        <strong>SQL:</strong><br>
+                        <code>UPDATE product SET is_deleted = 1 WHERE qty <= 0 AND is_deleted = 0</code>
+                    </div>
+                    
+                    <h3 style="margin-top: 30px;">🔄 Complete Soft Delete Lifecycle:</h3>
+                    <div class="diagram">
+                        <div class="flow-step">Active Record (is_deleted = 0)</div>
+                        <div class="flow-step">softDeleteOne() → Sets is_deleted = 1</div>
+                        <div class="flow-step">Hidden from getAll() queries</div>
+                        <div class="flow-step">Still visible in getAllWithDeleted()</div>
+                        <div class="flow-step">Can be restored using rawQuery</div>
+                    </div>
+                    
+                    <h3 style="margin-top: 30px;">♻️ Restoring Deleted Records:</h3>
+                    <div class="code-block">
+<span class="code-comment">// Method 1: Using rawQuery</span>
+<span class="code-keyword">await</span> dbHelper.<span class="code-function">rawQuery</span>(
+  <span class="code-string">'UPDATE product SET is_deleted = 0 WHERE product_id = ?'</span>,
+  [<span class="code-string">2</span>]
+);
+
+<span class="code-comment">// Method 2: Create a restore service function</span>
+<span class="code-keyword">async</span> <span class="code-function">restore</span>(id) {
+  <span class="code-keyword">const</span> result = <span class="code-keyword">await</span> dbHelper.<span class="code-function">rawQuery</span>(
+    <span class="code-string">'UPDATE product SET is_deleted = 0 WHERE product_id = ?'</span>,
+    [id]
+  );
+  <span class="code-keyword">return</span> result;
+}
+                    </div>
+                    
+                    <div class="success-box">
+                        <strong>✅ Soft Delete Benefits:</strong>
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li>Data is recoverable</li>
+                            <li>Maintains data integrity</li>
+                            <li>Audit trail preserved</li>
+                            <li>Safer than hard delete</li>
+                            <li>Can analyze deleted data later</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Advanced Section -->
+            <div id="advanced" class="section">
+                <div class="method-card">
+                    <h2 class="method-title">🚀 Advanced Features</h2>
+                    
+                    <h3>1️⃣ JOINs</h3>
+                    <div class="code-block">
+<span class="code-keyword">const</span> orders = <span class="code-keyword">await</span> dbHelper.<span class="code-function">getAll</span>({
+  table: <span class="code-string">'orders'</span>,
+  selectColumns: [
+    <span class="code-string">'orders.*'</span>,
+    <span class="code-string">'customers.name as customer_name'</span>,
+    <span class="code-string">'products.name as product_name'</span>
+  ],
+  joinArray: [
+    {
+      join_type: <span class="code-string">'LEFT'</span>,
+      table: <span class="code-string">'customers'</span>,
+      condition: <span class="code-string">'orders.customer_id = customers.customer_id'</span>
+    },
+    {
+      join_type: <span class="code-string">'INNER'</span>,
+      table: <span class="code-string">'products'</span>,
+      condition: <span class="code-string">'orders.product_id = products.product_id'</span>
+    }
+  ]
+});
+                    </div>
+                    
+                    <div class="sql-result">
+                        <strong>SQL:</strong><br>
+                        <code>SELECT orders.*, customers.name as customer_name, products.name as product_name 
+FROM orders 
+LEFT JOIN customers ON orders.customer_id = customers.customer_id 
+INNER JOIN products ON orders.product_id = products.product_id 
+WHERE orders.is_deleted = 0</code>
+                    </div>
+                    
+                    <h3 style="margin-top: 30px;">2️⃣ GROUP BY & HAVING</h3>
+                    <div class="code-block">
+<span class="code-keyword">const</span> summary = <span class="code-keyword">await</span> dbHelper.<span class="code-function">getAll</span>({
+  table: <span class="code-string">'orders'</span>,
+  selectColumns: [
+    <span class="code-string">'customer_id'</span>,
+    <span class="code-string">'COUNT(*) as order_count'</span>,
+    <span class="code-string">'SUM(total) as total_spent'</span>
+  ],
+  groupBy: [<span class="code-string">'customer_id'</span>],
+  having: <span class="code-string">'order_count > 5'</span>
+});
+                    </div>
+                    
+                    <div class="sql-result">
+                        <strong>SQL:</strong><br>
+                        <code>SELECT customer_id, COUNT(*) as order_count, SUM(total) as total_spent 
+FROM orders 
+WHERE is_deleted = 0 
+GROUP BY customer_id 
+HAVING order_count > 5</code>
+                    </div>
+                    
+                    <h3 style="margin-top: 30px;">3️⃣ Transactions</h3>
+                    <div class="code-block">
+<span class="code-comment">// Start transaction</span>
+<span class="code-keyword">const</span> connection = <span class="code-keyword">await</span> dbHelper.<span class="code-function">beginTransaction</span>();
+
+<span class="code-keyword">try</span> {
+  <span class="code-comment">// Multiple operations</span>
+  <span class="code-keyword">await</span> connection.<span class="code-function">query</span>(<span class="code-string">'UPDATE accounts SET balance = balance - 100 WHERE id = 1'</span>);
+  <span class="code-keyword">await</span> connection.<span class="code-function">query</span>(<span class="code-string">'UPDATE accounts SET balance = balance + 100 WHERE id = 2'</span>);
+  
+  <span class="code-comment">// Commit if all successful</span>
+  <span class="code-keyword">await</span> dbHelper.<span class="code-function">commitTransaction</span>(connection);
+} <span class="code-keyword">catch</span> (error) {
+  <span class="code-comment">// Rollback on error</span>
+  <span class="code-keyword">await</span> dbHelper.<span class="code-function">rollbackTransaction</span>(connection);
+}
+                    </div>
+                    
+                    <h3 style="margin-top: 30px;">4️⃣ Raw Query (When You Need Custom SQL)</h3>
+                    <div class="code-block">
+<span class="code-comment">// Complex query not supported by helper</span>
+<span class="code-keyword">const</span> result = <span class="code-keyword">await</span> dbHelper.<span class="code-function">rawQuery</span>(
+  <span class="code-string">`SELECT p.*, 
+    (SELECT COUNT(*) FROM orders WHERE product_id = p.product_id) as order_count
+   FROM products p
+   WHERE p.is_deleted = 0`</span>
+);
+                    </div>
+                    
+                    <h3 style="margin-top: 30px;">5️⃣ Complex WHERE with Multiple Conditions</h3>
+                    <div class="code-block">
+<span class="code-keyword">const</span> products = <span class="code-keyword">await</span> dbHelper.<span class="code-function">getAll</span>({
+  table: <span class="code-string">'product'</span>,
+  where: {
+    <span class="code-string">'price >='</span>: <span class="code-string">50</span>,
+    <span class="code-string">'price <='</span>: <span class="code-string">500</span>
+  },
+  orWhere: [
+    { key: <span class="code-string">'category'</span>, value: <span class="code-string">'Electronics'</span> },
+    { key: <span class="code-string">'category'</span>, value: <span class="code-string">'Computers'</span> }
+  ],
+  whereIn: {
+    brand: [<span class="code-string">'Sony'</span>, <span class="code-string">'Samsung'</span>, <span class="code-string">'LG'</span>]
+  },
+  whereNotIn: {
+    status: [<span class="code-string">'discontinued'</span>, <span class="code-string">'recalled'</span>]
+  },
+  orLike: [
+    { key: <span class="code-string">'name'</span>, value: <span class="code-string">'pro'</span> },
+    { key: <span class="code-string">'description'</span>, value: <span class="code-string">'pro'</span> }
+  ]
+});
+                    </div>
+                    
+                    <div class="sql-result">
+                        <strong>SQL:</strong><br>
+                        <code>SELECT * FROM product 
+WHERE price >= 50 
+  AND price <= 500 
+  AND (category = 'Electronics' OR category = 'Computers') 
+  AND brand IN ('Sony', 'Samsung', 'LG') 
+  AND status NOT IN ('discontinued', 'recalled') 
+  AND (name LIKE '%pro%' OR description LIKE '%pro%')
+  AND is_deleted = 0</code>
+                    </div>
+                    
+                    <div class="info-box">
+                        <strong>💡 Key Takeaway:</strong> The helper automatically combines all conditions with AND, and adds is_deleted = 0 at the end!
+                    </div>
+                </div>
+
+                <div class="method-card">
+                    <h2 class="method-title">🎓 Quick Reference Cheat Sheet</h2>
+                    
+                    <table class="table-visual">
+                        <thead>
+                            <tr>
+                                <th>Method</th>
+                                <th>Purpose</th>
+                                <th>Includes Deleted?</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>getAll()</strong></td>
+                                <td>Get all records</td>
+                                <td>❌ No</td>
+                            </tr>
+                            <tr>
+                                <td><strong>getOne()</strong></td>
+                                <td>Get single record</td>
+                                <td>❌ No</td>
+                            </tr>
+                            <tr>
+                                <td><strong>getAllWithDeleted()</strong></td>
+                                <td>Get all including deleted</td>
+                                <td>✅ Yes</td>
+                            </tr>
+                            <tr>
+                                <td><strong>getOneWithDeleted()</strong></td>
+                                <td>Get one including deleted</td>
+                                <td>✅ Yes</td>
+                            </tr>
+                            <tr>
+                                <td><strong>createOne()</strong></td>
+                                <td>Insert single record</td>
+                                <td>N/A</td>
+                            </tr>
+                            <tr>
+                                <td><strong>createMany()</strong></td>
+                                <td>Bulk insert</td>
+                                <td>N/A</td>
+                            </tr>
+                            <tr>
+                                <td><strong>updateOne()</strong></td>
+                                <td>Update single record</td>
+                                <td>❌ No</td>
+                            </tr>
+                            <tr>
+                                <td><strong>updateMany()</strong></td>
+                                <td>Bulk update with different values</td>
+                                <td>❌ No</td>
+                            </tr>
+                            <tr>
+                                <td><strong>softDeleteOne()</strong></td>
+                                <td>Soft delete single record</td>
+                                <td>❌ Only deletes active</td>
+                            </tr>
+                            <tr>
+                                <td><strong>softDeleteMany()</strong></td>
+                                <td>Soft delete multiple</td>
+                                <td>❌ Only deletes active</td>
+                            </tr>
+                            <tr>
+                                <td><strong>deleteOne()</strong></td>
+                                <td>Hard delete single (permanent)</td>
+                                <td>✅ Yes</td>
+                            </tr>
+                            <tr>
+                                <td><strong>deleteMany()</strong></td>
+                                <td>Hard delete multiple (permanent)</td>
+                                <td>✅ Yes</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Remove active class from all buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Add active class to clicked button
+            event.target.classList.add('active');
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
