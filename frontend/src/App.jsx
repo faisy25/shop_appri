@@ -3,11 +3,16 @@ import Layout from './components/layout/Layout';
 import { routeConfig } from './routes/routesConfig.routes';
 
 function renderRoutes(config) {
-  return config.map((route) => (
-    <Route key={route.path} path={route.path} element={route.element}>
-      {route.children && renderRoutes(route.children)}
-    </Route>
-  ));
+  return config.map((route) => {
+    if (route.index) {
+      return <Route key={route.path || 'index'} index element={route.element} />;
+    }
+    return (
+      <Route key={route.path} path={route.path} element={route.element}>
+        {route.children && renderRoutes(route.children)}
+      </Route>
+    );
+  });
 }
 
 function App({ mode, setMode }) {

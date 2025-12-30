@@ -27,6 +27,15 @@ const getDesignTokens = (mode) => ({
     h2: { fontWeight: 600, fontSize: '2rem' },
     h3: { fontWeight: 600, fontSize: '1.5rem' },
     body1: { fontSize: '1rem', lineHeight: 1.6 },
+
+    // Sidebar typography
+    sidebar: {
+      menuItem: { fontSize: '0.875rem', fontWeight: 400, lineHeight: 1.5 },
+      menuItemActive: { fontSize: '0.875rem', fontWeight: 600, lineHeight: 1.5 },
+      groupHeader: { fontSize: '0.875rem', fontWeight: 500, lineHeight: 1.5 },
+      subMenuItem: { fontSize: '0.8125rem', fontWeight: 400, lineHeight: 1.5 },
+      subMenuItemActive: { fontSize: '0.8125rem', fontWeight: 600, lineHeight: 1.5 },
+    },
   },
   spacing: 8, // Base spacing unit (e.g., 8px)
   breakpoints: {
@@ -50,5 +59,14 @@ const getDesignTokens = (mode) => ({
     },
   },
 });
+
+// Sidebar typography configuration
+export const sidebarTypography = {
+  menuItem: { fontSize: '0.875rem', fontWeight: 400, lineHeight: 1.5 },
+  menuItemActive: { fontSize: '0.875rem', fontWeight: 600, lineHeight: 1.5 },
+  groupHeader: { fontSize: '0.875rem', fontWeight: 500, lineHeight: 1.5 },
+  subMenuItem: { fontSize: '0.8125rem', fontWeight: 400, lineHeight: 1.5 },
+  subMenuItemActive: { fontSize: '0.8125rem', fontWeight: 600, lineHeight: 1.5 },
+};
 
 export const createAppTheme = (mode) => responsiveFontSizes(createTheme(getDesignTokens(mode)));
