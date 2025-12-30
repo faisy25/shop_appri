@@ -8,8 +8,8 @@ const getDesignTokens = (mode) => ({
     ...(mode === 'light'
       ? {
           // Light mode pastel colors
-          primary: { main: '#A3C4F3' },
-          secondary: { main: '#F6A6B2' },
+          primary: { main: '#0052a3' },
+          secondary: { main: '#962c54' },
           background: { default: '#f3f3f3ff', paper: '#fffff8' },
           text: { primary: '#333', secondary: '#555' },
         }
@@ -27,7 +27,6 @@ const getDesignTokens = (mode) => ({
     h2: { fontWeight: 600, fontSize: '2rem' },
     h3: { fontWeight: 600, fontSize: '1.5rem' },
     body1: { fontSize: '1rem', lineHeight: 1.6 },
-
     // Sidebar typography
     sidebar: {
       menuItem: { fontSize: '0.875rem', fontWeight: 400, lineHeight: 1.5 },

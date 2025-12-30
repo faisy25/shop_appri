@@ -10,16 +10,8 @@ import {
   Divider,
   useTheme,
   IconButton,
-  Toolbar,
 } from '@mui/material';
-import {
-  ExpandLess,
-  ExpandMore,
-  Security,
-  ChevronLeft,
-  ChevronRight,
-  Close,
-} from '@mui/icons-material';
+import { ExpandLess, ExpandMore, Security, Close } from '@mui/icons-material';
 import { useState, useMemo } from 'react';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
 import { routeConfig, menuGroups } from '../../routes/routesConfig.routes';
