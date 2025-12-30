@@ -1,5 +1,5 @@
-import { asyncHandler } from '../../middleware/async.middlleware.js';
-import { success } from '../../util/responses.js';
+import { asyncHandler } from '../../../middleware/async.middlleware.js';
+import { success } from '../../../util/responses.js';
 import { permissionService } from './permission.service.js';
 
 const getPermissions = asyncHandler(async (req, res) => {

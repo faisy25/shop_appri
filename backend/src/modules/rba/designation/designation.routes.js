@@ -9,7 +9,7 @@ import {
   updateDesignation,
   getDesignationsWithDeleted,
 } from './designation.controller.js';
-import { validate } from '../../middleware/validate.middleware.js';
+import { validate } from '../../../middleware/validate.middleware.js';
 import { createDesignationSchema, editDesignationSchema } from './designation.validation.js';
 
 const router = Router();
@@ -28,7 +28,7 @@ router.delete('/:id', deleteDesignation);
 export default router;
 
 // For redoc documentation
-import { makeGet, makePost, makePut, makeDelete } from '../../config/docs/method.swagger.js';
+import { makeGet, makePost, makePut, makeDelete } from '../../../config/docs/method.swagger.js';
 import {
   designationSchemaSwagger,
   createDesignationSchemaSwagger,

@@ -9,7 +9,7 @@ import {
   updatePermission,
   getPermissionsWithDeleted,
 } from './permission.controller.js';
-import { validate } from '../../middleware/validate.middleware.js';
+import { validate } from '../../../middleware/validate.middleware.js';
 import { createPermissionSchema, editPermissionSchema } from './permission.validation.js';
 
 const router = Router();
@@ -28,7 +28,7 @@ router.delete('/:id', deletePermission);
 export default router;
 
 // For redoc documentation
-import { makeGet, makePost, makePut, makeDelete } from '../../config/docs/method.swagger.js';
+import { makeGet, makePost, makePut, makeDelete } from '../../../config/docs/method.swagger.js';
 import {
   permissionSchemaSwagger,
   createPermissionSchemaSwagger,

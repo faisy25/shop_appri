@@ -1,5 +1,5 @@
-import { asyncHandler } from '../../middleware/async.middlleware.js';
-import { success } from '../../util/responses.js';
+import { asyncHandler } from '../../../middleware/async.middlleware.js';
+import { success } from '../../../util/responses.js';
 import { organizationService } from './organization.service.js';
 
 const getOrganizations = asyncHandler(async (req, res) => {

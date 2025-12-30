@@ -1,6 +1,6 @@
 import Joi from 'joi';
 import j2s from 'joi-to-swagger';
-import { auditSchema } from '../../config/docs/auditResponses.swagger.js';
+import { auditSchema } from '../../../config/docs/auditResponses.swagger.js';
 
 export const baseOrganizationSchema = Joi.object({
   organization_id: Joi.number().integer(),

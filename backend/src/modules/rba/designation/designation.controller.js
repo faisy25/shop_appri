@@ -1,5 +1,5 @@
-import { asyncHandler } from '../../middleware/async.middlleware.js';
-import { success } from '../../util/responses.js';
+import { asyncHandler } from '../../../middleware/async.middlleware.js';
+import { success } from '../../../util/responses.js';
 import { designationService } from './designation.service.js';
 
 const getDesignations = asyncHandler(async (req, res) => {

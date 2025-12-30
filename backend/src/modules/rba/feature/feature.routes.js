@@ -9,7 +9,7 @@ import {
   updateFeature,
   getFeaturesWithDeleted,
 } from './feature.controller.js';
-import { validate } from '../../middleware/validate.middleware.js';
+import { validate } from '../../../middleware/validate.middleware.js';
 import { createFeatureSchema, editFeatureSchema } from './feature.validation.js';
 
 const router = Router();
@@ -28,7 +28,7 @@ router.delete('/:id', deleteFeature);
 export default router;
 
 // For redoc documentation
-import { makeGet, makePost, makePut, makeDelete } from '../../config/docs/method.swagger.js';
+import { makeGet, makePost, makePut, makeDelete } from '../../../config/docs/method.swagger.js';
 import {
   featureSchemaSwagger,
   createFeatureSchemaSwagger,

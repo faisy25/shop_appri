@@ -1,5 +1,5 @@
-import { asyncHandler } from '../../middleware/async.middlleware.js';
-import { success } from '../../util/responses.js';
+import { asyncHandler } from '../../../middleware/async.middlleware.js';
+import { success } from '../../../util/responses.js';
 import { featureService } from './feature.service.js';
 
 const getFeatures = asyncHandler(async (req, res) => {

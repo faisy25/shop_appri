@@ -1,6 +1,6 @@
-import dbHelper from '../../util/database/dbHelper.js';
-import ApiError from '../../util/error/api.error.js';
-import { ServiceError } from '../../util/error/service.error.js';
+import dbHelper from '../../../util/database/dbHelper.js';
+import ApiError from '../../../util/error/api.error.js';
+import { ServiceError } from '../../../util/error/service.error.js';
 
 export const designationService = {
   async getAll() {

@@ -9,7 +9,7 @@ import {
   updateRole,
   getRolesWithDeleted,
 } from './role.controller.js';
-import { validate } from '../../middleware/validate.middleware.js';
+import { validate } from '../../../middleware/validate.middleware.js';
 import { createRoleSchema, editRoleSchema } from './role.validation.js';
 
 const router = Router();
@@ -28,7 +28,7 @@ router.delete('/:id', deleteRole);
 export default router;
 
 // For redoc documentation
-import { makeGet, makePost, makePut, makeDelete } from '../../config/docs/method.swagger.js';
+import { makeGet, makePost, makePut, makeDelete } from '../../../config/docs/method.swagger.js';
 import {
   roleSchemaSwagger,
   createRoleSchemaSwagger,

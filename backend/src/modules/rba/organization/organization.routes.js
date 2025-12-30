@@ -9,7 +9,7 @@ import {
   updateOrganization,
   getOrganizationsWithDeleted,
 } from './organization.controller.js';
-import { validate } from '../../middleware/validate.middleware.js';
+import { validate } from '../../../middleware/validate.middleware.js';
 import { createOrganizationSchema, editOrganizationSchema } from './organization.validation.js';
 
 const router = Router();
@@ -28,7 +28,7 @@ router.delete('/:id', deleteOrganization);
 export default router;
 
 // For redoc documentation
-import { makeGet, makePost, makePut, makeDelete } from '../../config/docs/method.swagger.js';
+import { makeGet, makePost, makePut, makeDelete } from '../../../config/docs/method.swagger.js';
 import {
   organizationSchemaSwagger,
   createOrganizationSchemaSwagger,
