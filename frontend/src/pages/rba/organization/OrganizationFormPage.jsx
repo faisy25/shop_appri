@@ -1,49 +1,93 @@
-import { Box, TextField, Typography, Button, Paper, MenuItem } from '@mui/material';
+import { Box, TextField, Typography, Button, Paper } from '@mui/material';
 import { useSelector, useDispatch } from 'react-redux';
-import { useEffect, useState } from 'react';
-import { fetchOrganizationById, createOrganization, updateOrganization } from '../../../redux/rba/organization/organizationThunk';
+import { useEffect, useState, useMemo } from 'react';
+import {
+  fetchOrganizations,
+  fetchOrganizationById,
+  createOrganization,
+  updateOrganization,
+} from '../../../redux/rba/organization/organizationThunk';
 import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
-import { clearSelectedOrganization } from '../../../redux/rba/organization/organizationSlice';
+import {
+  clearSelectedOrganization,
+  selectRootOrganizations,
+} from '../../../redux/rba/organization/organizationSlice';
 import { ROUTES } from '../../../routes/routes';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { toast } from 'react-toastify';
 import { CircularProgress } from '@mui/material';
+import CustomSelect from '../../../components/common/CustomSelect';
 
 const OrganizationFormPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { id } = useParams();
 
-  const { organization } = useSelector((state) => state.organizations);
+  const { organization, loading } = useSelector((state) => state.organizations);
+  // ✅ Using memoized selector: Only recalculates when organizations list changes
+  const rootOrganizations = useSelector(selectRootOrganizations);
   const [errMsg, setErrMsg] = useState('');
+
+  // ✅ Component-level memoization: Format transformation (runs only when rootOrganizations or id changes)
+  // This is the optimal pattern:
+  // 1. Redux selector handles filtering (memoized)
+  // 2. Component useMemo handles formatting (component-specific)
+  const organizationOptions = useMemo(() => {
+    // Exclude current organization when editing (prevents self-parent selection)
+    const filtered = id
+      ? rootOrganizations.filter((org) => org.organization_id !== parseInt(id))
+      : rootOrganizations;
+
+    // Format for react-select: { label, value }
+    return filtered.map((org) => ({
+      label: org.name,
+      value: org.organization_id,
+    }));
+  }, [rootOrganizations, id]);
 
   const {
     register,
     handleSubmit,
     reset,
     setFocus,
+    control,
     formState: { errors, isSubmitting },
   } = useForm({
     defaultValues: {
       name: '',
-      type: '',
-      parent_id: '',
+      type: null,
+      parent_id: null,
     },
   });
+
+  // Type options for organization type dropdown
+  const typeOptions = useMemo(
+    () => [
+      { label: 'Internal', value: 'internal' },
+      { label: 'Brand', value: 'brand' },
+      { label: 'Outsourced', value: 'outsourced' },
+    ],
+    [],
+  );
 
   useEffect(() => {
     const firstError = Object.keys(errors)[0];
     if (firstError) setFocus(firstError);
   }, [errors, setFocus]);
 
+  // Fetch all organizations on mount to populate root organizations list
+  useEffect(() => {
+    dispatch(fetchOrganizations());
+  }, [dispatch]);
+
   useEffect(() => {
     if (!id) {
       dispatch(clearSelectedOrganization());
       reset({
         name: '',
-        type: '',
-        parent_id: '',
+        type: null,
+        parent_id: null,
       });
     } else {
       dispatch(fetchOrganizationById(id));
@@ -54,8 +98,9 @@ const OrganizationFormPage = () => {
     if (organization) {
       reset({
         name: organization.name || '',
-        type: organization.type || '',
-        parent_id: organization.parent_id || '',
+        type: organization.type || null,
+        parent_id:
+          organization.parent_id && organization.parent_id !== 0 ? organization.parent_id : null,
       });
     }
   }, [organization, reset]);
@@ -65,12 +110,14 @@ const OrganizationFormPage = () => {
 
     const submitData = {
       ...data,
-      parent_id: data.parent_id ? Number(data.parent_id) : null,
+      parent_id: data.parent_id ? Number(data.parent_id) : 0,
     };
 
     try {
       if (organization) {
-        await dispatch(updateOrganization({ id: organization.organization_id, data: submitData })).unwrap();
+        await dispatch(
+          updateOrganization({ id: organization.organization_id, data: submitData }),
+        ).unwrap();
         toast.success('Organization updated successfully!');
       } else {
         await dispatch(createOrganization(submitData)).unwrap();
@@ -140,36 +187,27 @@ const OrganizationFormPage = () => {
           }}
         />
 
-        <TextField
+        <CustomSelect
+          name="type"
+          control={control}
+          options={typeOptions}
           label="Type"
-          variant="outlined"
-          fullWidth
-          select
-          {...register('type', { required: 'Type is required' })}
-          error={!!errors.type}
+          placeholder="Select organization type..."
+          isMulti={false}
+          isRequired={true}
+          error={errors.type}
           helperText={errors.type?.message}
-          slotProps={{
-            inputLabel: {
-              sx: { fontSize: '0.9rem', color: 'text.secondary' },
-            },
-          }}
-        >
-          <MenuItem value="internal">Internal</MenuItem>
-          <MenuItem value="brand">Brand</MenuItem>
-          <MenuItem value="outsourced">Outsourced</MenuItem>
-        </TextField>
+        />
 
-        <TextField
-          label="Parent ID (Optional)"
-          variant="outlined"
-          fullWidth
-          type="number"
-          {...register('parent_id')}
-          slotProps={{
-            inputLabel: {
-              sx: { fontSize: '0.9rem', color: 'text.secondary' },
-            },
-          }}
+        <CustomSelect
+          name="parent_id"
+          control={control}
+          options={organizationOptions}
+          label="Parent Organization (Optional)"
+          placeholder="Select parent organization..."
+          isMulti={false}
+          isLoading={loading}
+          error={errors.parent_id}
         />
 
         <Button
@@ -200,4 +238,3 @@ const OrganizationFormPage = () => {
 };
 
 export default OrganizationFormPage;
-

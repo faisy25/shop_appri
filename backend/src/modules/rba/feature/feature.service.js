@@ -61,7 +61,7 @@ export const featureService = {
           name: data.name,
           description: data.description,
           fk_id: data.fk_id || 0,
-          parent_id: data.parent_id || null,
+          parent_id: data.parent_id || 0,
           sort_order: data.sort_order || 0,
         },
         connection,

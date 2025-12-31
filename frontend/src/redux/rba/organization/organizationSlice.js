@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, createSelector } from '@reduxjs/toolkit';
 import {
   fetchOrganizations,
   createOrganization,
@@ -89,5 +89,25 @@ const organizationSlice = createSlice({
 });
 
 export const { clearOrganizationError, clearSelectedOrganization } = organizationSlice.actions;
-export default organizationSlice.reducer;
 
+// ========== SELECTORS ==========
+// Base selector: Simple state accessor (no computation, always fast)
+const selectOrganizationsList = (state) => state.organizations.list;
+
+// Memoized selector: Derived data (only recalculates when list changes)
+// Performance: O(n) only when organizations list changes, otherwise returns cached result
+// Benefits:
+// 1. Prevents unnecessary recalculations on every component render
+// 2. Returns same array reference if input unchanged (prevents re-renders)
+// 3. Scales well with large datasets (100+ organizations)
+export const selectRootOrganizations = createSelector(
+  [selectOrganizationsList],
+  (organizations) => {
+    // Filter organizations where parent_id is 0, null, or undefined (root organizations)
+    return organizations.filter(
+      (org) => org.parent_id === 0 || org.parent_id === null || org.parent_id === undefined,
+    );
+  },
+);
+
+export default organizationSlice.reducer;

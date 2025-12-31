@@ -41,7 +41,7 @@ export const organizationService = {
 
     try {
       // Validate parent_id exists if provided
-      if (data.parent_id) {
+      if (data.parent_id !== 0 && data.parent_id !== null) {
         const parent = await dbHelper.getOne({
           table: 'organization',
           where: { organization_id: data.parent_id },
@@ -57,7 +57,7 @@ export const organizationService = {
         {
           name: data.name,
           type: data.type,
-          parent_id: data.parent_id || null,
+          parent_id: data.parent_id || 0,
         },
         connection,
       );
@@ -88,7 +88,7 @@ export const organizationService = {
       await this.getById(id);
 
       // Validate parent_id exists if provided
-      if (data.parent_id) {
+      if (data.parent_id !== 0 && data.parent_id !== null) {
         if (data.parent_id === parseInt(id)) {
           throw new ApiError(400, 'Organization cannot be its own parent');
         }
@@ -102,10 +102,13 @@ export const organizationService = {
         }
       }
 
-      const updateData = {};
-      if (data.name !== undefined) updateData.name = data.name;
-      if (data.type !== undefined) updateData.type = data.type;
-      if (data.parent_id !== undefined) updateData.parent_id = data.parent_id;
+      const updateData = {
+        name: data.name,
+        type: data.type,
+        parent_id: data.parent_id,
+      };
+
+      console.log(updateData);
 
       const result = await dbHelper.updateOne(
         'organization',
@@ -113,6 +116,8 @@ export const organizationService = {
         { organization_id: id },
         connection,
       );
+
+      console.log(result);
 
       if (!result) {
         throw new ApiError(404, 'Organization not found');

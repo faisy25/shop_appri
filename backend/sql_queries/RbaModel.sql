@@ -42,9 +42,7 @@ CREATE TABLE `feature` (
   `updated_by` int(11) DEFAULT NULL,
   `is_deleted` tinyint(4) NOT NULL DEFAULT 0,
   PRIMARY KEY (`feature_id`),
-  UNIQUE KEY `name` (`name`),
-  KEY `parent_id` (`parent_id`),
-  CONSTRAINT `feature_ibfk_1` FOREIGN KEY (`parent_id`) REFERENCES `feature` (`feature_id`) ON DELETE SET NULL
+  UNIQUE KEY `name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
@@ -59,10 +57,8 @@ CREATE TABLE `organization` (
   `created_by` int(11) DEFAULT NULL,
   `updated_by` int(11) DEFAULT NULL,
   `is_deleted` tinyint(4) NOT NULL DEFAULT 0,
-  PRIMARY KEY (`organization_id`),
-  KEY `parent_id` (`parent_id`),
-  CONSTRAINT `organization_ibfk_1` FOREIGN KEY (`parent_id`) REFERENCES `organization` (`organization_id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  PRIMARY KEY (`organization_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
 -- 7. DEPARTMENT TABLE
