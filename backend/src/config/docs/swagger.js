@@ -1,6 +1,12 @@
 import swaggerJsdoc from 'swagger-jsdoc';
 import { productPaths } from '../../modules/product/product.routes.js';
 import { mediaPaths } from '../../modules/media/media.routes.js';
+import { organizationPaths } from '../../modules/rba/organization/organization.routes.js';
+import { departmentPaths } from '../../modules/rba/department/department.routes.js';
+import { designationPaths } from '../../modules/rba/designation/designation.routes.js';
+import { permissionPaths } from '../../modules/rba/permission/permission.routes.js';
+import { rolePaths } from '../../modules/rba/role/role.routes.js';
+import { featurePaths } from '../../modules/rba/feature/feature.routes.js';
 
 const swaggerDefinition = {
   openapi: '3.0.0',
@@ -73,6 +79,12 @@ const swaggerDefinition = {
   paths: {
     ...productPaths,
     ...mediaPaths,
+    ...organizationPaths,
+    ...departmentPaths,
+    ...designationPaths,
+    ...permissionPaths,
+    ...rolePaths,
+    ...featurePaths,
   },
 };
 
