@@ -5,6 +5,7 @@ import {
   VideoLibrary,
   InsertDriveFile,
   Delete,
+  Collections,
 } from '@mui/icons-material';
 import { useState } from 'react';
 import ExistingMediaModal from './ExistingMediaModal';
@@ -54,27 +55,62 @@ const MediaUploader = ({
       <Paper
         elevation={0}
         sx={{
-          p: 2.5,
+          p: 1.5,
           border: '2px dashed',
           borderColor: 'primary.main',
           borderRadius: 2,
           backgroundColor: 'rgba(163, 196, 243, 0.05)',
         }}
       >
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-          <CloudUpload sx={{ mr: 1, color: 'primary.main' }} />
-          <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-            Upload Media
-          </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <CloudUpload sx={{ mr: 1, color: 'primary.main' }} />
+            <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+              Upload Media
+            </Typography>
+          </Box>
+
+          {existingMedia.length > 0 && (
+            <Box
+              component="button"
+              onClick={(e) => {
+                e.preventDefault();
+                setOpenExisting(true);
+              }}
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 0.5,
+                color: 'primary.main',
+                textDecoration: 'none',
+                cursor: 'pointer',
+                fontWeight: 500,
+                background: 'none',
+                border: 'none',
+                padding: 0,
+                font: 'inherit',
+                '&:hover': {
+                  textDecoration: 'underline',
+                  color: 'primary.dark',
+                },
+                transition: 'all 0.2s ease-in-out',
+              }}
+            >
+              <Collections fontSize="small" />
+              <Typography variant="body2" component="span">
+                View Existing ({existingMedia.length})
+              </Typography>
+            </Box>
+          )}
         </Box>
 
         {error && (
-          <Alert severity="error" onClose={() => setError('')} sx={{ mb: 2 }}>
+          <Alert severity="error" onClose={() => setError('')} sx={{ mb: 1 }}>
             {error}
           </Alert>
         )}
 
-        <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', mb: 2 }}>
+        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 1 }}>
           {allowedTypes.includes('image') && (
             <Button
               variant="outlined"
@@ -86,6 +122,7 @@ const MediaUploader = ({
                 textTransform: 'none',
                 borderColor: 'primary.main',
                 color: 'primary.main',
+                padding: 1,
               }}
             >
               Images ({getFileCount('image')}/{limits.image})
@@ -110,6 +147,7 @@ const MediaUploader = ({
                 textTransform: 'none',
                 borderColor: 'secondary.main',
                 color: 'secondary.main',
+                padding: 1,
               }}
             >
               Videos ({getFileCount('video')}/{limits.video})
@@ -129,7 +167,7 @@ const MediaUploader = ({
               component="label"
               size="small"
               startIcon={<InsertDriveFile />}
-              sx={{ borderRadius: 2, textTransform: 'none' }}
+              sx={{ borderRadius: 2, textTransform: 'none', padding: 1 }}
             >
               Files ({getFileCount('file')}/{limits.file})
               <input
@@ -203,17 +241,6 @@ const MediaUploader = ({
               ))}
             </Box>
           </Box>
-        )}
-
-        {existingMedia.length > 0 && (
-          <Button
-            variant="text"
-            size="small"
-            onClick={() => setOpenExisting(true)}
-            sx={{ mt: 2, textTransform: 'none' }}
-          >
-            View Existing Media ({existingMedia.length})
-          </Button>
         )}
       </Paper>
 
