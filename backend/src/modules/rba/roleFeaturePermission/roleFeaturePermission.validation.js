@@ -1,0 +1,38 @@
+import Joi from 'joi';
+import j2s from 'joi-to-swagger';
+import { auditSchema } from '../../../config/docs/auditResponses.swagger.js';
+
+export const baseRoleFeaturePermissionSchema = Joi.object({
+  role_id: Joi.string(),
+  feature_id: Joi.number().integer(),
+  permission_id: Joi.string(),
+});
+
+const roleFeaturePermissionSchema = baseRoleFeaturePermissionSchema.concat(auditSchema);
+
+export const roleFeaturePermissionIdSchema = Joi.object({
+  role_id: Joi.string().required(),
+  feature_id: Joi.number().integer().required(),
+  permission_id: Joi.string().required(),
+});
+
+export const createRoleFeaturePermissionSchema = Joi.object({
+  role_id: Joi.string().max(100).required(),
+  feature_id: Joi.number().integer().required(),
+  permission_id: Joi.string().max(10).required(),
+});
+
+export const editRoleFeaturePermissionSchema = Joi.object({
+  role_id: Joi.string().max(100),
+  feature_id: Joi.number().integer(),
+  permission_id: Joi.string().max(10),
+});
+
+export const { swagger: roleFeaturePermissionSchemaSwagger } = j2s(roleFeaturePermissionSchema);
+export const { swagger: roleFeaturePermissionIdSchemaSwagger } = j2s(roleFeaturePermissionIdSchema);
+export const { swagger: createRoleFeaturePermissionSchemaSwagger } = j2s(
+  createRoleFeaturePermissionSchema,
+);
+export const { swagger: editRoleFeaturePermissionSchemaSwagger } = j2s(
+  editRoleFeaturePermissionSchema,
+);
