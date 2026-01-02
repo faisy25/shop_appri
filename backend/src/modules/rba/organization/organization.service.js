@@ -6,9 +6,18 @@ export const organizationService = {
   async getAll() {
     try {
       const organizations = await dbHelper.getAll({
-        table: 'organization',
-        orderBy: [{ key: 'created_at', value: 'DESC' }],
-        deletedColumn: 'is_deleted',
+        table: 'organization org',
+        selectColumns: ['org.*', 'parent.name AS parent_company'],
+        joinArray: [
+          {
+            table: 'organization AS parent',
+            condition:
+              'org.parent_id = parent.organization_id AND org.parent_id != 0 AND parent.is_deleted = 0',
+            join_type: 'LEFT',
+          },
+        ],
+        orderBy: [{ key: 'org.created_at', value: 'DESC' }],
+        deletedColumn: 'org.is_deleted', // Qualified with table alias to avoid ambiguity
       });
       return organizations;
     } catch (err) {
@@ -169,8 +178,17 @@ export const organizationService = {
   async getAllWithDeleted() {
     try {
       const organizations = await dbHelper.getAllWithDeleted({
-        table: 'organization',
-        orderBy: [{ key: 'created_at', value: 'DESC' }],
+        table: 'organization org',
+        selectColumns: ['org.*', 'parent.name AS parent_company'],
+        joinArray: [
+          {
+            table: 'organization AS parent',
+            condition:
+              'org.parent_id = parent.organization_id AND org.parent_id != 0 AND parent.is_deleted = 0',
+            join_type: 'LEFT',
+          },
+        ],
+        orderBy: [{ key: 'org.created_at', value: 'DESC' }],
       });
       return organizations;
     } catch (err) {

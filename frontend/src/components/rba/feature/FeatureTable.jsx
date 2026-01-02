@@ -35,7 +35,7 @@ const FeatureTable = () => {
   const columns = [
     { accessorKey: 'feature_id', header: 'ID' },
     { accessorKey: 'name', header: 'Name' },
-    { accessorKey: 'description', header: 'Description' },
+    { accessorKey: 'description', header: 'Description', showEllipsis: true },
     { accessorKey: 'fk_id', header: 'FK ID' },
     { accessorKey: 'parent_id', header: 'Parent ID' },
     { accessorKey: 'sort_order', header: 'Sort Order' },
@@ -62,4 +62,3 @@ const FeatureTable = () => {
 };
 
 export default FeatureTable;
-

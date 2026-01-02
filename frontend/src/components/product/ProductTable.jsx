@@ -33,7 +33,7 @@ const ProductTablePage = () => {
   const columns = [
     { accessorKey: 'product_id', header: 'ID' },
     { accessorKey: 'name', header: 'Name' },
-    { accessorKey: 'description', header: 'Description' },
+    { accessorKey: 'description', header: 'Description', showEllipsis: true },
     { accessorKey: 'qty', header: 'Qty' },
     { accessorKey: 'price', header: 'Price' },
   ];

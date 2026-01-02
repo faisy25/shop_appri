@@ -10,6 +10,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  Tooltip,
 } from '@mui/material';
 
 import {
@@ -44,12 +45,94 @@ const CustomTable = ({
     );
   }, [search, data]);
 
+  // Helper function to truncate text
+  const truncateText = (text, maxLength = 50) => {
+    if (!text) return '';
+    const textStr = String(text);
+    if (textStr.length <= maxLength) return textStr;
+    return textStr.substring(0, maxLength) + '...';
+  };
+
+  // Process columns to add ellipsis and tooltip for columns with showEllipsis: true
+  const processedColumns = useMemo(() => {
+    return columns.map((column) => {
+      // Check if column has showEllipsis prop set to true
+      if (!column.showEllipsis) {
+        return column;
+      }
+
+      // If column already has a custom cell renderer, wrap it with ellipsis logic
+      if (column.cell) {
+        const originalCell = column.cell;
+        return {
+          ...column,
+          cell: ({ row }) => {
+            const cellValue = originalCell({ row });
+            const value = row.original[column.accessorKey];
+            const fullText = value || '';
+
+            // Only show tooltip if text is truncated
+            if (fullText.length > 50) {
+              return (
+                <Tooltip title={fullText} arrow placement="top">
+                  <Box
+                    sx={{
+                      maxWidth: '300px',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                      cursor: 'help',
+                    }}
+                  >
+                    {cellValue}
+                  </Box>
+                </Tooltip>
+              );
+            }
+            return <Box>{cellValue}</Box>;
+          },
+        };
+      }
+
+      // Add truncation and tooltip for columns without custom cell renderer
+      return {
+        ...column,
+        cell: ({ row }) => {
+          const value = row.original[column.accessorKey];
+          const fullText = value || '';
+          const truncatedText = truncateText(fullText);
+
+          // Only show tooltip if text is truncated
+          if (fullText.length > 50) {
+            return (
+              <Tooltip title={fullText} arrow placement="top">
+                <Box
+                  sx={{
+                    maxWidth: '300px',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    cursor: 'help',
+                  }}
+                >
+                  {truncatedText}
+                </Box>
+              </Tooltip>
+            );
+          }
+
+          return <Box>{fullText}</Box>;
+        },
+      };
+    });
+  }, [columns]);
+
   // Add actions column automatically if enabled
   const finalColumns = useMemo(() => {
-    if (!actions) return columns;
+    if (!actions) return processedColumns;
 
     return [
-      ...columns,
+      ...processedColumns,
       {
         id: 'actions',
         header: 'Actions',
@@ -74,7 +157,7 @@ const CustomTable = ({
         ),
       },
     ];
-  }, [columns, onEdit, onDelete, onView, actions]);
+  }, [processedColumns, onEdit, onDelete, onView, actions]);
 
   // Define TanStack Table
   const table = useReactTable({

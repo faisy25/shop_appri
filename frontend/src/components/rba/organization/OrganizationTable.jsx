@@ -1,7 +1,10 @@
 import CustomTable from '../../common/CustomTable';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { deleteOrganization, fetchOrganizations } from '../../../redux/rba/organization/organizationThunk';
+import {
+  deleteOrganization,
+  fetchOrganizations,
+} from '../../../redux/rba/organization/organizationThunk';
 import { ROUTES } from '../../../routes/routes';
 import { useEffect } from 'react';
 import { Typography } from '@mui/material';
@@ -36,7 +39,15 @@ const OrganizationTable = () => {
     { accessorKey: 'organization_id', header: 'ID' },
     { accessorKey: 'name', header: 'Name' },
     { accessorKey: 'type', header: 'Type' },
-    { accessorKey: 'parent_id', header: 'Parent ID' },
+    {
+      accessorKey: 'parent_company',
+      header: 'Parent Company',
+      cell: ({ row }) => {
+        const parentCompany = row.original.parent_company;
+        // Show "-" if parent_company is null, undefined, or empty
+        return parentCompany || '-';
+      },
+    },
   ];
 
   return (
@@ -60,4 +71,3 @@ const OrganizationTable = () => {
 };
 
 export default OrganizationTable;
-

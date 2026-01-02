@@ -6,12 +6,21 @@ export const featureService = {
   async getAll() {
     try {
       const features = await dbHelper.getAll({
-        table: 'feature',
-        orderBy: [
-          { key: 'sort_order', value: 'ASC' },
-          { key: 'created_at', value: 'DESC' },
+        table: 'feature f',
+        selectColumns: ['f.*', 'parent.name AS parent_feature'],
+        joinArray: [
+          {
+            table: 'feature AS parent',
+            condition:
+              'f.parent_id = parent.feature_id AND f.parent_id != 0 AND parent.is_deleted = 0',
+            join_type: 'LEFT',
+          },
         ],
-        deletedColumn: 'is_deleted',
+        orderBy: [
+          { key: 'f.sort_order', value: 'ASC' },
+          { key: 'f.created_at', value: 'DESC' },
+        ],
+        deletedColumn: 'f.is_deleted', // Qualified with table alias to avoid ambiguity
       });
       return features;
     } catch (err) {
@@ -170,10 +179,19 @@ export const featureService = {
   async getAllWithDeleted() {
     try {
       const features = await dbHelper.getAllWithDeleted({
-        table: 'feature',
+        table: 'feature f',
+        selectColumns: ['f.*', 'parent.name AS parent_feature'],
+        joinArray: [
+          {
+            table: 'feature AS parent',
+            condition:
+              'f.parent_id = parent.feature_id AND f.parent_id != 0 AND parent.is_deleted = 0',
+            join_type: 'LEFT',
+          },
+        ],
         orderBy: [
-          { key: 'sort_order', value: 'ASC' },
-          { key: 'created_at', value: 'DESC' },
+          { key: 'f.sort_order', value: 'ASC' },
+          { key: 'f.created_at', value: 'DESC' },
         ],
       });
       return features;

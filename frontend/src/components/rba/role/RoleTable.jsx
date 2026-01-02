@@ -35,7 +35,7 @@ const RoleTable = () => {
   const columns = [
     { accessorKey: 'role_id', header: 'ID' },
     { accessorKey: 'name', header: 'Name' },
-    { accessorKey: 'description', header: 'Description' },
+    { accessorKey: 'description', header: 'Description', showEllipsis: true },
   ];
 
   return (
@@ -59,4 +59,3 @@ const RoleTable = () => {
 };
 
 export default RoleTable;
-

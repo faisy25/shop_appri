@@ -1,7 +1,10 @@
 import CustomTable from '../../common/CustomTable';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { deleteDesignation, fetchDesignations } from '../../../redux/rba/designation/designationThunk';
+import {
+  deleteDesignation,
+  fetchDesignations,
+} from '../../../redux/rba/designation/designationThunk';
 import { ROUTES } from '../../../routes/routes';
 import { useEffect } from 'react';
 import { Typography } from '@mui/material';
@@ -35,7 +38,7 @@ const DesignationTable = () => {
   const columns = [
     { accessorKey: 'designation_id', header: 'ID' },
     { accessorKey: 'name', header: 'Name' },
-    { accessorKey: 'description', header: 'Description' },
+    { accessorKey: 'description', header: 'Description', showEllipsis: true },
   ];
 
   return (
@@ -59,4 +62,3 @@ const DesignationTable = () => {
 };
 
 export default DesignationTable;
-
