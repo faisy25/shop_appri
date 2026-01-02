@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, createSelector } from '@reduxjs/toolkit';
 import {
   fetchFeatures,
   createFeature,
@@ -89,5 +89,23 @@ const featureSlice = createSlice({
 });
 
 export const { clearFeatureError, clearSelectedFeature } = featureSlice.actions;
-export default featureSlice.reducer;
 
+// ========== SELECTORS ==========
+// Base selector: Simple state accessor (no computation, always fast)
+const selectFeaturesList = (state) => state.features.list;
+
+// Memoized selector: Derived data (only recalculates when list changes)
+// Performance: O(n) only when features list changes, otherwise returns cached result
+// Benefits:
+// 1. Prevents unnecessary recalculations on every component render
+// 2. Returns same array reference if input unchanged (prevents re-renders)
+// 3. Scales well with large datasets (100+ features)
+export const selectRootFeatures = createSelector([selectFeaturesList], (features) => {
+  // Filter features where parent_id is 0, null, or undefined (root features)
+  return features.filter(
+    (feature) =>
+      feature.parent_id === 0 || feature.parent_id === null || feature.parent_id === undefined,
+  );
+});
+
+export default featureSlice.reducer;

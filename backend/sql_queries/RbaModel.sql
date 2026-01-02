@@ -32,6 +32,8 @@ CREATE TABLE `permission` (
 CREATE TABLE `feature` (
   `feature_id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(25) NOT NULL,
+  `element_type` enum('menu','group','page','button','link') NOT NULL DEFAULT 'menu',
+  `icon` varchar(50) DEFAULT NULL,
   `description` varchar(100) DEFAULT NULL,
   `fk_id` int(11) DEFAULT 0 COMMENT 'Unique feature key identifier',
   `parent_id` int(11) DEFAULT NULL COMMENT 'Self-referencing for hierarchy',
@@ -43,7 +45,7 @@ CREATE TABLE `feature` (
   `is_deleted` tinyint(4) NOT NULL DEFAULT 0,
   PRIMARY KEY (`feature_id`),
   UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
 -- 6. ORGANIZATION TABLE

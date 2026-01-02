@@ -68,6 +68,8 @@ export const featureService = {
         'feature',
         {
           name: data.name,
+          element_type: data.element_type || 'menu',
+          icon: data.icon || null,
           description: data.description,
           fk_id: data.fk_id || 0,
           parent_id: data.parent_id || 0,
@@ -120,6 +122,8 @@ export const featureService = {
 
       const updateData = {
         name: data.name,
+        element_type: data.element_type,
+        icon: data.icon,
         description: data.description,
         fk_id: data.fk_id,
         parent_id: data.parent_id,

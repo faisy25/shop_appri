@@ -1,35 +1,64 @@
 import { Box, TextField, Typography, Button, Paper } from '@mui/material';
 import { useSelector, useDispatch } from 'react-redux';
-import { useEffect, useState } from 'react';
-import { fetchFeatureById, createFeature, updateFeature } from '../../../redux/rba/feature/featureThunk';
+import { useEffect, useState, useMemo } from 'react';
+import {
+  fetchFeatures,
+  fetchFeatureById,
+  createFeature,
+  updateFeature,
+} from '../../../redux/rba/feature/featureThunk';
 import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
-import { clearSelectedFeature } from '../../../redux/rba/feature/featureSlice';
+import { clearSelectedFeature, selectRootFeatures } from '../../../redux/rba/feature/featureSlice';
 import { ROUTES } from '../../../routes/routes';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { toast } from 'react-toastify';
 import { CircularProgress } from '@mui/material';
+import CustomSelect from '../../../components/common/CustomSelect';
+import { FEATURE_ELEMENT_TYPES } from '../../../util/constants';
 
 const FeatureFormPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { id } = useParams();
 
-  const { feature } = useSelector((state) => state.features);
+  const { feature, loading } = useSelector((state) => state.features);
+  // ✅ Using memoized selector: Only recalculates when features list changes
+  const rootFeatures = useSelector(selectRootFeatures);
   const [errMsg, setErrMsg] = useState('');
+
+  // ✅ Component-level memoization: Format transformation (runs only when rootFeatures or id changes)
+  // This is the optimal pattern:
+  // 1. Redux selector handles filtering (memoized)
+  // 2. Component useMemo handles formatting (component-specific)
+  const featureOptions = useMemo(() => {
+    // Exclude current feature when editing (prevents self-parent selection)
+    const filtered = id
+      ? rootFeatures.filter((feat) => feat.feature_id !== parseInt(id))
+      : rootFeatures;
+
+    // Format for react-select: { label, value }
+    return filtered.map((feat) => ({
+      label: feat.name,
+      value: feat.feature_id,
+    }));
+  }, [rootFeatures, id]);
 
   const {
     register,
     handleSubmit,
     reset,
     setFocus,
+    control,
     formState: { errors, isSubmitting },
   } = useForm({
     defaultValues: {
       name: '',
+      element_type: 'menu',
+      icon: '',
       description: '',
       fk_id: 0,
-      parent_id: '',
+      parent_id: null,
       sort_order: 0,
     },
   });
@@ -39,14 +68,21 @@ const FeatureFormPage = () => {
     if (firstError) setFocus(firstError);
   }, [errors, setFocus]);
 
+  // Fetch all features on mount to populate root features list
+  useEffect(() => {
+    dispatch(fetchFeatures());
+  }, [dispatch]);
+
   useEffect(() => {
     if (!id) {
       dispatch(clearSelectedFeature());
       reset({
         name: '',
+        element_type: 'menu',
+        icon: '',
         description: '',
         fk_id: 0,
-        parent_id: '',
+        parent_id: null,
         sort_order: 0,
       });
     } else {
@@ -58,9 +94,11 @@ const FeatureFormPage = () => {
     if (feature) {
       reset({
         name: feature.name || '',
+        element_type: feature.element_type || 'menu',
+        icon: feature.icon || '',
         description: feature.description || '',
         fk_id: feature.fk_id || 0,
-        parent_id: feature.parent_id || '',
+        parent_id: feature.parent_id && feature.parent_id !== 0 ? feature.parent_id : null,
         sort_order: feature.sort_order || 0,
       });
     }
@@ -72,7 +110,7 @@ const FeatureFormPage = () => {
     const submitData = {
       ...data,
       fk_id: Number(data.fk_id) || 0,
-      parent_id: data.parent_id ? Number(data.parent_id) : null,
+      parent_id: data.parent_id ? Number(data.parent_id) : 0,
       sort_order: Number(data.sort_order) || 0,
     };
 
@@ -148,6 +186,31 @@ const FeatureFormPage = () => {
           }}
         />
 
+        <CustomSelect
+          name="element_type"
+          control={control}
+          options={FEATURE_ELEMENT_TYPES}
+          label="Element Type"
+          placeholder="Select element type..."
+          isMulti={false}
+          isRequired={true}
+          error={errors.element_type}
+          helperText={errors.element_type?.message}
+        />
+
+        <TextField
+          label="Icon (Optional)"
+          variant="outlined"
+          fullWidth
+          {...register('icon')}
+          placeholder="e.g., Dashboard, Settings"
+          slotProps={{
+            inputLabel: {
+              sx: { fontSize: '0.9rem', color: 'text.secondary' },
+            },
+          }}
+        />
+
         <TextField
           label="Description"
           variant="outlined"
@@ -162,25 +225,23 @@ const FeatureFormPage = () => {
           }}
         />
 
+        <CustomSelect
+          name="parent_id"
+          control={control}
+          options={featureOptions}
+          label="Parent Feature (Optional)"
+          placeholder="Select parent feature..."
+          isMulti={false}
+          isLoading={loading}
+          error={errors.parent_id}
+        />
+
         <TextField
           label="FK ID"
           variant="outlined"
           fullWidth
           type="number"
           {...register('fk_id')}
-          slotProps={{
-            inputLabel: {
-              sx: { fontSize: '0.9rem', color: 'text.secondary' },
-            },
-          }}
-        />
-
-        <TextField
-          label="Parent ID (Optional)"
-          variant="outlined"
-          fullWidth
-          type="number"
-          {...register('parent_id')}
           slotProps={{
             inputLabel: {
               sx: { fontSize: '0.9rem', color: 'text.secondary' },
@@ -229,4 +290,3 @@ const FeatureFormPage = () => {
 };
 
 export default FeatureFormPage;
-

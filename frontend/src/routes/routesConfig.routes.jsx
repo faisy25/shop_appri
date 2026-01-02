@@ -55,7 +55,7 @@ export const menuGroups = {
   INVENTORY: {
     icon: ShoppingBag,
   },
-  RBA: {
+  'USER MANAGEMENT': {
     icon: People,
   },
 };
@@ -120,7 +120,7 @@ export const routeConfig = [
     element: <OrganizationPage />,
     label: 'Organization',
     showInMenu: true,
-    menuGroup: 'RBA',
+    menuGroup: 'USER MANAGEMENT',
     icon: Business,
     children: [
       {
@@ -147,7 +147,7 @@ export const routeConfig = [
     element: <DepartmentPage />,
     label: 'Department',
     showInMenu: true,
-    menuGroup: 'RBA',
+    menuGroup: 'USER MANAGEMENT',
     icon: AccountTree, // Icon for Department submenu item
     children: [
       {
@@ -174,7 +174,7 @@ export const routeConfig = [
     element: <DesignationPage />,
     label: 'Designation',
     showInMenu: true,
-    menuGroup: 'RBA',
+    menuGroup: 'USER MANAGEMENT',
     icon: Work, // Icon for Designation submenu item
     children: [
       {
@@ -201,7 +201,7 @@ export const routeConfig = [
     element: <FeaturePage />,
     label: 'Feature',
     showInMenu: true,
-    menuGroup: 'RBA',
+    menuGroup: 'USER MANAGEMENT',
     icon: Category, // Icon for Feature submenu item
     children: [
       {
@@ -228,7 +228,7 @@ export const routeConfig = [
     element: <PermissionPage />,
     label: 'Permission',
     showInMenu: true,
-    menuGroup: 'RBA',
+    menuGroup: 'USER MANAGEMENT',
     icon: Security, // Icon for Permission submenu item
     children: [
       {
@@ -255,7 +255,7 @@ export const routeConfig = [
     element: <RolePage />,
     label: 'Role',
     showInMenu: true,
-    menuGroup: 'RBA',
+    menuGroup: 'USER MANAGEMENT',
     icon: Groups, // Icon for Role submenu item
     children: [
       {

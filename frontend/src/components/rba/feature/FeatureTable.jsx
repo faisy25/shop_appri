@@ -35,9 +35,25 @@ const FeatureTable = () => {
   const columns = [
     { accessorKey: 'feature_id', header: 'ID' },
     { accessorKey: 'name', header: 'Name' },
+
     { accessorKey: 'description', header: 'Description', showEllipsis: true },
+    {
+      accessorKey: 'parent_feature',
+      header: 'Parent Feature',
+      cell: ({ row }) => {
+        const parentFeature = row.original.parent_feature;
+        return parentFeature || '-';
+      },
+    },
+    {
+      accessorKey: 'element_type',
+      header: 'Element Type',
+      cell: ({ row }) => {
+        return row.original.element_type.toUpperCase();
+      },
+    },
+    { accessorKey: 'icon', header: 'Icon' },
     { accessorKey: 'fk_id', header: 'FK ID' },
-    { accessorKey: 'parent_id', header: 'Parent ID' },
     { accessorKey: 'sort_order', header: 'Sort Order' },
   ];
 
