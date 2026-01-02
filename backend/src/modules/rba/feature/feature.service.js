@@ -44,7 +44,7 @@ export const featureService = {
 
     try {
       // Validate parent_id exists if provided
-      if (data.parent_id) {
+      if (data.parent_id !== 0 && data.parent_id !== null) {
         const parent = await dbHelper.getOne({
           table: 'feature',
           where: { feature_id: data.parent_id },
@@ -93,26 +93,29 @@ export const featureService = {
       await this.getById(id);
 
       // Validate parent_id exists if provided
-      if (data.parent_id) {
-        if (data.parent_id === parseInt(id)) {
-          throw new ApiError(400, 'Feature cannot be its own parent');
-        }
-        const parent = await dbHelper.getOne({
-          table: 'feature',
-          where: { feature_id: data.parent_id },
-          deletedColumn: 'is_deleted',
-        });
-        if (!parent) {
-          throw new ApiError(404, 'Parent feature not found');
+      if (data.parent_id !== 0 && data.parent_id !== null) {
+        if (data.parent_id) {
+          if (data.parent_id === parseInt(id)) {
+            throw new ApiError(400, 'Feature cannot be its own parent');
+          }
+          const parent = await dbHelper.getOne({
+            table: 'feature',
+            where: { feature_id: data.parent_id },
+            deletedColumn: 'is_deleted',
+          });
+          if (!parent) {
+            throw new ApiError(404, 'Parent feature not found');
+          }
         }
       }
 
-      const updateData = {};
-      if (data.name !== undefined) updateData.name = data.name;
-      if (data.description !== undefined) updateData.description = data.description;
-      if (data.fk_id !== undefined) updateData.fk_id = data.fk_id;
-      if (data.parent_id !== undefined) updateData.parent_id = data.parent_id;
-      if (data.sort_order !== undefined) updateData.sort_order = data.sort_order;
+      const updateData = {
+        name: data.name,
+        description: data.description,
+        fk_id: data.fk_id,
+        parent_id: data.parent_id,
+        sort_order: data.sort_order,
+      };
 
       const result = await dbHelper.updateOne(
         'feature',

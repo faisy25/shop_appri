@@ -11,9 +11,9 @@ import { featurePaths } from '../../modules/rba/feature/feature.routes.js';
 const swaggerDefinition = {
   openapi: '3.0.0',
   info: {
-    title: 'Shop Documentation',
+    title: 'Firma Documentation',
     version: '1.0.0',
-    description: 'API documentation for the Node.js code . For the shop application here.',
+    description: 'API documentation for the Node.js code . For the firma application here.',
   },
 
   servers: [

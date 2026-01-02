@@ -18,6 +18,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { toast } from 'react-toastify';
 import { CircularProgress } from '@mui/material';
 import CustomSelect from '../../../components/common/CustomSelect';
+import { ORGANIZATION_TYPES } from '../../../util/constants';
 
 const OrganizationFormPage = () => {
   const dispatch = useDispatch();
@@ -61,15 +62,8 @@ const OrganizationFormPage = () => {
     },
   });
 
-  // Type options for organization type dropdown
-  const typeOptions = useMemo(
-    () => [
-      { label: 'Internal', value: 'internal' },
-      { label: 'Brand', value: 'brand' },
-      { label: 'Outsourced', value: 'outsourced' },
-    ],
-    [],
-  );
+  // Type options for organization type dropdown - imported from constants
+  const typeOptions = ORGANIZATION_TYPES;
 
   useEffect(() => {
     const firstError = Object.keys(errors)[0];

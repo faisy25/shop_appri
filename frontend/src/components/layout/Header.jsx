@@ -116,7 +116,7 @@ export default function Header({ mode, setMode, sidebarOpen, onMenuToggle }) {
                 fontSize: { xs: '1rem', sm: '1.25rem', md: '1.5rem' },
               }}
             >
-              Shop
+              Firma
             </Typography>
           </Box>
 
