@@ -14,6 +14,7 @@ import ChevronLeft from '@mui/icons-material/ChevronLeft';
 import ChevronRight from '@mui/icons-material/ChevronRight';
 import MenuIcon from '@mui/icons-material/Menu';
 import { Link as RouterLink } from 'react-router-dom';
+import { ROUTES } from '@/routes/routes';
 
 export default function Header({ mode, setMode, sidebarOpen, onMenuToggle }) {
   const theme = useTheme();
@@ -134,6 +135,8 @@ export default function Header({ mode, setMode, sidebarOpen, onMenuToggle }) {
             </IconButton>
 
             <Button
+              component={RouterLink}
+              to={ROUTES.LOGIN}
               variant="contained"
               color="secondary"
               sx={{

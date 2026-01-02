@@ -2,6 +2,8 @@
 
 export const ROUTES = {
   HOME: '/',
+  LOGIN: '/login',
+  NOT_FOUND: '*',
 
   PRODUCT: {
     ROOT: '/product',
