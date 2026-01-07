@@ -3,99 +3,6 @@ import ApiError from '../../../util/error/api.error.js';
 import { ServiceError } from '../../../util/error/service.error.js';
 
 export const organizationDepartmentDesignationService = {
-  async getAll() {
-    try {
-      const organizationDepartmentDesignations = await dbHelper.getAll({
-        table: 'organization_department_designation',
-        selectColumns: [
-          'organization_department_designation.organization_id',
-          'organization_department_designation.department_id',
-          'organization_department_designation.designation_id',
-          'organization_department_designation.created_at',
-          'organization_department_designation.updated_at',
-          'organization.name as organization_name',
-          'department.name as department_name',
-          'designation.name as designation_name',
-        ],
-        joinArray: [
-          {
-            table: 'organization',
-            condition:
-              'organization_department_designation.organization_id = organization.organization_id',
-            join_type: 'INNER',
-          },
-          {
-            table: 'department',
-            condition:
-              'organization_department_designation.department_id = department.department_id',
-            join_type: 'INNER',
-          },
-          {
-            table: 'designation',
-            condition:
-              'organization_department_designation.designation_id = designation.designation_id',
-            join_type: 'INNER',
-          },
-        ],
-        orderBy: [{ key: 'organization_department_designation.created_at', value: 'DESC' }],
-        deletedColumn: 'is_deleted',
-      });
-      return organizationDepartmentDesignations;
-    } catch (err) {
-      ServiceError(err, 'Failed to load organization department designations');
-    }
-  },
-
-  async getById(organizationId, departmentId, designationId) {
-    try {
-      const organizationDepartmentDesignation = await dbHelper.getOne({
-        table: 'organization_department_designation',
-        selectColumns: [
-          'organization_department_designation.organization_id',
-          'organization_department_designation.department_id',
-          'organization_department_designation.designation_id',
-          'organization_department_designation.created_at',
-          'organization_department_designation.updated_at',
-          'organization.name as organization_name',
-          'department.name as department_name',
-          'designation.name as designation_name',
-        ],
-        where: {
-          'organization_department_designation.organization_id': organizationId,
-          'organization_department_designation.department_id': departmentId,
-          'organization_department_designation.designation_id': designationId,
-        },
-        joinArray: [
-          {
-            table: 'organization',
-            condition:
-              'organization_department_designation.organization_id = organization.organization_id',
-            join_type: 'INNER',
-          },
-          {
-            table: 'department',
-            condition:
-              'organization_department_designation.department_id = department.department_id',
-            join_type: 'INNER',
-          },
-          {
-            table: 'designation',
-            condition:
-              'organization_department_designation.designation_id = designation.designation_id',
-            join_type: 'INNER',
-          },
-        ],
-        deletedColumn: 'is_deleted',
-      });
-
-      if (!organizationDepartmentDesignation) {
-        throw new ApiError(404, 'Organization department designation not found');
-      }
-      return organizationDepartmentDesignation;
-    } catch (err) {
-      ServiceError(err, 'Failed to get organization department designation');
-    }
-  },
 
   async create(data) {
     const connection = await dbHelper.beginTransaction();
@@ -311,14 +218,22 @@ export const organizationDepartmentDesignationService = {
     }
   },
 
-  async softDelete(organizationId, departmentId, designationId) {
-    const connection = await dbHelper.beginTransaction();
+  async softDelete(organizationId, departmentId, designationId, connection = null) {
+    // If connection is provided, use it (for transactions)
+    // Otherwise, start a new transaction
+    const shouldCommit = !connection;
     if (!connection) {
-      throw new ApiError(500, 'Failed to start transaction');
+      connection = await dbHelper.beginTransaction();
+      if (!connection) {
+        throw new ApiError(500, 'Failed to start transaction');
+      }
     }
 
     try {
-      await this.getById(organizationId, departmentId, designationId);
+      // Only check if exists when not in a transaction (standalone call)
+      if (shouldCommit) {
+        await this.getById(organizationId, departmentId, designationId);
+      }
 
       const result = await dbHelper.softDeleteOne(
         'organization_department_designation',
@@ -334,9 +249,11 @@ export const organizationDepartmentDesignationService = {
         throw new ApiError(404, 'Organization department designation not found or already deleted');
       }
 
-      const committed = await dbHelper.commitTransaction(connection);
-      if (!committed) {
-        throw new ApiError(500, 'Failed to commit transaction');
+      if (shouldCommit) {
+        const committed = await dbHelper.commitTransaction(connection);
+        if (!committed) {
+          throw new ApiError(500, 'Failed to commit transaction');
+        }
       }
 
       return {
@@ -345,113 +262,30 @@ export const organizationDepartmentDesignationService = {
         designation_id: designationId,
       };
     } catch (err) {
-      await dbHelper.rollbackTransaction(connection);
+      if (shouldCommit) {
+        await dbHelper.rollbackTransaction(connection);
+      }
       ServiceError(err, 'Failed to delete organization department designation');
     }
   },
 
-  async getAllWithDeleted() {
-    try {
-      const organizationDepartmentDesignations = await dbHelper.getAllWithDeleted({
-        table: 'organization_department_designation',
-        selectColumns: [
-          'organization_department_designation.organization_id',
-          'organization_department_designation.department_id',
-          'organization_department_designation.designation_id',
-          'organization_department_designation.is_deleted',
-          'organization_department_designation.created_at',
-          'organization_department_designation.updated_at',
-          'organization.name as organization_name',
-          'department.name as department_name',
-          'designation.name as designation_name',
-        ],
-        joinArray: [
-          {
-            table: 'organization',
-            condition:
-              'organization_department_designation.organization_id = organization.organization_id',
-            join_type: 'LEFT',
-          },
-          {
-            table: 'department',
-            condition:
-              'organization_department_designation.department_id = department.department_id',
-            join_type: 'LEFT',
-          },
-          {
-            table: 'designation',
-            condition:
-              'organization_department_designation.designation_id = designation.designation_id',
-            join_type: 'LEFT',
-          },
-        ],
-        orderBy: [{ key: 'organization_department_designation.created_at', value: 'DESC' }],
-      });
-      return organizationDepartmentDesignations;
-    } catch (err) {
-      ServiceError(err, 'Failed to load organization department designations with deleted');
-    }
-  },
 
-  async getByIdWithDeleted(organizationId, departmentId, designationId) {
-    try {
-      const organizationDepartmentDesignation = await dbHelper.getOneWithDeleted({
-        table: 'organization_department_designation',
-        selectColumns: [
-          'organization_department_designation.organization_id',
-          'organization_department_designation.department_id',
-          'organization_department_designation.designation_id',
-          'organization_department_designation.is_deleted',
-          'organization_department_designation.created_at',
-          'organization_department_designation.updated_at',
-          'organization.name as organization_name',
-          'department.name as department_name',
-          'designation.name as designation_name',
-        ],
-        where: {
-          'organization_department_designation.organization_id': organizationId,
-          'organization_department_designation.department_id': departmentId,
-          'organization_department_designation.designation_id': designationId,
-        },
-        joinArray: [
-          {
-            table: 'organization',
-            condition:
-              'organization_department_designation.organization_id = organization.organization_id',
-            join_type: 'LEFT',
-          },
-          {
-            table: 'department',
-            condition:
-              'organization_department_designation.department_id = department.department_id',
-            join_type: 'LEFT',
-          },
-          {
-            table: 'designation',
-            condition:
-              'organization_department_designation.designation_id = designation.designation_id',
-            join_type: 'LEFT',
-          },
-        ],
-      });
-
-      if (!organizationDepartmentDesignation) {
-        throw new ApiError(404, 'Organization department designation not found');
-      }
-      return organizationDepartmentDesignation;
-    } catch (err) {
-      ServiceError(err, 'Failed to get organization department designation with deleted records');
-    }
-  },
-
-  async hardDelete(organizationId, departmentId, designationId) {
-    const connection = await dbHelper.beginTransaction();
+  async hardDelete(organizationId, departmentId, designationId, connection = null) {
+    // If connection is provided, use it (for transactions)
+    // Otherwise, start a new transaction
+    const shouldCommit = !connection;
     if (!connection) {
-      throw new ApiError(500, 'Failed to start transaction');
+      connection = await dbHelper.beginTransaction();
+      if (!connection) {
+        throw new ApiError(500, 'Failed to start transaction');
+      }
     }
 
     try {
-      await this.getByIdWithDeleted(organizationId, departmentId, designationId);
+      // Only check if exists when not in a transaction (standalone call)
+      if (shouldCommit) {
+        await this.getByIdWithDeleted(organizationId, departmentId, designationId);
+      }
 
       const sql = `
         DELETE FROM organization_department_designation
@@ -465,9 +299,11 @@ export const organizationDepartmentDesignationService = {
         throw new ApiError(404, 'Organization department designation not found');
       }
 
-      const committed = await dbHelper.commitTransaction(connection);
-      if (!committed) {
-        throw new ApiError(500, 'Failed to commit transaction');
+      if (shouldCommit) {
+        const committed = await dbHelper.commitTransaction(connection);
+        if (!committed) {
+          throw new ApiError(500, 'Failed to commit transaction');
+        }
       }
 
       return {
@@ -476,8 +312,94 @@ export const organizationDepartmentDesignationService = {
         designation_id: designationId,
       };
     } catch (err) {
-      await dbHelper.rollbackTransaction(connection);
+      if (shouldCommit) {
+        await dbHelper.rollbackTransaction(connection);
+      }
       ServiceError(err, 'Failed to permanently delete organization department designation');
+    }
+  },
+
+  /**
+   * Helper method to ensure organization_department_designation exists or restore/create it
+   * Used by role service to ensure ODD entry exists when creating/updating roles
+   * @param {number} organizationId - Organization ID
+   * @param {string} departmentId - Department ID
+   * @param {string} designationId - Designation ID
+   * @param {Connection} connection - Database connection (required, must be part of transaction)
+   * @returns {Promise<Object>} - Returns the ODD entry
+   */
+  async ensureExistsOrRestore(organizationId, departmentId, designationId, connection) {
+    try {
+      if (!connection) {
+        throw new ApiError(500, 'Transaction connection required');
+      }
+
+      // Check if exists (including soft-deleted)
+      const existingODD = await dbHelper.getOneWithDeleted(
+        {
+          table: 'organization_department_designation',
+          where: {
+            organization_id: organizationId,
+            department_id: departmentId,
+            designation_id: designationId,
+          },
+        },
+        connection,
+      );
+
+      if (existingODD && existingODD.is_deleted === 1) {
+        // Restore soft deleted record
+        const result = await dbHelper.updateOne(
+          'organization_department_designation',
+          { is_deleted: 0 },
+          {
+            organization_id: organizationId,
+            department_id: departmentId,
+            designation_id: designationId,
+          },
+          connection,
+        );
+
+        if (!result) {
+          throw new ApiError(500, 'Failed to restore organization department designation');
+        }
+
+        return {
+          organization_id: organizationId,
+          department_id: departmentId,
+          designation_id: designationId,
+        };
+      } else if (!existingODD) {
+        // Create new record
+        const result = await dbHelper.createOne(
+          'organization_department_designation',
+          {
+            organization_id: organizationId,
+            department_id: departmentId,
+            designation_id: designationId,
+          },
+          connection,
+        );
+
+        if (!result || result === false) {
+          throw new ApiError(500, 'Failed to create organization department designation');
+        }
+
+        return {
+          organization_id: organizationId,
+          department_id: departmentId,
+          designation_id: designationId,
+        };
+      }
+
+      // Already exists and not deleted
+      return {
+        organization_id: organizationId,
+        department_id: departmentId,
+        designation_id: designationId,
+      };
+    } catch (err) {
+      ServiceError(err, 'Failed to ensure organization department designation exists');
     }
   },
 };

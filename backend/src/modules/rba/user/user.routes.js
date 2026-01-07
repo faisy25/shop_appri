@@ -42,17 +42,25 @@ const tag = 'User';
 export const userPaths = {
   '/users': {
     get: makeGet(tag, 'Get all users', userSchemaSwagger, true),
-    post: makePost(tag, 'Create user', createUserSchemaSwagger, userIdSchemaSwagger),
+    post: makePost(tag, 'Create user', createUserSchemaSwagger, userSchemaSwagger),
   },
 
   '/users/{id}': {
     get: makeGet(tag, 'Get user', userSchemaSwagger),
-    put: makePut(tag, 'Update user', editUserSchemaSwagger, userIdSchemaSwagger),
+    put: makePut(tag, 'Update user', editUserSchemaSwagger, userSchemaSwagger),
     delete: makeDelete(tag, 'Delete user', userIdSchemaSwagger),
   },
 
   '/users/{id}/roles': {
     get: makeGet(tag, 'Get user with roles', userSchemaSwagger),
+  },
+
+  '/users/hard': {
+    get: makeGet(tag, 'Get all users with deleted', userSchemaSwagger, true),
+  },
+
+  '/users/hard/{id}': {
+    get: makeGet(tag, 'Get user with deleted', userSchemaSwagger),
   },
 
   '/users/hard/{id}': {

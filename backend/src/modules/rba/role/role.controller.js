@@ -3,18 +3,7 @@ import { success } from '../../../util/responses.js';
 import { roleService } from './role.service.js';
 
 const getRoles = asyncHandler(async (req, res) => {
-  // Extract filter parameters from query string
-  const filters = {};
-  if (req.query.organization_id) {
-    filters.organization_id = parseInt(req.query.organization_id);
-  }
-  if (req.query.department_id) {
-    filters.department_id = req.query.department_id;
-  }
-  if (req.query.designation_id) {
-    filters.designation_id = req.query.designation_id;
-  }
-  const roles = await roleService.getAll(filters);
+  const roles = await roleService.getAll(req.query);
   return success(res, 'Roles retrieved successfully', roles, 200);
 });
 

@@ -60,7 +60,6 @@ const FeatureTable = () => {
   return (
     <>
       {loading && <Typography>Loading...</Typography>}
-      {error && <Typography color="error">{error}</Typography>}
 
       {list.length > 0 ? (
         <CustomTable

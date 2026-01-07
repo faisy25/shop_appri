@@ -3,6 +3,8 @@ import { randomBytes } from 'crypto';
 import dbHelper from '../../../util/database/dbHelper.js';
 import ApiError from '../../../util/error/api.error.js';
 import { ServiceError } from '../../../util/error/service.error.js';
+import { userDetailService } from './user_detail/userDetail.service.js';
+import { userRoleService } from './user_role/userRole.service.js';
 
 // Generate default password
 const generateDefaultPassword = () => {
@@ -13,6 +15,69 @@ const generateDefaultPassword = () => {
 const hashPassword = async (password) => {
   const saltRounds = 10;
   return await bcrypt.hash(password, saltRounds);
+};
+
+/**
+ * Helper function to format user response with nested user_detail
+ */
+const formatUserResponse = (user) => {
+  if (!user) return null;
+
+  return {
+    user_id: user.user_id,
+    uuid: user.uuid,
+    name: user.name,
+    email: user.email,
+    login_type: user.login_type,
+    email_verified: user.email_verified,
+    email_verified_at: user.email_verified_at,
+    is_active: user.is_active,
+    created_at: user.created_at,
+    updated_at: user.updated_at,
+    user_detail: user.user_detail_id
+      ? {
+          user_detail_id: user.user_detail_id,
+          phone: user.phone,
+          alternate_phone: user.alternate_phone,
+          country: user.country,
+          date_of_birth: user.date_of_birth,
+          gender: user.gender,
+          profile_picture_url: user.profile_picture_url,
+          bio: user.bio,
+        }
+      : null,
+  };
+};
+
+/**
+ * Helper function to format role response with nested organization, department, designation
+ */
+const formatRoleResponse = (role) => {
+  if (!role) return null;
+
+  return {
+    role_id: role.role_id,
+    name: role.role_name,
+    description: role.role_description,
+    organization: role.organization_id
+      ? {
+          organization_id: role.organization_id,
+          name: role.organization_name,
+        }
+      : null,
+    department: role.department_id
+      ? {
+          department_id: role.department_id,
+          name: role.department_name,
+        }
+      : null,
+    designation: role.designation_id
+      ? {
+          designation_id: role.designation_id,
+          name: role.designation_name,
+        }
+      : null,
+  };
 };
 
 export const userService = {
@@ -31,11 +96,42 @@ export const userService = {
           'user.is_active',
           'user.created_at',
           'user.updated_at',
+          'user_detail.user_detail_id',
+          'user_detail.phone',
+          'user_detail.alternate_phone',
+          'user_detail.country',
+          'user_detail.date_of_birth',
+          'user_detail.gender',
+          'user_detail.profile_picture_url',
+          'user_detail.bio',
+        ],
+        joinArray: [
+          {
+            table: 'user_detail',
+            condition: 'user.user_id = user_detail.user_id',
+            join_type: 'LEFT',
+          },
         ],
         orderBy: [{ key: 'user.created_at', value: 'DESC' }],
-        deletedColumn: 'is_deleted',
+        deletedColumn: 'user.is_deleted',
       });
-      return users;
+
+      // Format users and fetch roles for each user
+      const formattedUsers = await Promise.all(
+        users.map(async (user) => {
+          const formattedUser = formatUserResponse(user);
+          // Fetch roles for this user
+          const roles = await userRoleService.getByUserId(user.user_id);
+          // Format roles with nested objects
+          const formattedRoles = (roles || []).map(formatRoleResponse);
+          return {
+            ...formattedUser,
+            roles: formattedRoles,
+          };
+        }),
+      );
+
+      return formattedUsers;
     } catch (err) {
       ServiceError(err, 'Failed to load users');
     }
@@ -56,15 +152,40 @@ export const userService = {
           'user.is_active',
           'user.created_at',
           'user.updated_at',
+          'user_detail.user_detail_id',
+          'user_detail.phone',
+          'user_detail.alternate_phone',
+          'user_detail.country',
+          'user_detail.date_of_birth',
+          'user_detail.gender',
+          'user_detail.profile_picture_url',
+          'user_detail.bio',
         ],
-        where: { user_id: id },
-        deletedColumn: 'is_deleted',
+        where: { 'user.user_id': id },
+        joinArray: [
+          {
+            table: 'user_detail',
+            condition: 'user.user_id = user_detail.user_id',
+            join_type: 'LEFT',
+          },
+        ],
+        deletedColumn: 'user.is_deleted',
       });
 
       if (!user) {
         throw new ApiError(404, 'User not found');
       }
-      return user;
+
+      // Format user and fetch roles
+      const formattedUser = formatUserResponse(user);
+      const roles = await userRoleService.getByUserId(id);
+      // Format roles with nested objects
+      const formattedRoles = (roles || []).map(formatRoleResponse);
+
+      return {
+        ...formattedUser,
+        roles: formattedRoles,
+      };
     } catch (err) {
       ServiceError(err, 'Failed to get user');
     }
@@ -117,52 +238,12 @@ export const userService = {
 
       // Create user detail if provided
       if (data.user_detail) {
-        await dbHelper.createOne(
-          'user_detail',
-          {
-            user_id: userId,
-            phone: data.user_detail.phone || null,
-            alternate_phone: data.user_detail.alternate_phone || null,
-            country: data.user_detail.country || null,
-            date_of_birth: data.user_detail.date_of_birth || null,
-            gender: data.user_detail.gender || null,
-            profile_picture_url: data.user_detail.profile_picture_url || null,
-            bio: data.user_detail.bio || null,
-          },
-          connection,
-        );
+        await userDetailService.create(userId, data.user_detail, connection);
       }
 
       // Assign roles if provided
       if (data.role_ids && Array.isArray(data.role_ids) && data.role_ids.length > 0) {
-        if (data.role_ids.length > 5) {
-          throw new ApiError(400, 'User can have maximum 5 roles');
-        }
-
-        for (const roleId of data.role_ids) {
-          // Verify role exists
-          const role = await dbHelper.getOne(
-            {
-              table: 'role',
-              where: { role_id: roleId },
-              deletedColumn: 'is_deleted',
-            },
-            connection,
-          );
-
-          if (!role) {
-            throw new ApiError(404, `Role with id ${roleId} not found`);
-          }
-
-          await dbHelper.createOne(
-            'user_role',
-            {
-              user_id: userId,
-              role_id: roleId,
-            },
-            connection,
-          );
-        }
+        await userRoleService.assignRoles(userId, data.role_ids, connection);
       }
 
       const committed = await dbHelper.commitTransaction(connection);
@@ -196,7 +277,8 @@ export const userService = {
       if (data.email) updateData.email = data.email;
       if (data.login_type) updateData.login_type = data.login_type;
       if (data.email_verified !== undefined) updateData.email_verified = data.email_verified;
-      if (data.email_verified_at !== undefined) updateData.email_verified_at = data.email_verified_at;
+      if (data.email_verified_at !== undefined)
+        updateData.email_verified_at = data.email_verified_at;
       if (data.is_active !== undefined) updateData.is_active = data.is_active;
 
       if (Object.keys(updateData).length > 0) {
@@ -209,84 +291,12 @@ export const userService = {
 
       // Update user detail if provided
       if (data.user_detail) {
-        const existingDetail = await dbHelper.getOne(
-          {
-            table: 'user_detail',
-            where: { user_id: id },
-            deletedColumn: 'is_deleted',
-          },
-          connection,
-        );
-
-        const detailData = {};
-        if (data.user_detail.phone !== undefined) detailData.phone = data.user_detail.phone;
-        if (data.user_detail.alternate_phone !== undefined)
-          detailData.alternate_phone = data.user_detail.alternate_phone;
-        if (data.user_detail.country !== undefined) detailData.country = data.user_detail.country;
-        if (data.user_detail.date_of_birth !== undefined)
-          detailData.date_of_birth = data.user_detail.date_of_birth;
-        if (data.user_detail.gender !== undefined) detailData.gender = data.user_detail.gender;
-        if (data.user_detail.profile_picture_url !== undefined)
-          detailData.profile_picture_url = data.user_detail.profile_picture_url;
-        if (data.user_detail.bio !== undefined) detailData.bio = data.user_detail.bio;
-
-        if (Object.keys(detailData).length > 0) {
-          if (existingDetail) {
-            await dbHelper.updateOne(
-              'user_detail',
-              detailData,
-              { user_detail_id: existingDetail.user_detail_id },
-              connection,
-            );
-          } else {
-            await dbHelper.createOne(
-              'user_detail',
-              {
-                user_id: id,
-                ...detailData,
-              },
-              connection,
-            );
-          }
-        }
+        await userDetailService.update(id, data.user_detail, connection);
       }
 
       // Update roles if provided
       if (data.role_ids !== undefined) {
-        if (Array.isArray(data.role_ids) && data.role_ids.length > 5) {
-          throw new ApiError(400, 'User can have maximum 5 roles');
-        }
-
-        // Soft delete all existing roles
-        await dbHelper.softDeleteOne('user_role', { user_id: id }, connection);
-
-        // Create new role assignments
-        if (Array.isArray(data.role_ids) && data.role_ids.length > 0) {
-          for (const roleId of data.role_ids) {
-            // Verify role exists
-            const role = await dbHelper.getOne(
-              {
-                table: 'role',
-                where: { role_id: roleId },
-                deletedColumn: 'is_deleted',
-              },
-              connection,
-            );
-
-            if (!role) {
-              throw new ApiError(404, `Role with id ${roleId} not found`);
-            }
-
-            await dbHelper.createOne(
-              'user_role',
-              {
-                user_id: id,
-                role_id: roleId,
-              },
-              connection,
-            );
-          }
-        }
+        await userRoleService.updateRoles(id, data.role_ids, connection);
       }
 
       const committed = await dbHelper.commitTransaction(connection);
@@ -294,7 +304,8 @@ export const userService = {
         throw new ApiError(500, 'Failed to commit transaction');
       }
 
-      return { user_id: id };
+      // Return the updated user with full details
+      return await this.getById(id);
     } catch (err) {
       await dbHelper.rollbackTransaction(connection);
       ServiceError(err, 'Failed to update user');
@@ -310,10 +321,25 @@ export const userService = {
     try {
       await this.getById(id);
 
+      // Soft delete user
       const result = await dbHelper.softDeleteOne('user', { user_id: id }, connection);
 
       if (!result || !result.success || result.affectedRows === 0) {
         throw new ApiError(404, 'User not found or already deleted');
+      }
+
+      // Soft delete user detail if exists
+      try {
+        await userDetailService.softDelete(id, connection);
+      } catch (err) {
+        // User detail might not exist, continue
+      }
+
+      // Soft delete user roles
+      try {
+        await userRoleService.softDeleteByUserId(id, connection);
+      } catch (err) {
+        // User roles might not exist, continue
       }
 
       const committed = await dbHelper.commitTransaction(connection);
@@ -344,10 +370,42 @@ export const userService = {
           'user.is_deleted',
           'user.created_at',
           'user.updated_at',
+          'user_detail.user_detail_id',
+          'user_detail.phone',
+          'user_detail.alternate_phone',
+          'user_detail.country',
+          'user_detail.date_of_birth',
+          'user_detail.gender',
+          'user_detail.profile_picture_url',
+          'user_detail.bio',
+        ],
+        joinArray: [
+          {
+            table: 'user_detail',
+            condition: 'user.user_id = user_detail.user_id',
+            join_type: 'LEFT',
+          },
         ],
         orderBy: [{ key: 'user.created_at', value: 'DESC' }],
       });
-      return users;
+
+      // Format users and fetch roles for each user
+      const formattedUsers = await Promise.all(
+        users.map(async (user) => {
+          const formattedUser = formatUserResponse(user);
+          // Fetch roles for this user (including deleted)
+          const roles = await userRoleService.getByUserId(user.user_id);
+          // Format roles with nested objects
+          const formattedRoles = (roles || []).map(formatRoleResponse);
+          return {
+            ...formattedUser,
+            is_deleted: user.is_deleted,
+            roles: formattedRoles,
+          };
+        }),
+      );
+
+      return formattedUsers;
     } catch (err) {
       ServiceError(err, 'Failed to load users with deleted');
     }
@@ -369,15 +427,41 @@ export const userService = {
           'user.is_deleted',
           'user.created_at',
           'user.updated_at',
+          'user_detail.user_detail_id',
+          'user_detail.phone',
+          'user_detail.alternate_phone',
+          'user_detail.country',
+          'user_detail.date_of_birth',
+          'user_detail.gender',
+          'user_detail.profile_picture_url',
+          'user_detail.bio',
         ],
-        where: { user_id: id },
+        where: { 'user.user_id': id },
         primaryKey: 'user_id',
+        joinArray: [
+          {
+            table: 'user_detail',
+            condition: 'user.user_id = user_detail.user_id',
+            join_type: 'LEFT',
+          },
+        ],
       });
 
       if (!user) {
         throw new ApiError(404, 'User not found');
       }
-      return user;
+
+      // Format user and fetch roles
+      const formattedUser = formatUserResponse(user);
+      const roles = await userRoleService.getByUserId(id);
+      // Format roles with nested objects
+      const formattedRoles = (roles || []).map(formatRoleResponse);
+
+      return {
+        ...formattedUser,
+        is_deleted: user.is_deleted,
+        roles: formattedRoles,
+      };
     } catch (err) {
       ServiceError(err, 'Failed to get user with deleted records');
     }
@@ -392,6 +476,21 @@ export const userService = {
     try {
       await this.getByIdWithDeleted(id);
 
+      // Hard delete user roles first (foreign key constraint)
+      try {
+        await userRoleService.hardDeleteByUserId(id, connection);
+      } catch (err) {
+        // User roles might not exist, continue
+      }
+
+      // Hard delete user detail
+      try {
+        await userDetailService.hardDelete(id, connection);
+      } catch (err) {
+        // User detail might not exist, continue
+      }
+
+      // Hard delete user
       const result = await dbHelper.deleteOne('user', { user_id: id }, connection);
 
       if (!result || !result.success || result.affectedRows === 0) {
@@ -411,66 +510,8 @@ export const userService = {
   },
 
   async getUserWithRoles(id) {
-    try {
-      const user = await this.getById(id);
-
-      // Get user roles with organization, department, designation details
-      const userRoles = await dbHelper.getAll({
-        table: 'user_role',
-        selectColumns: [
-          'user_role.user_id',
-          'user_role.role_id',
-          'role.name as role_name',
-          'role.description as role_description',
-          'organization_department_designation.organization_id',
-          'organization_department_designation.department_id',
-          'organization_department_designation.designation_id',
-          'organization.name as organization_name',
-          'department.name as department_name',
-          'designation.name as designation_name',
-        ],
-        where: { 'user_role.user_id': id },
-        joinArray: [
-          {
-            table: 'role',
-            condition: 'user_role.role_id = role.role_id',
-            join_type: 'INNER',
-          },
-          {
-            table: 'organization_department_designation',
-            condition:
-              'CONCAT(organization_department_designation.organization_id, "-", organization_department_designation.department_id, "-", organization_department_designation.designation_id) = role.role_id',
-            join_type: 'LEFT',
-          },
-          {
-            table: 'organization',
-            condition:
-              'organization_department_designation.organization_id = organization.organization_id',
-            join_type: 'LEFT',
-          },
-          {
-            table: 'department',
-            condition:
-              'organization_department_designation.department_id = department.department_id',
-            join_type: 'LEFT',
-          },
-          {
-            table: 'designation',
-            condition:
-              'organization_department_designation.designation_id = designation.designation_id',
-            join_type: 'LEFT',
-          },
-        ],
-        deletedColumn: 'is_deleted',
-      });
-
-      return {
-        ...user,
-        roles: userRoles,
-      };
-    } catch (err) {
-      ServiceError(err, 'Failed to get user with roles');
-    }
+    // This method is now redundant as getById already includes roles
+    // Keeping for backward compatibility
+    return await this.getById(id);
   },
 };
-

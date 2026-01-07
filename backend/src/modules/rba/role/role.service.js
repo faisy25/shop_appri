@@ -1,6 +1,8 @@
 import dbHelper from '../../../util/database/dbHelper.js';
 import ApiError from '../../../util/error/api.error.js';
 import { ServiceError } from '../../../util/error/service.error.js';
+import { organizationDepartmentDesignationService } from '../organizationDepartmentDesignation/organizationDepartmentDesignation.service.js';
+import { formatRoleResponse } from './role.validation.js';
 
 /**
  * Helper function to generate role_id from organization_id, department_id, and designation_id
@@ -10,47 +12,65 @@ const generateRoleId = (organizationId, departmentId, designationId) => {
   return `${organizationId}${departmentId}${designationId}`;
 };
 
-/**
- * Helper function to format role response with nested objects
- */
-const formatRoleResponse = (role) => {
-  if (!role) return null;
+// Common select columns and joins for role queries
+const roleSelectColumns = [
+  'role.role_id',
+  'role.name',
+  'role.description',
+  'role.created_at',
+  'role.updated_at',
+  'organization_department_designation.organization_id',
+  'organization_department_designation.department_id',
+  'organization_department_designation.designation_id',
+  'organization.name as organization_name',
+  'department.name as department_name',
+  'designation.name as designation_name',
+];
 
-  return {
-    role_id: role.role_id,
-    name: role.name,
-    description: role.description,
-    created_at: role.created_at,
-    updated_at: role.updated_at,
-    organization: role.organization_id
-      ? {
-          organization_id: role.organization_id,
-          name: role.organization_name,
-        }
-      : null,
-    department: role.department_id
-      ? {
-          department_id: role.department_id,
-          name: role.department_name,
-        }
-      : null,
-    designation: role.designation_id
-      ? {
-          designation_id: role.designation_id,
-          name: role.designation_name,
-        }
-      : null,
-  };
-};
+const roleJoinArray = [
+  {
+    table: 'organization_department_designation',
+    condition:
+      'role.role_id = CONCAT(organization_department_designation.organization_id, organization_department_designation.department_id, organization_department_designation.designation_id)',
+    join_type: 'LEFT',
+  },
+  {
+    table: 'organization',
+    condition: 'organization_department_designation.organization_id = organization.organization_id',
+    join_type: 'LEFT',
+  },
+  {
+    table: 'department',
+    condition: 'organization_department_designation.department_id = department.department_id',
+    join_type: 'LEFT',
+  },
+  {
+    table: 'designation',
+    condition: 'organization_department_designation.designation_id = designation.designation_id',
+    join_type: 'LEFT',
+  },
+];
 
 export const roleService = {
   /**
    * Get all roles with filters for organization, department, and designation
-   * @param {Object} filters - Optional filters { organization_id, department_id, designation_id }
+   * @param {Object} query - Query parameters from request (req.query)
    */
-  async getAll(filters = {}) {
+  async getAll(query = {}) {
     try {
       const whereConditions = {};
+
+      // Extract and filter query parameters
+      const filters = {};
+      if (query.organization_id) {
+        filters.organization_id = parseInt(query.organization_id);
+      }
+      if (query.department_id) {
+        filters.department_id = query.department_id;
+      }
+      if (query.designation_id) {
+        filters.designation_id = query.designation_id;
+      }
 
       // Build WHERE conditions for filters
       // Filter on organization_department_designation fields only if filters are provided
@@ -80,46 +100,9 @@ export const roleService = {
       // we JOIN on: role.role_id = CONCAT(odd.organization_id, odd.department_id, odd.designation_id)
       const roles = await dbHelper.getAll({
         table: 'role',
-        selectColumns: [
-          'role.role_id',
-          'role.name',
-          'role.description',
-          'role.created_at',
-          'role.updated_at',
-          'organization_department_designation.organization_id',
-          'organization_department_designation.department_id',
-          'organization_department_designation.designation_id',
-          'organization.name as organization_name',
-          'department.name as department_name',
-          'designation.name as designation_name',
-        ],
+        selectColumns: roleSelectColumns,
         where: whereConditions,
-        joinArray: [
-          {
-            table: 'organization_department_designation',
-            condition:
-              'role.role_id = CONCAT(organization_department_designation.organization_id, organization_department_designation.department_id, organization_department_designation.designation_id)',
-            join_type: 'LEFT',
-          },
-          {
-            table: 'organization',
-            condition:
-              'organization_department_designation.organization_id = organization.organization_id',
-            join_type: 'LEFT',
-          },
-          {
-            table: 'department',
-            condition:
-              'organization_department_designation.department_id = department.department_id',
-            join_type: 'LEFT',
-          },
-          {
-            table: 'designation',
-            condition:
-              'organization_department_designation.designation_id = designation.designation_id',
-            join_type: 'LEFT',
-          },
-        ],
+        joinArray: roleJoinArray,
         orderBy: [{ key: 'role.created_at', value: 'DESC' }],
         deletedColumn: 'role.is_deleted',
       });
@@ -146,46 +129,9 @@ export const roleService = {
     try {
       const role = await dbHelper.getOne({
         table: 'role',
-        selectColumns: [
-          'role.role_id',
-          'role.name',
-          'role.description',
-          'role.created_at',
-          'role.updated_at',
-          'organization_department_designation.organization_id',
-          'organization_department_designation.department_id',
-          'organization_department_designation.designation_id',
-          'organization.name as organization_name',
-          'department.name as department_name',
-          'designation.name as designation_name',
-        ],
+        selectColumns: roleSelectColumns,
         where: { 'role.role_id': id },
-        joinArray: [
-          {
-            table: 'organization_department_designation',
-            condition:
-              'role.role_id = CONCAT(organization_department_designation.organization_id, organization_department_designation.department_id, organization_department_designation.designation_id)',
-            join_type: 'LEFT',
-          },
-          {
-            table: 'organization',
-            condition:
-              'organization_department_designation.organization_id = organization.organization_id',
-            join_type: 'LEFT',
-          },
-          {
-            table: 'department',
-            condition:
-              'organization_department_designation.department_id = department.department_id',
-            join_type: 'LEFT',
-          },
-          {
-            table: 'designation',
-            condition:
-              'organization_department_designation.designation_id = designation.designation_id',
-            join_type: 'LEFT',
-          },
-        ],
+        joinArray: roleJoinArray,
         deletedColumn: 'role.is_deleted',
       });
 
@@ -298,47 +244,13 @@ export const roleService = {
         }
       }
 
-      // Create or restore organization_department_designation entry
-      const existingODD = await dbHelper.getOneWithDeleted(
-        {
-          table: 'organization_department_designation',
-          where: {
-            organization_id: data.organization_id,
-            department_id: data.department_id,
-            designation_id: data.designation_id,
-          },
-        },
+      // Ensure organization_department_designation entry exists (create or restore if soft-deleted)
+      await organizationDepartmentDesignationService.ensureExistsOrRestore(
+        data.organization_id,
+        data.department_id,
+        data.designation_id,
         connection,
       );
-
-      if (existingODD && existingODD.is_deleted === 1) {
-        // Restore soft deleted record
-        await dbHelper.updateOne(
-          'organization_department_designation',
-          { is_deleted: 0 },
-          {
-            organization_id: data.organization_id,
-            department_id: data.department_id,
-            designation_id: data.designation_id,
-          },
-          connection,
-        );
-      } else if (!existingODD) {
-        // Create new record
-        const oddResult = await dbHelper.createOne(
-          'organization_department_designation',
-          {
-            organization_id: data.organization_id,
-            department_id: data.department_id,
-            designation_id: data.designation_id,
-          },
-          connection,
-        );
-
-        if (!oddResult || oddResult === false) {
-          throw new ApiError(500, 'Failed to create organization department designation');
-        }
-      }
 
       const committed = await dbHelper.commitTransaction(connection);
       if (!committed) {
@@ -525,55 +437,22 @@ export const roleService = {
             );
           }
 
-          // Update organization_department_designation (soft delete old, create new)
-          // Soft delete old record
-          await dbHelper.softDeleteOne(
-            'organization_department_designation',
-            {
-              organization_id: existingRoleRaw.organization_id,
-              department_id: existingRoleRaw.department_id,
-              designation_id: existingRoleRaw.designation_id,
-            },
+          // Update organization_department_designation (soft delete old, ensure new exists)
+          // Soft delete old record using service
+          await organizationDepartmentDesignationService.softDelete(
+            existingRoleRaw.organization_id,
+            existingRoleRaw.department_id,
+            existingRoleRaw.designation_id,
             connection,
           );
 
-          // Check if new combination exists
-          const newODD = await dbHelper.getOneWithDeleted(
-            {
-              table: 'organization_department_designation',
-              where: {
-                organization_id: finalOrgId,
-                department_id: finalDeptId,
-                designation_id: finalDesigId,
-              },
-            },
+          // Ensure new organization_department_designation entry exists (create or restore if soft-deleted)
+          await organizationDepartmentDesignationService.ensureExistsOrRestore(
+            finalOrgId,
+            finalDeptId,
+            finalDesigId,
             connection,
           );
-
-          if (newODD && newODD.is_deleted === 1) {
-            // Restore soft deleted record
-            await dbHelper.updateOne(
-              'organization_department_designation',
-              { is_deleted: 0 },
-              {
-                organization_id: finalOrgId,
-                department_id: finalDeptId,
-                designation_id: finalDesigId,
-              },
-              connection,
-            );
-          } else if (!newODD) {
-            // Create new record
-            await dbHelper.createOne(
-              'organization_department_designation',
-              {
-                organization_id: finalOrgId,
-                department_id: finalDeptId,
-                designation_id: finalDesigId,
-              },
-              connection,
-            );
-          }
 
           const committed = await dbHelper.commitTransaction(connection);
           if (!committed) {
@@ -713,13 +592,10 @@ export const roleService = {
 
       // Soft delete organization_department_designation if it exists
       if (role && role.organization_id && role.department_id && role.designation_id) {
-        await dbHelper.softDeleteOne(
-          'organization_department_designation',
-          {
-            organization_id: role.organization_id,
-            department_id: role.department_id,
-            designation_id: role.designation_id,
-          },
+        await organizationDepartmentDesignationService.softDelete(
+          role.organization_id,
+          role.department_id,
+          role.designation_id,
           connection,
         );
       }
@@ -740,46 +616,8 @@ export const roleService = {
     try {
       const roles = await dbHelper.getAllWithDeleted({
         table: 'role',
-        selectColumns: [
-          'role.role_id',
-          'role.name',
-          'role.description',
-          'role.created_at',
-          'role.updated_at',
-          'role.is_deleted',
-          'organization_department_designation.organization_id',
-          'organization_department_designation.department_id',
-          'organization_department_designation.designation_id',
-          'organization.name as organization_name',
-          'department.name as department_name',
-          'designation.name as designation_name',
-        ],
-        joinArray: [
-          {
-            table: 'organization_department_designation',
-            condition:
-              'role.role_id = CONCAT(organization_department_designation.organization_id, organization_department_designation.department_id, organization_department_designation.designation_id)',
-            join_type: 'LEFT',
-          },
-          {
-            table: 'organization',
-            condition:
-              'organization_department_designation.organization_id = organization.organization_id',
-            join_type: 'LEFT',
-          },
-          {
-            table: 'department',
-            condition:
-              'organization_department_designation.department_id = department.department_id',
-            join_type: 'LEFT',
-          },
-          {
-            table: 'designation',
-            condition:
-              'organization_department_designation.designation_id = designation.designation_id',
-            join_type: 'LEFT',
-          },
-        ],
+        selectColumns: [...roleSelectColumns, 'role.is_deleted'],
+        joinArray: roleJoinArray,
         orderBy: [{ key: 'role.created_at', value: 'DESC' }],
       });
 
@@ -793,47 +631,9 @@ export const roleService = {
     try {
       const role = await dbHelper.getOneWithDeleted({
         table: 'role',
-        selectColumns: [
-          'role.role_id',
-          'role.name',
-          'role.description',
-          'role.created_at',
-          'role.updated_at',
-          'role.is_deleted',
-          'organization_department_designation.organization_id',
-          'organization_department_designation.department_id',
-          'organization_department_designation.designation_id',
-          'organization.name as organization_name',
-          'department.name as department_name',
-          'designation.name as designation_name',
-        ],
+        selectColumns: [...roleSelectColumns, 'role.is_deleted'],
         where: { 'role.role_id': id },
-        joinArray: [
-          {
-            table: 'organization_department_designation',
-            condition:
-              'role.role_id = CONCAT(organization_department_designation.organization_id, organization_department_designation.department_id, organization_department_designation.designation_id)',
-            join_type: 'LEFT',
-          },
-          {
-            table: 'organization',
-            condition:
-              'organization_department_designation.organization_id = organization.organization_id',
-            join_type: 'LEFT',
-          },
-          {
-            table: 'department',
-            condition:
-              'organization_department_designation.department_id = department.department_id',
-            join_type: 'LEFT',
-          },
-          {
-            table: 'designation',
-            condition:
-              'organization_department_designation.designation_id = designation.designation_id',
-            join_type: 'LEFT',
-          },
-        ],
+        joinArray: roleJoinArray,
       });
 
       if (!role) {
@@ -883,17 +683,12 @@ export const roleService = {
 
       // Hard delete organization_department_designation if it exists
       if (role && role.organization_id && role.department_id && role.designation_id) {
-        const sql = `
-          DELETE FROM organization_department_designation
-          WHERE organization_id = ? 
-            AND department_id = ? 
-            AND designation_id = ?
-        `;
-        await connection.query(sql, [
+        await organizationDepartmentDesignationService.hardDelete(
           role.organization_id,
           role.department_id,
           role.designation_id,
-        ]);
+          connection,
+        );
       }
 
       const committed = await dbHelper.commitTransaction(connection);

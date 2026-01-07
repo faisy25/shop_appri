@@ -7,6 +7,7 @@ import { designationPaths } from '../../modules/rba/designation/designation.rout
 import { permissionPaths } from '../../modules/rba/permission/permission.routes.js';
 import { rolePaths } from '../../modules/rba/role/role.routes.js';
 import { featurePaths } from '../../modules/rba/feature/feature.routes.js';
+import { userPaths } from '../../modules/rba/user/user.routes.js';
 
 const swaggerDefinition = {
   openapi: '3.0.0',
@@ -85,6 +86,7 @@ const swaggerDefinition = {
     ...permissionPaths,
     ...rolePaths,
     ...featurePaths,
+    ...userPaths,
   },
 };
 
