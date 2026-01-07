@@ -2,9 +2,82 @@ import dbHelper from '../../../util/database/dbHelper.js';
 import ApiError from '../../../util/error/api.error.js';
 import { ServiceError } from '../../../util/error/service.error.js';
 
+/**
+ * Helper function to generate role_id from organization_id, department_id, and designation_id
+ * Concatenates without separators: orgId + deptId + desigId
+ */
+const generateRoleId = (organizationId, departmentId, designationId) => {
+  return `${organizationId}${departmentId}${designationId}`;
+};
+
+/**
+ * Helper function to format role response with nested objects
+ */
+const formatRoleResponse = (role) => {
+  if (!role) return null;
+
+  return {
+    role_id: role.role_id,
+    name: role.name,
+    description: role.description,
+    created_at: role.created_at,
+    updated_at: role.updated_at,
+    organization: role.organization_id
+      ? {
+          organization_id: role.organization_id,
+          name: role.organization_name,
+        }
+      : null,
+    department: role.department_id
+      ? {
+          department_id: role.department_id,
+          name: role.department_name,
+        }
+      : null,
+    designation: role.designation_id
+      ? {
+          designation_id: role.designation_id,
+          name: role.designation_name,
+        }
+      : null,
+  };
+};
+
 export const roleService = {
-  async getAll() {
+  /**
+   * Get all roles with filters for organization, department, and designation
+   * @param {Object} filters - Optional filters { organization_id, department_id, designation_id }
+   */
+  async getAll(filters = {}) {
     try {
+      const whereConditions = {};
+
+      // Build WHERE conditions for filters
+      // Filter on organization_department_designation fields only if filters are provided
+      // Also add is_deleted checks for joined tables
+      if (filters.organization_id) {
+        whereConditions['organization_department_designation.organization_id'] =
+          filters.organization_id;
+        whereConditions['organization_department_designation.is_deleted'] = 0;
+      }
+      if (filters.department_id) {
+        whereConditions['organization_department_designation.department_id'] =
+          filters.department_id;
+        if (!filters.organization_id) {
+          whereConditions['organization_department_designation.is_deleted'] = 0;
+        }
+      }
+      if (filters.designation_id) {
+        whereConditions['organization_department_designation.designation_id'] =
+          filters.designation_id;
+        if (!filters.organization_id && !filters.department_id) {
+          whereConditions['organization_department_designation.is_deleted'] = 0;
+        }
+      }
+
+      // Build JOIN condition: Match role_id with concatenated IDs from organization_department_designation
+      // Since role_id = CONCAT(org_id, dept_id, desig_id) without separators,
+      // we JOIN on: role.role_id = CONCAT(odd.organization_id, odd.department_id, odd.designation_id)
       const roles = await dbHelper.getAll({
         table: 'role',
         selectColumns: [
@@ -20,11 +93,12 @@ export const roleService = {
           'department.name as department_name',
           'designation.name as designation_name',
         ],
+        where: whereConditions,
         joinArray: [
           {
             table: 'organization_department_designation',
             condition:
-              'CONCAT(organization_department_designation.organization_id, "-", organization_department_designation.department_id, "-", organization_department_designation.designation_id) = role.role_id',
+              'role.role_id = CONCAT(organization_department_designation.organization_id, organization_department_designation.department_id, organization_department_designation.designation_id)',
             join_type: 'LEFT',
           },
           {
@@ -47,10 +121,23 @@ export const roleService = {
           },
         ],
         orderBy: [{ key: 'role.created_at', value: 'DESC' }],
-        // deletedColumn: 'is_deleted',
+        deletedColumn: 'role.is_deleted',
       });
-      return roles;
+
+      // Handle case where dbHelper returns false on error
+      if (roles === false) {
+        throw new Error('Database query failed');
+      }
+
+      // Ensure roles is an array (handle empty results)
+      if (!Array.isArray(roles)) {
+        return [];
+      }
+
+      // Format response with nested objects
+      return roles.map(formatRoleResponse);
     } catch (err) {
+      console.error('Error in roleService.getAll:', err.message || err);
       ServiceError(err, 'Failed to load roles');
     }
   },
@@ -72,12 +159,12 @@ export const roleService = {
           'department.name as department_name',
           'designation.name as designation_name',
         ],
-        where: { role_id: id },
+        where: { 'role.role_id': id },
         joinArray: [
           {
             table: 'organization_department_designation',
             condition:
-              'CONCAT(organization_department_designation.organization_id, "-", organization_department_designation.department_id, "-", organization_department_designation.designation_id) = role.role_id',
+              'role.role_id = CONCAT(organization_department_designation.organization_id, organization_department_designation.department_id, organization_department_designation.designation_id)',
             join_type: 'LEFT',
           },
           {
@@ -99,13 +186,14 @@ export const roleService = {
             join_type: 'LEFT',
           },
         ],
-        deletedColumn: 'is_deleted',
+        deletedColumn: 'role.is_deleted',
       });
 
       if (!role) {
         throw new ApiError(404, 'Role not found');
       }
-      return role;
+
+      return formatRoleResponse(role);
     } catch (err) {
       ServiceError(err, 'Failed to get role');
     }
@@ -118,152 +206,89 @@ export const roleService = {
     }
 
     try {
+      // Validate required fields
+      if (!data.organization_id || !data.department_id || !data.designation_id) {
+        throw new ApiError(400, 'organization_id, department_id, and designation_id are required');
+      }
+
       // Verify organization, department, and designation exist
-      if (data.organization_id && data.department_id && data.designation_id) {
-        const organization = await dbHelper.getOne(
+      const organization = await dbHelper.getOne(
+        {
+          table: 'organization',
+          where: { organization_id: data.organization_id },
+          deletedColumn: 'is_deleted',
+        },
+        connection,
+      );
+      if (!organization) {
+        throw new ApiError(404, 'Organization not found');
+      }
+
+      const department = await dbHelper.getOne(
+        {
+          table: 'department',
+          where: { department_id: data.department_id },
+          deletedColumn: 'is_deleted',
+        },
+        connection,
+      );
+      if (!department) {
+        throw new ApiError(404, 'Department not found');
+      }
+
+      const designation = await dbHelper.getOne(
+        {
+          table: 'designation',
+          where: { designation_id: data.designation_id },
+          deletedColumn: 'is_deleted',
+        },
+        connection,
+      );
+      if (!designation) {
+        throw new ApiError(404, 'Designation not found');
+      }
+
+      // Generate role_id: concatenate without separators
+      const roleId = generateRoleId(data.organization_id, data.department_id, data.designation_id);
+
+      // Generate role name: designation_name - department_name (with hyphen separator)
+      const roleName = `${designation.name}-${department.name}`;
+
+      // Check if role already exists
+      const existingRole = await dbHelper.getOneWithDeleted(
+        {
+          table: 'role',
+          where: { role_id: roleId },
+        },
+        connection,
+      );
+
+      if (existingRole && existingRole.is_deleted === 0) {
+        throw new ApiError(
+          400,
+          'Role already exists for this organization, department, and designation combination',
+        );
+      }
+
+      // Create or restore role
+      if (existingRole && existingRole.is_deleted === 1) {
+        await dbHelper.updateOne(
+          'role',
           {
-            table: 'organization',
-            where: { organization_id: data.organization_id },
-            deletedColumn: 'is_deleted',
+            name: roleName,
+            description: data.description || '',
+            is_deleted: 0,
           },
+          { role_id: roleId },
           connection,
         );
-        if (!organization) {
-          throw new ApiError(404, 'Organization not found');
-        }
-
-        const department = await dbHelper.getOne(
-          {
-            table: 'department',
-            where: { department_id: data.department_id },
-            deletedColumn: 'is_deleted',
-          },
-          connection,
-        );
-        if (!department) {
-          throw new ApiError(404, 'Department not found');
-        }
-
-        const designation = await dbHelper.getOne(
-          {
-            table: 'designation',
-            where: { designation_id: data.designation_id },
-            deletedColumn: 'is_deleted',
-          },
-          connection,
-        );
-        if (!designation) {
-          throw new ApiError(404, 'Designation not found');
-        }
-
-        // Generate role_id from organization_id + department_id + designation_id
-        const roleId = `${data.organization_id}-${data.department_id}-${data.designation_id}`;
-
-        // Check if role already exists
-        const existingRole = await dbHelper.getOneWithDeleted(
-          {
-            table: 'role',
-            where: { role_id: roleId },
-          },
-          connection,
-        );
-
-        if (existingRole && existingRole.is_deleted === 0) {
-          throw new ApiError(
-            400,
-            'Role already exists for this organization, department, and designation combination',
-          );
-        }
-
-        // Create or restore role
-        if (existingRole && existingRole.is_deleted === 1) {
-          await dbHelper.updateOne(
-            'role',
-            {
-              name: data.name,
-              description: data.description,
-              is_deleted: 0,
-            },
-            { role_id: roleId },
-            connection,
-          );
-        } else {
-          const result = await dbHelper.createOne(
-            'role',
-            {
-              role_id: roleId,
-              name: data.name,
-              description: data.description,
-            },
-            connection,
-          );
-
-          if (!result || result === false) {
-            throw new ApiError(500, 'Failed to create role');
-          }
-        }
-
-        // Create or restore organization_department_designation entry
-        const existingODD = await dbHelper.getOneWithDeleted(
-          {
-            table: 'organization_department_designation',
-            where: {
-              organization_id: data.organization_id,
-              department_id: data.department_id,
-              designation_id: data.designation_id,
-            },
-          },
-          connection,
-        );
-
-        if (existingODD && existingODD.is_deleted === 1) {
-          await dbHelper.updateOne(
-            'organization_department_designation',
-            { is_deleted: 0 },
-            {
-              organization_id: data.organization_id,
-              department_id: data.department_id,
-              designation_id: data.designation_id,
-            },
-            connection,
-          );
-        } else if (!existingODD) {
-          const oddResult = await dbHelper.createOne(
-            'organization_department_designation',
-            {
-              organization_id: data.organization_id,
-              department_id: data.department_id,
-              designation_id: data.designation_id,
-            },
-            connection,
-          );
-
-          if (!oddResult || oddResult === false) {
-            throw new ApiError(500, 'Failed to create organization department designation');
-          }
-        }
-
-        const committed = await dbHelper.commitTransaction(connection);
-        if (!committed) {
-          throw new ApiError(500, 'Failed to commit transaction');
-        }
-
-        return { role_id: roleId };
       } else {
-        // If role_id is provided directly (for backward compatibility)
-        if (!data.role_id) {
-          throw new ApiError(
-            400,
-            'Either role_id or organization_id+department_id+designation_id must be provided',
-          );
-        }
-
         const result = await dbHelper.createOne(
           'role',
           {
-            role_id: data.role_id,
-            name: data.name,
-            description: data.description,
+            role_id: roleId,
+            name: roleName,
+            description: data.description || '',
           },
           connection,
         );
@@ -271,14 +296,57 @@ export const roleService = {
         if (!result || result === false) {
           throw new ApiError(500, 'Failed to create role');
         }
-
-        const committed = await dbHelper.commitTransaction(connection);
-        if (!committed) {
-          throw new ApiError(500, 'Failed to commit transaction');
-        }
-
-        return { role_id: data.role_id };
       }
+
+      // Create or restore organization_department_designation entry
+      const existingODD = await dbHelper.getOneWithDeleted(
+        {
+          table: 'organization_department_designation',
+          where: {
+            organization_id: data.organization_id,
+            department_id: data.department_id,
+            designation_id: data.designation_id,
+          },
+        },
+        connection,
+      );
+
+      if (existingODD && existingODD.is_deleted === 1) {
+        // Restore soft deleted record
+        await dbHelper.updateOne(
+          'organization_department_designation',
+          { is_deleted: 0 },
+          {
+            organization_id: data.organization_id,
+            department_id: data.department_id,
+            designation_id: data.designation_id,
+          },
+          connection,
+        );
+      } else if (!existingODD) {
+        // Create new record
+        const oddResult = await dbHelper.createOne(
+          'organization_department_designation',
+          {
+            organization_id: data.organization_id,
+            department_id: data.department_id,
+            designation_id: data.designation_id,
+          },
+          connection,
+        );
+
+        if (!oddResult || oddResult === false) {
+          throw new ApiError(500, 'Failed to create organization department designation');
+        }
+      }
+
+      const committed = await dbHelper.commitTransaction(connection);
+      if (!committed) {
+        throw new ApiError(500, 'Failed to commit transaction');
+      }
+
+      // Return the created role with full details
+      return await this.getById(roleId);
     } catch (err) {
       await dbHelper.rollbackTransaction(connection);
       ServiceError(err, 'Failed to create role');
@@ -292,28 +360,315 @@ export const roleService = {
     }
 
     try {
-      await this.getById(id);
+      // Get existing role with raw data for update operations
+      const existingRoleRaw = await dbHelper.getOne({
+        table: 'role',
+        selectColumns: [
+          'role.role_id',
+          'role.name',
+          'role.description',
+          'organization_department_designation.organization_id',
+          'organization_department_designation.department_id',
+          'organization_department_designation.designation_id',
+        ],
+        where: { 'role.role_id': id },
+        joinArray: [
+          {
+            table: 'organization_department_designation',
+            condition:
+              'role.role_id = CONCAT(organization_department_designation.organization_id, organization_department_designation.department_id, organization_department_designation.designation_id)',
+            join_type: 'LEFT',
+          },
+        ],
+        deletedColumn: 'is_deleted',
+      });
 
-      const result = await dbHelper.updateOne(
-        'role',
-        {
-          name: data.name,
-          description: data.description,
-        },
-        { role_id: id },
-        connection,
-      );
-
-      if (!result) {
+      if (!existingRoleRaw) {
         throw new ApiError(404, 'Role not found');
       }
 
-      const committed = await dbHelper.commitTransaction(connection);
-      if (!committed) {
-        throw new ApiError(500, 'Failed to commit transaction');
-      }
+      // If updating organization, department, or designation, need to create new role_id
+      if (data.organization_id || data.department_id || data.designation_id) {
+        // Get current values
+        const currentOrgId = data.organization_id || existingRoleRaw.organization_id;
+        const currentDeptId = data.department_id || existingRoleRaw.department_id;
+        const currentDesigId = data.designation_id || existingRoleRaw.designation_id;
 
-      return { role_id: id };
+        if (!currentOrgId || !currentDeptId || !currentDesigId) {
+          throw new ApiError(
+            400,
+            'Cannot update: organization, department, and designation must all be provided',
+          );
+        }
+
+        // Verify new values exist
+        if (data.organization_id) {
+          const organization = await dbHelper.getOne(
+            {
+              table: 'organization',
+              where: { organization_id: data.organization_id },
+              deletedColumn: 'is_deleted',
+            },
+            connection,
+          );
+          if (!organization) {
+            throw new ApiError(404, 'Organization not found');
+          }
+        }
+
+        if (data.department_id) {
+          const department = await dbHelper.getOne(
+            {
+              table: 'department',
+              where: { department_id: data.department_id },
+              deletedColumn: 'is_deleted',
+            },
+            connection,
+          );
+          if (!department) {
+            throw new ApiError(404, 'Department not found');
+          }
+        }
+
+        if (data.designation_id) {
+          const designation = await dbHelper.getOne(
+            {
+              table: 'designation',
+              where: { designation_id: data.designation_id },
+              deletedColumn: 'is_deleted',
+            },
+            connection,
+          );
+          if (!designation) {
+            throw new ApiError(404, 'Designation not found');
+          }
+        }
+
+        // Get names for role name generation
+        const finalOrgId = data.organization_id || currentOrgId;
+        const finalDeptId = data.department_id || currentDeptId;
+        const finalDesigId = data.designation_id || currentDesigId;
+
+        const organization = await dbHelper.getOne(
+          {
+            table: 'organization',
+            where: { organization_id: finalOrgId },
+            deletedColumn: 'is_deleted',
+          },
+          connection,
+        );
+        const department = await dbHelper.getOne(
+          {
+            table: 'department',
+            where: { department_id: finalDeptId },
+            deletedColumn: 'is_deleted',
+          },
+          connection,
+        );
+        const designation = await dbHelper.getOne(
+          {
+            table: 'designation',
+            where: { designation_id: finalDesigId },
+            deletedColumn: 'is_deleted',
+          },
+          connection,
+        );
+
+        // Generate new role_id and role name
+        const newRoleId = generateRoleId(finalOrgId, finalDeptId, finalDesigId);
+        const roleName = `${designation.name}-${department.name}`;
+
+        // If role_id changed, need to handle it as delete + create
+        if (newRoleId !== id) {
+          // Check if new role already exists
+          const newRoleExists = await dbHelper.getOneWithDeleted(
+            {
+              table: 'role',
+              where: { role_id: newRoleId },
+            },
+            connection,
+          );
+
+          if (newRoleExists && newRoleExists.is_deleted === 0) {
+            throw new ApiError(
+              400,
+              'Role already exists for the new organization, department, and designation combination',
+            );
+          }
+
+          // Soft delete old role
+          await dbHelper.softDeleteOne('role', { role_id: id }, connection);
+
+          // Create or restore new role
+          if (newRoleExists && newRoleExists.is_deleted === 1) {
+            await dbHelper.updateOne(
+              'role',
+              {
+                name: roleName,
+                description:
+                  data.description !== undefined ? data.description : existingRoleRaw.description,
+                is_deleted: 0,
+              },
+              { role_id: newRoleId },
+              connection,
+            );
+          } else {
+            await dbHelper.createOne(
+              'role',
+              {
+                role_id: newRoleId,
+                name: roleName,
+                description:
+                  data.description !== undefined ? data.description : existingRoleRaw.description,
+              },
+              connection,
+            );
+          }
+
+          // Update organization_department_designation (soft delete old, create new)
+          // Soft delete old record
+          await dbHelper.softDeleteOne(
+            'organization_department_designation',
+            {
+              organization_id: existingRoleRaw.organization_id,
+              department_id: existingRoleRaw.department_id,
+              designation_id: existingRoleRaw.designation_id,
+            },
+            connection,
+          );
+
+          // Check if new combination exists
+          const newODD = await dbHelper.getOneWithDeleted(
+            {
+              table: 'organization_department_designation',
+              where: {
+                organization_id: finalOrgId,
+                department_id: finalDeptId,
+                designation_id: finalDesigId,
+              },
+            },
+            connection,
+          );
+
+          if (newODD && newODD.is_deleted === 1) {
+            // Restore soft deleted record
+            await dbHelper.updateOne(
+              'organization_department_designation',
+              { is_deleted: 0 },
+              {
+                organization_id: finalOrgId,
+                department_id: finalDeptId,
+                designation_id: finalDesigId,
+              },
+              connection,
+            );
+          } else if (!newODD) {
+            // Create new record
+            await dbHelper.createOne(
+              'organization_department_designation',
+              {
+                organization_id: finalOrgId,
+                department_id: finalDeptId,
+                designation_id: finalDesigId,
+              },
+              connection,
+            );
+          }
+
+          const committed = await dbHelper.commitTransaction(connection);
+          if (!committed) {
+            throw new ApiError(500, 'Failed to commit transaction');
+          }
+
+          return await this.getById(newRoleId);
+        } else {
+          // Role_id unchanged, just update name and description
+          // Recalculate role name in case designation or department names changed
+          const result = await dbHelper.updateOne(
+            'role',
+            {
+              name: roleName,
+              description:
+                data.description !== undefined ? data.description : existingRoleRaw.description,
+            },
+            { role_id: id },
+            connection,
+          );
+
+          if (!result) {
+            throw new ApiError(404, 'Role not found');
+          }
+
+          const committed = await dbHelper.commitTransaction(connection);
+          if (!committed) {
+            throw new ApiError(500, 'Failed to commit transaction');
+          }
+
+          return await this.getById(id);
+        }
+      } else {
+        // Only updating description, but still need to recalculate role name
+        // in case organization/department/designation names changed
+        if (
+          !existingRoleRaw.organization_id ||
+          !existingRoleRaw.department_id ||
+          !existingRoleRaw.designation_id
+        ) {
+          throw new ApiError(
+            400,
+            'Role is missing organization, department, or designation information',
+          );
+        }
+
+        const organization = await dbHelper.getOne(
+          {
+            table: 'organization',
+            where: { organization_id: existingRoleRaw.organization_id },
+            deletedColumn: 'is_deleted',
+          },
+          connection,
+        );
+        const department = await dbHelper.getOne(
+          {
+            table: 'department',
+            where: { department_id: existingRoleRaw.department_id },
+            deletedColumn: 'is_deleted',
+          },
+          connection,
+        );
+        const designation = await dbHelper.getOne(
+          {
+            table: 'designation',
+            where: { designation_id: existingRoleRaw.designation_id },
+            deletedColumn: 'is_deleted',
+          },
+          connection,
+        );
+
+        const roleName = `${designation.name}-${department.name}`;
+
+        const result = await dbHelper.updateOne(
+          'role',
+          {
+            name: roleName,
+            description:
+              data.description !== undefined ? data.description : existingRoleRaw.description,
+          },
+          { role_id: id },
+          connection,
+        );
+
+        if (!result) {
+          throw new ApiError(404, 'Role not found');
+        }
+
+        const committed = await dbHelper.commitTransaction(connection);
+        if (!committed) {
+          throw new ApiError(500, 'Failed to commit transaction');
+        }
+
+        return await this.getById(id);
+      }
     } catch (err) {
       await dbHelper.rollbackTransaction(connection);
       ServiceError(err, 'Failed to update role');
@@ -329,10 +684,44 @@ export const roleService = {
     try {
       await this.getById(id);
 
+      // Get the organization_department_designation info to soft delete it too
+      const role = await dbHelper.getOne({
+        table: 'role',
+        selectColumns: [
+          'organization_department_designation.organization_id',
+          'organization_department_designation.department_id',
+          'organization_department_designation.designation_id',
+        ],
+        where: { 'role.role_id': id },
+        joinArray: [
+          {
+            table: 'organization_department_designation',
+            condition:
+              'role.role_id = CONCAT(organization_department_designation.organization_id, organization_department_designation.department_id, organization_department_designation.designation_id)',
+            join_type: 'LEFT',
+          },
+        ],
+        deletedColumn: 'role.is_deleted',
+      });
+
+      // Soft delete role
       const result = await dbHelper.softDeleteOne('role', { role_id: id }, connection);
 
       if (!result || !result.success || result.affectedRows === 0) {
         throw new ApiError(404, 'Role not found or already deleted');
+      }
+
+      // Soft delete organization_department_designation if it exists
+      if (role && role.organization_id && role.department_id && role.designation_id) {
+        await dbHelper.softDeleteOne(
+          'organization_department_designation',
+          {
+            organization_id: role.organization_id,
+            department_id: role.department_id,
+            designation_id: role.designation_id,
+          },
+          connection,
+        );
       }
 
       const committed = await dbHelper.commitTransaction(connection);
@@ -351,9 +740,50 @@ export const roleService = {
     try {
       const roles = await dbHelper.getAllWithDeleted({
         table: 'role',
-        orderBy: [{ key: 'created_at', value: 'DESC' }],
+        selectColumns: [
+          'role.role_id',
+          'role.name',
+          'role.description',
+          'role.created_at',
+          'role.updated_at',
+          'role.is_deleted',
+          'organization_department_designation.organization_id',
+          'organization_department_designation.department_id',
+          'organization_department_designation.designation_id',
+          'organization.name as organization_name',
+          'department.name as department_name',
+          'designation.name as designation_name',
+        ],
+        joinArray: [
+          {
+            table: 'organization_department_designation',
+            condition:
+              'role.role_id = CONCAT(organization_department_designation.organization_id, organization_department_designation.department_id, organization_department_designation.designation_id)',
+            join_type: 'LEFT',
+          },
+          {
+            table: 'organization',
+            condition:
+              'organization_department_designation.organization_id = organization.organization_id',
+            join_type: 'LEFT',
+          },
+          {
+            table: 'department',
+            condition:
+              'organization_department_designation.department_id = department.department_id',
+            join_type: 'LEFT',
+          },
+          {
+            table: 'designation',
+            condition:
+              'organization_department_designation.designation_id = designation.designation_id',
+            join_type: 'LEFT',
+          },
+        ],
+        orderBy: [{ key: 'role.created_at', value: 'DESC' }],
       });
-      return roles;
+
+      return roles.map(formatRoleResponse);
     } catch (err) {
       ServiceError(err, 'Failed to load roles with deleted');
     }
@@ -363,14 +793,54 @@ export const roleService = {
     try {
       const role = await dbHelper.getOneWithDeleted({
         table: 'role',
-        where: { role_id: id },
-        primaryKey: 'role_id',
+        selectColumns: [
+          'role.role_id',
+          'role.name',
+          'role.description',
+          'role.created_at',
+          'role.updated_at',
+          'role.is_deleted',
+          'organization_department_designation.organization_id',
+          'organization_department_designation.department_id',
+          'organization_department_designation.designation_id',
+          'organization.name as organization_name',
+          'department.name as department_name',
+          'designation.name as designation_name',
+        ],
+        where: { 'role.role_id': id },
+        joinArray: [
+          {
+            table: 'organization_department_designation',
+            condition:
+              'role.role_id = CONCAT(organization_department_designation.organization_id, organization_department_designation.department_id, organization_department_designation.designation_id)',
+            join_type: 'LEFT',
+          },
+          {
+            table: 'organization',
+            condition:
+              'organization_department_designation.organization_id = organization.organization_id',
+            join_type: 'LEFT',
+          },
+          {
+            table: 'department',
+            condition:
+              'organization_department_designation.department_id = department.department_id',
+            join_type: 'LEFT',
+          },
+          {
+            table: 'designation',
+            condition:
+              'organization_department_designation.designation_id = designation.designation_id',
+            join_type: 'LEFT',
+          },
+        ],
       });
 
       if (!role) {
         throw new ApiError(404, 'Role not found');
       }
-      return role;
+
+      return formatRoleResponse(role);
     } catch (err) {
       ServiceError(err, 'Failed to get role with deleted records');
     }
@@ -385,10 +855,45 @@ export const roleService = {
     try {
       await this.getByIdWithDeleted(id);
 
+      // Get the organization_department_designation info to hard delete it too
+      const role = await dbHelper.getOneWithDeleted({
+        table: 'role',
+        selectColumns: [
+          'organization_department_designation.organization_id',
+          'organization_department_designation.department_id',
+          'organization_department_designation.designation_id',
+        ],
+        where: { 'role.role_id': id },
+        joinArray: [
+          {
+            table: 'organization_department_designation',
+            condition:
+              'role.role_id = CONCAT(organization_department_designation.organization_id, organization_department_designation.department_id, organization_department_designation.designation_id)',
+            join_type: 'LEFT',
+          },
+        ],
+      });
+
+      // Hard delete role
       const result = await dbHelper.deleteOne('role', { role_id: id }, connection);
 
       if (!result || !result.success || result.affectedRows === 0) {
         throw new ApiError(404, 'Role not found');
+      }
+
+      // Hard delete organization_department_designation if it exists
+      if (role && role.organization_id && role.department_id && role.designation_id) {
+        const sql = `
+          DELETE FROM organization_department_designation
+          WHERE organization_id = ? 
+            AND department_id = ? 
+            AND designation_id = ?
+        `;
+        await connection.query(sql, [
+          role.organization_id,
+          role.department_id,
+          role.designation_id,
+        ]);
       }
 
       const committed = await dbHelper.commitTransaction(connection);

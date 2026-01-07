@@ -1,14 +1,18 @@
 import { Box, TextField, Typography, Button, Paper } from '@mui/material';
 import { useSelector, useDispatch } from 'react-redux';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { fetchRoleById, createRole, updateRole, fetchRoles } from '../../../redux/rba/role/roleThunk';
-import { useForm } from 'react-hook-form';
+import { fetchOrganizations } from '../../../redux/rba/organization/organizationThunk';
+import { fetchDepartments } from '../../../redux/rba/department/departmentThunk';
+import { fetchDesignations } from '../../../redux/rba/designation/designationThunk';
+import { useForm, Controller } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
 import { clearSelectedRole } from '../../../redux/rba/role/roleSlice';
 import { ROUTES } from '../../../routes/routes';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { toast } from 'react-toastify';
 import { CircularProgress } from '@mui/material';
+import CustomSelect from '../../../components/common/CustomSelect';
 
 const RoleFormPage = () => {
   const dispatch = useDispatch();
@@ -16,33 +20,89 @@ const RoleFormPage = () => {
   const { id } = useParams();
 
   const { role } = useSelector((state) => state.roles);
+  const { list: organizations } = useSelector((state) => state.organizations);
+  const { list: departments } = useSelector((state) => state.departments);
+  const { list: designations } = useSelector((state) => state.designations);
   const [errMsg, setErrMsg] = useState('');
+
+  // Format options for dropdowns
+  const organizationOptions = useMemo(() => {
+    if (!organizations || !Array.isArray(organizations)) return [];
+    return organizations.map((org) => ({
+      label: org.name,
+      value: org.organization_id,
+    }));
+  }, [organizations]);
+
+  const departmentOptions = useMemo(() => {
+    if (!departments || !Array.isArray(departments)) return [];
+    return departments.map((dept) => ({
+      label: dept.name,
+      value: dept.department_id,
+    }));
+  }, [departments]);
+
+  const designationOptions = useMemo(() => {
+    if (!designations || !Array.isArray(designations)) return [];
+    return designations.map((desig) => ({
+      label: desig.name,
+      value: desig.designation_id,
+    }));
+  }, [designations]);
 
   const {
     register,
     handleSubmit,
     reset,
     setFocus,
+    control,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm({
     defaultValues: {
-      role_id: '',
-      name: '',
+      organization_id: null,
+      department_id: null,
+      designation_id: null,
       description: '',
     },
   });
+
+  // Watch selected values to show preview of auto-generated role name
+  const selectedOrganization = watch('organization_id');
+  const selectedDepartment = watch('department_id');
+  const selectedDesignation = watch('designation_id');
+
+  // Calculate preview role name (with hyphen separator)
+  const previewRoleName = useMemo(() => {
+    if (selectedDesignation && selectedDepartment) {
+      const designation = designations.find((d) => d.designation_id === selectedDesignation);
+      const department = departments.find((d) => d.department_id === selectedDepartment);
+      if (designation && department) {
+        return `${designation.name}-${department.name}`;
+      }
+    }
+    return '';
+  }, [selectedDesignation, selectedDepartment, designations, departments]);
 
   useEffect(() => {
     const firstError = Object.keys(errors)[0];
     if (firstError) setFocus(firstError);
   }, [errors, setFocus]);
 
+  // Fetch organizations, departments, and designations on mount
+  useEffect(() => {
+    dispatch(fetchOrganizations());
+    dispatch(fetchDepartments());
+    dispatch(fetchDesignations());
+  }, [dispatch]);
+
   useEffect(() => {
     if (!id) {
       dispatch(clearSelectedRole());
       reset({
-        role_id: '',
-        name: '',
+        organization_id: null,
+        department_id: null,
+        designation_id: null,
         description: '',
       });
     } else {
@@ -53,8 +113,9 @@ const RoleFormPage = () => {
   useEffect(() => {
     if (role) {
       reset({
-        role_id: role.role_id || '',
-        name: role.name || '',
+        organization_id: role.organization?.organization_id || null,
+        department_id: role.department?.department_id || null,
+        designation_id: role.designation?.designation_id || null,
         description: role.description || '',
       });
     }
@@ -123,52 +184,61 @@ const RoleFormPage = () => {
           gap: 3,
         }}
       >
-        <TextField
-          label="Role ID"
-          variant="outlined"
-          fullWidth
-          {...register('role_id', { required: 'Role ID is required' })}
-          error={!!errors.role_id}
-          helperText={errors.role_id?.message}
-          disabled={!!role}
-          slotProps={{
-            inputLabel: {
-              sx: { 
-                fontSize: '0.9rem', 
-                color: 'text.secondary',
-                zIndex: 1,
-                '&.MuiInputLabel-shrink': {
-                  zIndex: 2,
-                  backgroundColor: 'background.paper',
-                  padding: '0 4px',
-                },
-              },
-            },
-          }}
+        <CustomSelect
+          name="organization_id"
+          control={control}
+          options={organizationOptions}
+          label="Organization"
+          placeholder="Select organization..."
+          isMulti={false}
+          isRequired={true}
+          error={errors.organization_id}
+          helperText={errors.organization_id?.message}
         />
 
-        <TextField
-          label="Role Name"
-          variant="outlined"
-          fullWidth
-          {...register('name', { required: 'Name is required' })}
-          error={!!errors.name}
-          helperText={errors.name?.message}
-          slotProps={{
-            inputLabel: {
-              sx: { 
-                fontSize: '0.9rem', 
-                color: 'text.secondary',
-                zIndex: 1,
-                '&.MuiInputLabel-shrink': {
-                  zIndex: 2,
-                  backgroundColor: 'background.paper',
-                  padding: '0 4px',
-                },
-              },
-            },
-          }}
+        <CustomSelect
+          name="department_id"
+          control={control}
+          options={departmentOptions}
+          label="Department"
+          placeholder="Select department..."
+          isMulti={false}
+          isRequired={true}
+          error={errors.department_id}
+          helperText={errors.department_id?.message}
         />
+
+        <CustomSelect
+          name="designation_id"
+          control={control}
+          options={designationOptions}
+          label="Designation"
+          placeholder="Select designation..."
+          isMulti={false}
+          isRequired={true}
+          error={errors.designation_id}
+          helperText={errors.designation_id?.message}
+        />
+
+        {/* Preview of auto-generated role name */}
+        {previewRoleName && (
+          <Box
+            sx={{
+              p: 2,
+              bgcolor: 'background.default',
+              borderRadius: 1,
+              border: '1px solid',
+              borderColor: 'divider',
+            }}
+          >
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+              Role Name (Auto-generated):
+            </Typography>
+            <Typography variant="body1" fontWeight={500}>
+              {previewRoleName}
+            </Typography>
+          </Box>
+        )}
 
         <TextField
           label="Description"
@@ -179,8 +249,8 @@ const RoleFormPage = () => {
           {...register('description')}
           slotProps={{
             inputLabel: {
-              sx: { 
-                fontSize: '0.9rem', 
+              sx: {
+                fontSize: '0.9rem',
                 color: 'text.secondary',
                 zIndex: 1,
                 '&.MuiInputLabel-shrink': {
@@ -221,4 +291,3 @@ const RoleFormPage = () => {
 };
 
 export default RoleFormPage;
-

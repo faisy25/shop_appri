@@ -1,9 +1,9 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { roleApi } from '../../../api';
 
-export const fetchRoles = createAsyncThunk('roles/fetchAll', async (_, thunkAPI) => {
+export const fetchRoles = createAsyncThunk('roles/fetchAll', async (filters = {}, thunkAPI) => {
   try {
-    const res = await roleApi.getAll();
+    const res = await roleApi.getAll(filters);
     return res.data;
   } catch (err) {
     return thunkAPI.rejectWithValue(

@@ -56,7 +56,14 @@ export const permissionApi = {
 };
 
 export const roleApi = {
-  getAll: () => axios.get(API_ENDPOINTS.ROLES),
+  getAll: (filters = {}) => {
+    const params = new URLSearchParams();
+    if (filters.organization_id) params.append('organization_id', filters.organization_id);
+    if (filters.department_id) params.append('department_id', filters.department_id);
+    if (filters.designation_id) params.append('designation_id', filters.designation_id);
+    const queryString = params.toString();
+    return axios.get(queryString ? `${API_ENDPOINTS.ROLES}?${queryString}` : API_ENDPOINTS.ROLES);
+  },
   getOne: (id) => axios.get(API_ENDPOINTS.ROLE_BY_ID(id)),
   create: (data) => axios.post(API_ENDPOINTS.ROLES, data),
   update: (id, data) => axios.put(API_ENDPOINTS.ROLE_BY_ID(id), data),

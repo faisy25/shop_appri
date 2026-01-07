@@ -21,8 +21,10 @@ const MediaPreviewModal = ({ open, onClose, media }) => {
       onClose={onClose}
       maxWidth="md"
       fullWidth
-      PaperProps={{
-        sx: { borderRadius: 3 },
+      slotProps={{
+        paper: {
+          sx: { borderRadius: 3 },
+        },
       }}
     >
       <DialogTitle
