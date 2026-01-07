@@ -1,4 +1,4 @@
-import { Box, TextField, Typography, Button, Paper } from '@mui/material';
+import { Box, Typography, Button, Paper } from '@mui/material';
 import handleInputWholeNumber from '../../util/input/handleInputWholeNumber';
 import { useSelector, useDispatch } from 'react-redux';
 import { useEffect, useState } from 'react';
@@ -12,6 +12,7 @@ import { toast } from 'react-toastify';
 import { CircularProgress } from '@mui/material';
 
 import MediaUploader from '../../components/media/MediaUploader';
+import CustomInput from '../../components/common/CustomInput';
 
 const ProductFormPage = () => {
   const dispatch = useDispatch();
@@ -165,107 +166,48 @@ const ProductFormPage = () => {
           gap: 3,
         }}
       >
-        <TextField
+        <CustomInput
+          name="name"
           label="Product Name"
-          variant="outlined"
-          fullWidth
-          {...register('name', { required: 'Name is required' })}
-          error={!!errors.name}
-          helperText={errors.name?.message}
-          slotProps={{
-            inputLabel: {
-              sx: { 
-                fontSize: '0.9rem', 
-                color: 'text.secondary',
-                zIndex: 1,
-                '&.MuiInputLabel-shrink': {
-                  zIndex: 2,
-                  backgroundColor: 'background.paper',
-                  padding: '0 4px',
-                },
-              },
-            },
-          }}
+          type="text"
+          isRequired={true}
+          register={register}
+          errors={errors}
         />
 
-        <TextField
+        <CustomInput
+          name="description"
           label="Description"
-          variant="outlined"
-          multiline
+          type="text"
+          multiline={true}
           rows={3}
-          fullWidth
-          {...register('description')}
-          slotProps={{
-            inputLabel: {
-              sx: { 
-                fontSize: '0.9rem', 
-                color: 'text.secondary',
-                zIndex: 1,
-                '&.MuiInputLabel-shrink': {
-                  zIndex: 2,
-                  backgroundColor: 'background.paper',
-                  padding: '0 4px',
-                },
-              },
-            },
-          }}
+          register={register}
+          errors={errors}
         />
 
-        <TextField
+        <CustomInput
+          name="qty"
           label="Quantity"
-          variant="outlined"
           type="number"
-          fullWidth
-          {...register('qty', { required: 'Quantity required' })}
-          error={!!errors.qty}
-          helperText={errors.qty?.message}
-          slotProps={{
-            htmlInput: {
-              step: '1',
-              min: '0',
-              onKeyDown: handleInputWholeNumber,
-            },
-            inputLabel: {
-              sx: { 
-                fontSize: '0.9rem', 
-                color: 'text.secondary',
-                zIndex: 1,
-                '&.MuiInputLabel-shrink': {
-                  zIndex: 2,
-                  backgroundColor: 'background.paper',
-                  padding: '0 4px',
-                },
-              },
-            },
+          isRequired={true}
+          min={0}
+          step={1}
+          htmlInput={{
+            onKeyDown: handleInputWholeNumber,
           }}
+          register={register}
+          errors={errors}
         />
 
-        <TextField
+        <CustomInput
+          name="price"
           label="Price"
-          variant="outlined"
-          type="number"
-          fullWidth
-          {...register('price', { required: 'Price required' })}
-          error={!!errors.price}
-          helperText={errors.price?.message}
-          slotProps={{
-            htmlInput: {
-              step: '0.01',
-              min: '0',
-            },
-            inputLabel: {
-              sx: { 
-                fontSize: '0.9rem', 
-                color: 'text.secondary',
-                zIndex: 1,
-                '&.MuiInputLabel-shrink': {
-                  zIndex: 2,
-                  backgroundColor: 'background.paper',
-                  padding: '0 4px',
-                },
-              },
-            },
-          }}
+          type="decimal"
+          isRequired={true}
+          min={0}
+          step={0.01}
+          register={register}
+          errors={errors}
         />
 
         {/* Upload file  */}

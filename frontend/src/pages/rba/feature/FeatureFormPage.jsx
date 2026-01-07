@@ -1,4 +1,4 @@
-import { Box, TextField, Typography, Button, Paper } from '@mui/material';
+import { Box, Typography, Button, Paper } from '@mui/material';
 import { useSelector, useDispatch } from 'react-redux';
 import { useEffect, useState, useMemo } from 'react';
 import {
@@ -15,6 +15,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { toast } from 'react-toastify';
 import { CircularProgress } from '@mui/material';
 import CustomSelect from '../../../components/common/CustomSelect';
+import CustomInput from '../../../components/common/CustomInput';
 import { FEATURE_ELEMENT_TYPES } from '../../../util/constants';
 
 const FeatureFormPage = () => {
@@ -172,27 +173,13 @@ const FeatureFormPage = () => {
           gap: 3,
         }}
       >
-        <TextField
+        <CustomInput
+          name="name"
           label="Feature Name"
-          variant="outlined"
-          fullWidth
-          {...register('name', { required: 'Name is required' })}
-          error={!!errors.name}
-          helperText={errors.name?.message}
-          slotProps={{
-            inputLabel: {
-              sx: { 
-                fontSize: '0.9rem', 
-                color: 'text.secondary',
-                zIndex: 1,
-                '&.MuiInputLabel-shrink': {
-                  zIndex: 2,
-                  backgroundColor: 'background.paper',
-                  padding: '0 4px',
-                },
-              },
-            },
-          }}
+          type="text"
+          isRequired={true}
+          register={register}
+          errors={errors}
         />
 
         <CustomSelect
@@ -207,49 +194,23 @@ const FeatureFormPage = () => {
           helperText={errors.element_type?.message}
         />
 
-        <TextField
+        <CustomInput
+          name="icon"
           label="Icon (Optional)"
-          variant="outlined"
-          fullWidth
-          {...register('icon')}
+          type="text"
           placeholder="e.g., Dashboard, Settings"
-          slotProps={{
-            inputLabel: {
-              sx: { 
-                fontSize: '0.9rem', 
-                color: 'text.secondary',
-                zIndex: 1,
-                '&.MuiInputLabel-shrink': {
-                  zIndex: 2,
-                  backgroundColor: 'background.paper',
-                  padding: '0 4px',
-                },
-              },
-            },
-          }}
+          register={register}
+          errors={errors}
         />
 
-        <TextField
+        <CustomInput
+          name="description"
           label="Description"
-          variant="outlined"
-          multiline
+          type="text"
+          multiline={true}
           rows={3}
-          fullWidth
-          {...register('description')}
-          slotProps={{
-            inputLabel: {
-              sx: { 
-                fontSize: '0.9rem', 
-                color: 'text.secondary',
-                zIndex: 1,
-                '&.MuiInputLabel-shrink': {
-                  zIndex: 2,
-                  backgroundColor: 'background.paper',
-                  padding: '0 4px',
-                },
-              },
-            },
-          }}
+          register={register}
+          errors={errors}
         />
 
         <CustomSelect
@@ -263,48 +224,20 @@ const FeatureFormPage = () => {
           error={errors.parent_id}
         />
 
-        <TextField
+        <CustomInput
+          name="fk_id"
           label="FK ID"
-          variant="outlined"
-          fullWidth
           type="number"
-          {...register('fk_id')}
-          slotProps={{
-            inputLabel: {
-              sx: { 
-                fontSize: '0.9rem', 
-                color: 'text.secondary',
-                zIndex: 1,
-                '&.MuiInputLabel-shrink': {
-                  zIndex: 2,
-                  backgroundColor: 'background.paper',
-                  padding: '0 4px',
-                },
-              },
-            },
-          }}
+          register={register}
+          errors={errors}
         />
 
-        <TextField
+        <CustomInput
+          name="sort_order"
           label="Sort Order"
-          variant="outlined"
-          fullWidth
           type="number"
-          {...register('sort_order')}
-          slotProps={{
-            inputLabel: {
-              sx: { 
-                fontSize: '0.9rem', 
-                color: 'text.secondary',
-                zIndex: 1,
-                '&.MuiInputLabel-shrink': {
-                  zIndex: 2,
-                  backgroundColor: 'background.paper',
-                  padding: '0 4px',
-                },
-              },
-            },
-          }}
+          register={register}
+          errors={errors}
         />
 
         <Button

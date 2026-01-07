@@ -1,4 +1,4 @@
-import { Box, TextField, Typography, Button, Paper } from '@mui/material';
+import { Box, Typography, Button, Paper } from '@mui/material';
 import { useSelector, useDispatch } from 'react-redux';
 import { useEffect, useState, useMemo } from 'react';
 import { fetchRoleById, createRole, updateRole, fetchRoles } from '../../../redux/rba/role/roleThunk';
@@ -13,6 +13,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { toast } from 'react-toastify';
 import { CircularProgress } from '@mui/material';
 import CustomSelect from '../../../components/common/CustomSelect';
+import CustomInput from '../../../components/common/CustomInput';
 
 const RoleFormPage = () => {
   const dispatch = useDispatch();
@@ -240,27 +241,16 @@ const RoleFormPage = () => {
           </Box>
         )}
 
-        <TextField
+        <CustomInput
+          name="description"
           label="Description"
-          variant="outlined"
-          multiline
+          type="text"
+          multiline={true}
           rows={3}
-          fullWidth
-          {...register('description')}
-          slotProps={{
-            inputLabel: {
-              sx: {
-                fontSize: '0.9rem',
-                color: 'text.secondary',
-                zIndex: 1,
-                '&.MuiInputLabel-shrink': {
-                  zIndex: 2,
-                  backgroundColor: 'background.paper',
-                  padding: '0 4px',
-                },
-              },
-            },
-          }}
+          placeholder="Enter description..."
+          isRequired={false}
+          register={register}
+          errors={errors}
         />
 
         <Button

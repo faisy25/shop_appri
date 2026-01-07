@@ -1,4 +1,4 @@
-import { Box, TextField, Typography, Button, Paper } from '@mui/material';
+import { Box, Typography, Button, Paper } from '@mui/material';
 import { useSelector, useDispatch } from 'react-redux';
 import { useEffect, useState, useMemo } from 'react';
 import {
@@ -18,6 +18,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { toast } from 'react-toastify';
 import { CircularProgress } from '@mui/material';
 import CustomSelect from '../../../components/common/CustomSelect';
+import CustomInput from '../../../components/common/CustomInput';
 import { ORGANIZATION_TYPES } from '../../../util/constants';
 
 const OrganizationFormPage = () => {
@@ -167,27 +168,13 @@ const OrganizationFormPage = () => {
           gap: 3,
         }}
       >
-        <TextField
+        <CustomInput
+          name="name"
           label="Organization Name"
-          variant="outlined"
-          fullWidth
-          {...register('name', { required: 'Name is required' })}
-          error={!!errors.name}
-          helperText={errors.name?.message}
-          slotProps={{
-            inputLabel: {
-              sx: { 
-                fontSize: '0.9rem', 
-                color: 'text.secondary',
-                zIndex: 1,
-                '&.MuiInputLabel-shrink': {
-                  zIndex: 2,
-                  backgroundColor: 'background.paper',
-                  padding: '0 4px',
-                },
-              },
-            },
-          }}
+          type="text"
+          isRequired={true}
+          register={register}
+          errors={errors}
         />
 
         <CustomSelect

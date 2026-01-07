@@ -12,6 +12,7 @@ import {
   HomeFilled,
   Dashboard,
   People,
+  Person,
 } from '@mui/icons-material';
 
 import HomePage from '../pages/HomePage';
@@ -46,6 +47,10 @@ const PermissionFormPage = lazy(() => import('../pages/rba/permission/Permission
 const RolePage = lazy(() => import('../pages/rba/role/RolePage'));
 const RoleListPage = lazy(() => import('../pages/rba/role/RoleListPage'));
 const RoleFormPage = lazy(() => import('../pages/rba/role/RoleFormPage'));
+
+const UserPage = lazy(() => import('../pages/rba/user/UserPage'));
+const UserListPage = lazy(() => import('../pages/rba/user/UserListPage'));
+const UserFormPage = lazy(() => import('../pages/rba/user/UserFormPage'));
 
 // Menu Groups Configuration - Define groups once with their icons
 export const menuGroups = {
@@ -272,6 +277,33 @@ export const routeConfig = [
       {
         path: ROUTES.RBA.ROLE.EDIT_FORM(':id'),
         element: <RoleFormPage />,
+        showInMenu: false,
+      },
+    ],
+  },
+  // RBA Modules - User
+  {
+    path: ROUTES.RBA.USER.ROOT,
+    element: <UserPage />,
+    label: 'User',
+    showInMenu: true,
+    menuGroup: 'USER MANAGEMENT',
+    icon: Person,
+    children: [
+      {
+        index: true,
+        path: ROUTES.RBA.USER.ROOT,
+        element: <UserListPage />,
+        showInMenu: false,
+      },
+      {
+        path: ROUTES.RBA.USER.ADD_FORM,
+        element: <UserFormPage />,
+        showInMenu: false,
+      },
+      {
+        path: ROUTES.RBA.USER.EDIT_FORM(':id'),
+        element: <UserFormPage />,
         showInMenu: false,
       },
     ],

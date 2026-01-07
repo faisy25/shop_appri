@@ -1,4 +1,4 @@
-import { Box, TextField, Typography, Button, Paper } from '@mui/material';
+import { Box, Typography, Button, Paper } from '@mui/material';
 import { useSelector, useDispatch } from 'react-redux';
 import { useEffect, useState } from 'react';
 import { fetchDepartmentById, createDepartment, updateDepartment } from '../../../redux/rba/department/departmentThunk';
@@ -9,6 +9,7 @@ import { ROUTES } from '../../../routes/routes';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { toast } from 'react-toastify';
 import { CircularProgress } from '@mui/material';
+import CustomInput from '../../../components/common/CustomInput';
 
 const DepartmentFormPage = () => {
   const dispatch = useDispatch();
@@ -121,74 +122,33 @@ const DepartmentFormPage = () => {
           gap: 3,
         }}
       >
-        <TextField
+        <CustomInput
+          name="department_id"
           label="Department ID"
-          variant="outlined"
-          fullWidth
-          {...register('department_id', { required: 'Department ID is required' })}
-          error={!!errors.department_id}
-          helperText={errors.department_id?.message}
+          type="text"
+          isRequired={true}
           disabled={!!department}
-          slotProps={{
-            inputLabel: {
-              sx: { 
-                fontSize: '0.9rem', 
-                color: 'text.secondary',
-                zIndex: 1,
-                '&.MuiInputLabel-shrink': {
-                  zIndex: 2,
-                  backgroundColor: 'background.paper',
-                  padding: '0 4px',
-                },
-              },
-            },
-          }}
+          register={register}
+          errors={errors}
         />
 
-        <TextField
+        <CustomInput
+          name="name"
           label="Department Name"
-          variant="outlined"
-          fullWidth
-          {...register('name', { required: 'Name is required' })}
-          error={!!errors.name}
-          helperText={errors.name?.message}
-          slotProps={{
-            inputLabel: {
-              sx: { 
-                fontSize: '0.9rem', 
-                color: 'text.secondary',
-                zIndex: 1,
-                '&.MuiInputLabel-shrink': {
-                  zIndex: 2,
-                  backgroundColor: 'background.paper',
-                  padding: '0 4px',
-                },
-              },
-            },
-          }}
+          type="text"
+          isRequired={true}
+          register={register}
+          errors={errors}
         />
 
-        <TextField
+        <CustomInput
+          name="description"
           label="Description"
-          variant="outlined"
-          multiline
+          type="text"
+          multiline={true}
           rows={3}
-          fullWidth
-          {...register('description')}
-          slotProps={{
-            inputLabel: {
-              sx: { 
-                fontSize: '0.9rem', 
-                color: 'text.secondary',
-                zIndex: 1,
-                '&.MuiInputLabel-shrink': {
-                  zIndex: 2,
-                  backgroundColor: 'background.paper',
-                  padding: '0 4px',
-                },
-              },
-            },
-          }}
+          register={register}
+          errors={errors}
         />
 
         <Button

@@ -55,5 +55,11 @@ export const ROUTES = {
       EDIT_FORM: (id) => `/rba/role/edit/${id}`,
       VIEW: (id) => `/rba/role/view/${id}`,
     },
+    USER: {
+      ROOT: '/rba/user',
+      ADD_FORM: '/rba/user/add',
+      EDIT_FORM: (id) => `/rba/user/edit/${id}`,
+      VIEW: (id) => `/rba/user/view/${id}`,
+    },
   },
 };

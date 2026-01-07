@@ -1,4 +1,4 @@
-import { Box, TextField, Typography, Button, Paper } from '@mui/material';
+import { Box, Typography, Button, Paper } from '@mui/material';
 import { useSelector, useDispatch } from 'react-redux';
 import { useEffect, useState } from 'react';
 import { fetchPermissionById, createPermission, updatePermission } from '../../../redux/rba/permission/permissionThunk';
@@ -9,6 +9,7 @@ import { ROUTES } from '../../../routes/routes';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { toast } from 'react-toastify';
 import { CircularProgress } from '@mui/material';
+import CustomInput from '../../../components/common/CustomInput';
 
 const PermissionFormPage = () => {
   const dispatch = useDispatch();
@@ -121,78 +122,37 @@ const PermissionFormPage = () => {
           gap: 3,
         }}
       >
-        <TextField
+        <CustomInput
+          name="permission_id"
           label="Permission ID (10 characters)"
-          variant="outlined"
-          fullWidth
-          {...register('permission_id', {
-            required: 'Permission ID is required',
+          type="text"
+          isRequired={true}
+          disabled={!!permission}
+          validation={{
             minLength: { value: 10, message: 'Must be exactly 10 characters' },
             maxLength: { value: 10, message: 'Must be exactly 10 characters' },
-          })}
-          error={!!errors.permission_id}
-          helperText={errors.permission_id?.message}
-          disabled={!!permission}
-          slotProps={{
-            inputLabel: {
-              sx: { 
-                fontSize: '0.9rem', 
-                color: 'text.secondary',
-                zIndex: 1,
-                '&.MuiInputLabel-shrink': {
-                  zIndex: 2,
-                  backgroundColor: 'background.paper',
-                  padding: '0 4px',
-                },
-              },
-            },
           }}
+          register={register}
+          errors={errors}
         />
 
-        <TextField
+        <CustomInput
+          name="name"
           label="Permission Name"
-          variant="outlined"
-          fullWidth
-          {...register('name', { required: 'Name is required' })}
-          error={!!errors.name}
-          helperText={errors.name?.message}
-          slotProps={{
-            inputLabel: {
-              sx: { 
-                fontSize: '0.9rem', 
-                color: 'text.secondary',
-                zIndex: 1,
-                '&.MuiInputLabel-shrink': {
-                  zIndex: 2,
-                  backgroundColor: 'background.paper',
-                  padding: '0 4px',
-                },
-              },
-            },
-          }}
+          type="text"
+          isRequired={true}
+          register={register}
+          errors={errors}
         />
 
-        <TextField
+        <CustomInput
+          name="description"
           label="Description"
-          variant="outlined"
-          multiline
+          type="text"
+          multiline={true}
           rows={3}
-          fullWidth
-          {...register('description')}
-          slotProps={{
-            inputLabel: {
-              sx: { 
-                fontSize: '0.9rem', 
-                color: 'text.secondary',
-                zIndex: 1,
-                '&.MuiInputLabel-shrink': {
-                  zIndex: 2,
-                  backgroundColor: 'background.paper',
-                  padding: '0 4px',
-                },
-              },
-            },
-          }}
+          register={register}
+          errors={errors}
         />
 
         <Button

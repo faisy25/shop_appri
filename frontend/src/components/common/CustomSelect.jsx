@@ -113,22 +113,39 @@ const CustomSelect = ({
       },
       multiValue: (base) => ({
         ...base,
-        backgroundColor:
-          theme.palette.primary.light ||
-          (isDark ? 'rgba(125, 162, 169, 0.3)' : 'rgba(0, 82, 163, 0.1)'),
+        backgroundColor: theme.palette.primary.main,
+        borderRadius: theme.shape.borderRadius || '16px',
+        padding: '2px 4px',
+        margin: '2px',
+        fontSize: '0.75rem',
+        fontWeight: 500,
+        minHeight: '24px',
+        display: 'flex',
+        alignItems: 'center',
       }),
       multiValueLabel: (base) => ({
         ...base,
-        color: theme.palette.primary.main,
+        color: theme.palette.primary.contrastText || '#ffffff',
+        fontSize: '0.75rem',
+        fontWeight: 500,
+        padding: '2px 4px',
+        lineHeight: 1.5,
       }),
       multiValueRemove: (base) => ({
         ...base,
-        color: theme.palette.primary.main,
+        color: theme.palette.primary.contrastText || '#ffffff',
+        padding: '0 4px',
+        borderRadius: '0 16px 16px 0',
+        cursor: 'pointer',
         '&:hover': {
-          backgroundColor:
-            theme.palette.primary.light ||
-            (isDark ? 'rgba(125, 162, 169, 0.2)' : 'rgba(0, 82, 163, 0.2)'),
-          color: theme.palette.primary.main,
+          backgroundColor: isDark
+            ? 'rgba(255, 255, 255, 0.2)'
+            : 'rgba(0, 0, 0, 0.1)',
+          color: theme.palette.primary.contrastText || '#ffffff',
+        },
+        svg: {
+          width: '14px',
+          height: '14px',
         },
       }),
       indicatorSeparator: (base) => ({

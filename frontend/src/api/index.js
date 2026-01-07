@@ -69,3 +69,11 @@ export const roleApi = {
   update: (id, data) => axios.put(API_ENDPOINTS.ROLE_BY_ID(id), data),
   delete: (id) => axios.delete(API_ENDPOINTS.ROLE_BY_ID(id)),
 };
+
+export const userApi = {
+  getAll: () => axios.get(API_ENDPOINTS.USERS),
+  getOne: (id) => axios.get(API_ENDPOINTS.USER_BY_ID(id)),
+  create: (data) => axios.post(API_ENDPOINTS.USERS, data),
+  update: (id, data) => axios.put(API_ENDPOINTS.USER_BY_ID(id), data),
+  delete: (id) => axios.delete(API_ENDPOINTS.USER_BY_ID(id)),
+};

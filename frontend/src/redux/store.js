@@ -7,6 +7,7 @@ import designationReducer from './rba/designation/designationSlice';
 import featureReducer from './rba/feature/featureSlice';
 import permissionReducer from './rba/permission/permissionSlice';
 import roleReducer from './rba/role/roleSlice';
+import userReducer from './rba/user/userSlice';
 
 export const store = configureStore({
   reducer: {
@@ -18,5 +19,6 @@ export const store = configureStore({
     features: featureReducer,
     permissions: permissionReducer,
     roles: roleReducer,
+    users: userReducer,
   },
 });
