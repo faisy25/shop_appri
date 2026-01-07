@@ -135,7 +135,16 @@ const PermissionFormPage = () => {
           disabled={!!permission}
           slotProps={{
             inputLabel: {
-              sx: { fontSize: '0.9rem', color: 'text.secondary' },
+              sx: { 
+                fontSize: '0.9rem', 
+                color: 'text.secondary',
+                zIndex: 1,
+                '&.MuiInputLabel-shrink': {
+                  zIndex: 2,
+                  backgroundColor: 'background.paper',
+                  padding: '0 4px',
+                },
+              },
             },
           }}
         />
@@ -149,7 +158,16 @@ const PermissionFormPage = () => {
           helperText={errors.name?.message}
           slotProps={{
             inputLabel: {
-              sx: { fontSize: '0.9rem', color: 'text.secondary' },
+              sx: { 
+                fontSize: '0.9rem', 
+                color: 'text.secondary',
+                zIndex: 1,
+                '&.MuiInputLabel-shrink': {
+                  zIndex: 2,
+                  backgroundColor: 'background.paper',
+                  padding: '0 4px',
+                },
+              },
             },
           }}
         />
@@ -163,7 +181,16 @@ const PermissionFormPage = () => {
           {...register('description')}
           slotProps={{
             inputLabel: {
-              sx: { fontSize: '0.9rem', color: 'text.secondary' },
+              sx: { 
+                fontSize: '0.9rem', 
+                color: 'text.secondary',
+                zIndex: 1,
+                '&.MuiInputLabel-shrink': {
+                  zIndex: 2,
+                  backgroundColor: 'background.paper',
+                  padding: '0 4px',
+                },
+              },
             },
           }}
         />

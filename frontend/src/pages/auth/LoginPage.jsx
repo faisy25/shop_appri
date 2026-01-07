@@ -204,6 +204,12 @@ const LoginPage = () => {
                 inputLabel: {
                   sx: {
                     fontSize: isMobile ? '0.9rem' : '1rem',
+                    zIndex: 1,
+                    '&.MuiInputLabel-shrink': {
+                      zIndex: 2,
+                      backgroundColor: theme.palette.mode === 'dark' ? theme.palette.background.paper : '#ffffff',
+                      padding: '0 4px',
+                    },
                   },
                 },
               }}
@@ -232,7 +238,15 @@ const LoginPage = () => {
               }}
               slotProps={{
                 inputLabel: {
-                  sx: { fontSize: isMobile ? '0.9rem' : '1rem' },
+                  sx: { 
+                    fontSize: isMobile ? '0.9rem' : '1rem',
+                    zIndex: 1,
+                    '&.MuiInputLabel-shrink': {
+                      zIndex: 2,
+                      backgroundColor: theme.palette.mode === 'dark' ? theme.palette.background.paper : '#ffffff',
+                      padding: '0 4px',
+                    },
+                  },
                 },
                 input: {
                   endAdornment: (

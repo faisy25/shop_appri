@@ -14,10 +14,13 @@ export const roleIdSchema = Joi.object({
 });
 
 export const createRoleSchema = Joi.object({
-  role_id: Joi.string().max(100).required(),
+  role_id: Joi.string().max(100).optional(),
+  organization_id: Joi.number().integer().optional(),
+  department_id: Joi.string().max(10).optional(),
+  designation_id: Joi.string().max(10).optional(),
   name: Joi.string().min(2).max(25).required(),
   description: Joi.string().max(100).allow(''),
-});
+}).or('role_id', 'organization_id'); // Either role_id or organization_id+department_id+designation_id must be provided
 
 export const editRoleSchema = Joi.object({
   name: Joi.string().min(2).max(25),

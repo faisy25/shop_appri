@@ -32,7 +32,8 @@ const roleSlice = createSlice({
       })
       .addCase(fetchRoles.fulfilled, (state, action) => {
         state.loading = false;
-        state.list = action.payload.data;
+        // Handle both response structures: action.payload.data or action.payload
+        state.list = action.payload?.data || action.payload || [];
       })
       .addCase(fetchRoles.rejected, (state, action) => {
         state.loading = false;
@@ -43,7 +44,8 @@ const roleSlice = createSlice({
       })
       .addCase(fetchRoleById.fulfilled, (state, action) => {
         state.loading = false;
-        state.role = action.payload.data;
+        // Handle both response structures: action.payload.data or action.payload
+        state.role = action.payload?.data || action.payload;
       })
       .addCase(fetchRoleById.rejected, (state, action) => {
         state.loading = false;
@@ -52,8 +54,12 @@ const roleSlice = createSlice({
       .addCase(createRole.pending, (state) => {
         state.loading = true;
       })
-      .addCase(createRole.fulfilled, (state) => {
+      .addCase(createRole.fulfilled, (state, action) => {
         state.loading = false;
+        // Add the newly created role to the list
+        if (action.payload?.data) {
+          state.list.push(action.payload.data);
+        }
       })
       .addCase(createRole.rejected, (state, action) => {
         state.loading = false;

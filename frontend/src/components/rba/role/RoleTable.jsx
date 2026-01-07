@@ -11,7 +11,7 @@ const RoleTable = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const { list, loading, error } = useSelector((state) => state.roles);
+  const { list = [], loading, error } = useSelector((state) => state.roles);
 
   useEffect(() => {
     dispatch(fetchRoles());

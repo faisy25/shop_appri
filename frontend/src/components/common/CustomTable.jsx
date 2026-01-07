@@ -181,6 +181,18 @@ const CustomTable = ({
             size="small"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            slotProps={{
+              inputLabel: {
+                sx: { 
+                  zIndex: 1,
+                  '&.MuiInputLabel-shrink': {
+                    zIndex: 2,
+                    backgroundColor: 'background.paper',
+                    padding: '0 4px',
+                  },
+                },
+              },
+            }}
           />
         </Box>
       )}

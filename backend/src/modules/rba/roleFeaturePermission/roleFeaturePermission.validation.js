@@ -28,6 +28,30 @@ export const editRoleFeaturePermissionSchema = Joi.object({
   permission_id: Joi.string().max(10),
 });
 
+export const bulkAssignPermissionsSchema = Joi.object({
+  permissions: Joi.array()
+    .items(
+      Joi.object({
+        feature_id: Joi.number().integer().required(),
+        permission_id: Joi.string().max(10).required(),
+      }),
+    )
+    .min(1)
+    .required(),
+});
+
+export const bulkRemovePermissionsSchema = Joi.object({
+  permissions: Joi.array()
+    .items(
+      Joi.object({
+        feature_id: Joi.number().integer().required(),
+        permission_id: Joi.string().max(10).required(),
+      }),
+    )
+    .min(1)
+    .required(),
+});
+
 export const { swagger: roleFeaturePermissionSchemaSwagger } = j2s(roleFeaturePermissionSchema);
 export const { swagger: roleFeaturePermissionIdSchemaSwagger } = j2s(roleFeaturePermissionIdSchema);
 export const { swagger: createRoleFeaturePermissionSchemaSwagger } = j2s(

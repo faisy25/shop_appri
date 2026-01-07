@@ -1,7 +1,7 @@
 import { Box, TextField, Typography, Button, Paper } from '@mui/material';
 import { useSelector, useDispatch } from 'react-redux';
 import { useEffect, useState } from 'react';
-import { fetchRoleById, createRole, updateRole } from '../../../redux/rba/role/roleThunk';
+import { fetchRoleById, createRole, updateRole, fetchRoles } from '../../../redux/rba/role/roleThunk';
 import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
 import { clearSelectedRole } from '../../../redux/rba/role/roleSlice';
@@ -72,6 +72,8 @@ const RoleFormPage = () => {
         toast.success('Role created successfully!');
       }
 
+      // Refetch roles list to ensure it's up to date
+      dispatch(fetchRoles());
       dispatch(clearSelectedRole());
       navigate(ROUTES.RBA.ROLE.ROOT);
     } catch (err) {
@@ -131,7 +133,16 @@ const RoleFormPage = () => {
           disabled={!!role}
           slotProps={{
             inputLabel: {
-              sx: { fontSize: '0.9rem', color: 'text.secondary' },
+              sx: { 
+                fontSize: '0.9rem', 
+                color: 'text.secondary',
+                zIndex: 1,
+                '&.MuiInputLabel-shrink': {
+                  zIndex: 2,
+                  backgroundColor: 'background.paper',
+                  padding: '0 4px',
+                },
+              },
             },
           }}
         />
@@ -145,7 +156,16 @@ const RoleFormPage = () => {
           helperText={errors.name?.message}
           slotProps={{
             inputLabel: {
-              sx: { fontSize: '0.9rem', color: 'text.secondary' },
+              sx: { 
+                fontSize: '0.9rem', 
+                color: 'text.secondary',
+                zIndex: 1,
+                '&.MuiInputLabel-shrink': {
+                  zIndex: 2,
+                  backgroundColor: 'background.paper',
+                  padding: '0 4px',
+                },
+              },
             },
           }}
         />
@@ -159,7 +179,16 @@ const RoleFormPage = () => {
           {...register('description')}
           slotProps={{
             inputLabel: {
-              sx: { fontSize: '0.9rem', color: 'text.secondary' },
+              sx: { 
+                fontSize: '0.9rem', 
+                color: 'text.secondary',
+                zIndex: 1,
+                '&.MuiInputLabel-shrink': {
+                  zIndex: 2,
+                  backgroundColor: 'background.paper',
+                  padding: '0 4px',
+                },
+              },
             },
           }}
         />

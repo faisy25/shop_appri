@@ -131,7 +131,16 @@ const DepartmentFormPage = () => {
           disabled={!!department}
           slotProps={{
             inputLabel: {
-              sx: { fontSize: '0.9rem', color: 'text.secondary' },
+              sx: { 
+                fontSize: '0.9rem', 
+                color: 'text.secondary',
+                zIndex: 1,
+                '&.MuiInputLabel-shrink': {
+                  zIndex: 2,
+                  backgroundColor: 'background.paper',
+                  padding: '0 4px',
+                },
+              },
             },
           }}
         />
@@ -145,7 +154,16 @@ const DepartmentFormPage = () => {
           helperText={errors.name?.message}
           slotProps={{
             inputLabel: {
-              sx: { fontSize: '0.9rem', color: 'text.secondary' },
+              sx: { 
+                fontSize: '0.9rem', 
+                color: 'text.secondary',
+                zIndex: 1,
+                '&.MuiInputLabel-shrink': {
+                  zIndex: 2,
+                  backgroundColor: 'background.paper',
+                  padding: '0 4px',
+                },
+              },
             },
           }}
         />
@@ -159,7 +177,16 @@ const DepartmentFormPage = () => {
           {...register('description')}
           slotProps={{
             inputLabel: {
-              sx: { fontSize: '0.9rem', color: 'text.secondary' },
+              sx: { 
+                fontSize: '0.9rem', 
+                color: 'text.secondary',
+                zIndex: 1,
+                '&.MuiInputLabel-shrink': {
+                  zIndex: 2,
+                  backgroundColor: 'background.paper',
+                  padding: '0 4px',
+                },
+              },
             },
           }}
         />
