@@ -27,34 +27,5 @@ router.delete('/:id', deletePermission);
 
 export default router;
 
-// For redoc documentation
-import { makeGet, makePost, makePut, makeDelete } from '../../../config/docs/method.swagger.js';
-import {
-  permissionSchemaSwagger,
-  createPermissionSchemaSwagger,
-  editPermissionSchemaSwagger,
-  permissionIdSchemaSwagger,
-} from './permission.swagger.js';
-
-const tag = 'Permission';
-export const permissionPaths = {
-  '/permissions': {
-    get: makeGet(tag, 'Get all permissions', permissionSchemaSwagger, true),
-    post: makePost(
-      tag,
-      'Create permission',
-      createPermissionSchemaSwagger,
-      permissionIdSchemaSwagger,
-    ),
-  },
-
-  '/permissions/{id}': {
-    get: makeGet(tag, 'Get permission', permissionSchemaSwagger),
-    put: makePut(tag, 'Update permission', editPermissionSchemaSwagger, permissionIdSchemaSwagger),
-    delete: makeDelete(tag, 'Delete permission', permissionIdSchemaSwagger),
-  },
-
-  '/permissions/hard/{id}': {
-    delete: makeDelete(tag, 'Delete permission permanently', permissionIdSchemaSwagger),
-  },
-};
+// Export paths from swagger file
+export { permissionPaths } from './permission.swagger.js';

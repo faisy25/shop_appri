@@ -27,34 +27,5 @@ router.delete('/:id', deleteDepartment);
 
 export default router;
 
-// For redoc documentation
-import { makeGet, makePost, makePut, makeDelete } from '../../../config/docs/method.swagger.js';
-import {
-  departmentSchemaSwagger,
-  createDepartmentSchemaSwagger,
-  editDepartmentSchemaSwagger,
-  departmentIdSchemaSwagger,
-} from './department.swagger.js';
-
-const tag = 'Department';
-export const departmentPaths = {
-  '/departments': {
-    get: makeGet(tag, 'Get all departments', departmentSchemaSwagger, true),
-    post: makePost(
-      tag,
-      'Create department',
-      createDepartmentSchemaSwagger,
-      departmentIdSchemaSwagger,
-    ),
-  },
-
-  '/departments/{id}': {
-    get: makeGet(tag, 'Get department', departmentSchemaSwagger),
-    put: makePut(tag, 'Update department', editDepartmentSchemaSwagger, departmentIdSchemaSwagger),
-    delete: makeDelete(tag, 'Delete department', departmentIdSchemaSwagger),
-  },
-
-  '/departments/hard/{id}': {
-    delete: makeDelete(tag, 'Delete department permanently', departmentIdSchemaSwagger),
-  },
-};
+// Export paths from swagger file
+export { departmentPaths } from './department.swagger.js';

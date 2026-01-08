@@ -11,6 +11,7 @@ import {
 } from './product.controller.js';
 import { validate } from '../../middleware/validate.middleware.js';
 import { createProductSchema, editProductSchema } from './product.validation.js';
+import { multerUploader } from '../../util/fileUpload/multerUploader.js';
 
 const router = Router();
 
@@ -28,30 +29,5 @@ router.delete('/:id', deleteProduct);
 
 export default router;
 
-// For redoc documentation
-import { makeGet, makePost, makePut, makeDelete } from '../../config/docs/method.swagger.js';
-import {
-  productSchemaSwagger,
-  createProductSchemaSwagger,
-  editProductSchemaSwagger,
-  productIdSchemaSwagger,
-} from './product.swagger.js';
-import { multerUploader } from '../../util/fileUpload/multerUploader.js';
-
-const tag = 'Product';
-export const productPaths = {
-  '/products': {
-    get: makeGet(tag, 'Get all products', productSchemaSwagger, true),
-    post: makePost(tag, 'Create product', createProductSchemaSwagger, productIdSchemaSwagger),
-  },
-
-  '/products/{id}': {
-    get: makeGet(tag, 'Get product', productSchemaSwagger),
-    put: makePut(tag, 'Update product', editProductSchemaSwagger, productIdSchemaSwagger),
-    delete: makeDelete(tag, 'Delete product', productIdSchemaSwagger),
-  },
-
-  '/products/hard/{id}': {
-    delete: makeDelete(tag, 'Delete product', productIdSchemaSwagger),
-  },
-};
+// Export paths from swagger file
+export { productPaths } from './product.swagger.js';

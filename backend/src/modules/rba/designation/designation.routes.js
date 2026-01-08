@@ -27,39 +27,5 @@ router.delete('/:id', deleteDesignation);
 
 export default router;
 
-// For redoc documentation
-import { makeGet, makePost, makePut, makeDelete } from '../../../config/docs/method.swagger.js';
-import {
-  designationSchemaSwagger,
-  createDesignationSchemaSwagger,
-  editDesignationSchemaSwagger,
-  designationIdSchemaSwagger,
-} from './designation.swagger.js';
-
-const tag = 'Designation';
-export const designationPaths = {
-  '/designations': {
-    get: makeGet(tag, 'Get all designations', designationSchemaSwagger, true),
-    post: makePost(
-      tag,
-      'Create designation',
-      createDesignationSchemaSwagger,
-      designationIdSchemaSwagger,
-    ),
-  },
-
-  '/designations/{id}': {
-    get: makeGet(tag, 'Get designation', designationSchemaSwagger),
-    put: makePut(
-      tag,
-      'Update designation',
-      editDesignationSchemaSwagger,
-      designationIdSchemaSwagger,
-    ),
-    delete: makeDelete(tag, 'Delete designation', designationIdSchemaSwagger),
-  },
-
-  '/designations/hard/{id}': {
-    delete: makeDelete(tag, 'Delete designation permanently', designationIdSchemaSwagger),
-  },
-};
+// Export paths from swagger file
+export { designationPaths } from './designation.swagger.js';

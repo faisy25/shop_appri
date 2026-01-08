@@ -1,6 +1,6 @@
 import j2s from 'joi-to-swagger';
+import { makeGet, makePost, makePut, makeDelete } from '../../../config/docs/method.swagger.js';
 import {
-  baseRoleSchema,
   createRoleSchema,
   editRoleSchema,
   roleIdSchema,
@@ -13,38 +13,75 @@ export const { swagger: roleIdSchemaSwagger } = j2s(roleIdSchema);
 export const { swagger: createRoleSchemaSwagger } = j2s(createRoleSchema);
 export const { swagger: editRoleSchemaSwagger } = j2s(editRoleSchema);
 
-/**
- * Helper function to format role response with nested objects
- * @param {Object} role - Raw role data from database
- * @returns {Object|null} - Formatted role object with nested organization, department, designation
- */
-export const formatRoleResponse = (role) => {
-  if (!role) return null;
+// For redoc documentation
+const tag = 'Role';
+export const rolePaths = {
+  '/roles': {
+    get: {
+      summary: 'Get all roles',
+      tags: [tag],
+      parameters: [
+        {
+          name: 'organization_id',
+          in: 'query',
+          required: false,
+          schema: { type: 'integer' },
+          description: 'Filter by organization ID',
+        },
+        {
+          name: 'department_id',
+          in: 'query',
+          required: false,
+          schema: { type: 'string' },
+          description: 'Filter by department ID',
+        },
+        {
+          name: 'designation_id',
+          in: 'query',
+          required: false,
+          schema: { type: 'string' },
+          description: 'Filter by designation ID',
+        },
+      ],
+      responses: {
+        200: {
+          description: 'Get all roles [success]',
+          content: {
+            'application/json': {
+              schema: {
+                allOf: [
+                  { $ref: '#/components/schemas/SuccessResponse' },
+                  {
+                    type: 'object',
+                    properties: {
+                      data: { type: 'array', items: roleSchemaSwagger },
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        },
+        400: { $ref: '#/components/responses/BadRequest' },
+        500: { $ref: '#/components/responses/ServerError' },
+      },
+    },
+    post: makePost(tag, 'Create role', createRoleSchemaSwagger, roleSchemaSwagger),
+  },
 
-  return {
-    role_id: role.role_id,
-    name: role.name,
-    description: role.description,
-    created_at: role.created_at,
-    updated_at: role.updated_at,
-    organization: role.organization_id
-      ? {
-          organization_id: role.organization_id,
-          name: role.organization_name,
-        }
-      : null,
-    department: role.department_id
-      ? {
-          department_id: role.department_id,
-          name: role.department_name,
-        }
-      : null,
-    designation: role.designation_id
-      ? {
-          designation_id: role.designation_id,
-          name: role.designation_name,
-        }
-      : null,
-  };
+  '/roles/{id}': {
+    get: makeGet(tag, 'Get role', roleSchemaSwagger),
+    put: makePut(tag, 'Update role', editRoleSchemaSwagger, roleSchemaSwagger),
+    delete: makeDelete(tag, 'Delete role', roleIdSchemaSwagger),
+  },
+
+  '/roles/hard': {
+    get: makeGet(tag, 'Get all roles with deleted', roleSchemaSwagger, true),
+  },
+
+  '/roles/hard/{id}': {
+    get: makeGet(tag, 'Get role with deleted', roleSchemaSwagger),
+    delete: makeDelete(tag, 'Delete role permanently', roleIdSchemaSwagger),
+  },
 };
 

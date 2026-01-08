@@ -19,20 +19,5 @@ router.delete('/:id', deleteMedia);
 
 export default router;
 
-// For Swagger
-import { makeGet, makePut, makeDelete } from '../../config/docs/method.swagger.js';
-
-const tag = 'Media';
-export const mediaPaths = {
-  // '/media': {
-  //   get: makeGet(tag, 'Get all media', mediaSchemaSwagger, true),
-  // },
-  // '/media/deleted': {
-  //   get: makeGet(tag, 'Get all media with deleted ones', mediaSchemaSwagger, true),
-  // },
-
-  '/media/{id}': {
-    // put: makePut(tag, 'Update media info', updateMediaSchemaSwagger, mediaIdSchemaSwagger),
-    delete: makeDelete(tag, 'Soft delete media', mediaIdSchemaSwagger),
-  },
-};
+// Export paths from swagger file
+export { mediaPaths } from './media.swagger.js';

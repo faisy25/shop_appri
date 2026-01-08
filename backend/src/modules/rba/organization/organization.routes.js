@@ -27,39 +27,5 @@ router.delete('/:id', deleteOrganization);
 
 export default router;
 
-// For redoc documentation
-import { makeGet, makePost, makePut, makeDelete } from '../../../config/docs/method.swagger.js';
-import {
-  organizationSchemaSwagger,
-  createOrganizationSchemaSwagger,
-  editOrganizationSchemaSwagger,
-  organizationIdSchemaSwagger,
-} from './organization.swagger.js';
-
-const tag = 'Organization';
-export const organizationPaths = {
-  '/organizations': {
-    get: makeGet(tag, 'Get all organizations', organizationSchemaSwagger, true),
-    post: makePost(
-      tag,
-      'Create organization',
-      createOrganizationSchemaSwagger,
-      organizationIdSchemaSwagger,
-    ),
-  },
-
-  '/organizations/{id}': {
-    get: makeGet(tag, 'Get organization', organizationSchemaSwagger),
-    put: makePut(
-      tag,
-      'Update organization',
-      editOrganizationSchemaSwagger,
-      organizationIdSchemaSwagger,
-    ),
-    delete: makeDelete(tag, 'Delete organization', organizationIdSchemaSwagger),
-  },
-
-  '/organizations/hard/{id}': {
-    delete: makeDelete(tag, 'Delete organization permanently', organizationIdSchemaSwagger),
-  },
-};
+// Export paths from swagger file
+export { organizationPaths } from './organization.swagger.js';
