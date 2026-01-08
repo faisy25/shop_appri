@@ -42,11 +42,6 @@ const hardDeleteUser = asyncHandler(async (req, res) => {
   return success(res, 'User permanently deleted', user, 200);
 });
 
-const getUserWithRoles = asyncHandler(async (req, res) => {
-  const user = await userService.getUserWithRoles(req.params.id);
-  return success(res, 'User with roles retrieved successfully', user, 200);
-});
-
 export {
   getUsers,
   getUser,
@@ -56,6 +51,4 @@ export {
   hardDeleteUser,
   getUserDelete,
   getUsersWithDeleted,
-  getUserWithRoles,
 };
-

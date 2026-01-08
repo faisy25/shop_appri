@@ -8,7 +8,6 @@ import {
   hardDeleteUser,
   updateUser,
   getUsersWithDeleted,
-  getUserWithRoles,
 } from './user.controller.js';
 import { validate } from '../../../middleware/validate.middleware.js';
 import { createUserSchema, editUserSchema } from './user.validation.js';
@@ -22,7 +21,6 @@ router.get('/hard', getUsersWithDeleted);
 router.delete('/hard/:id', hardDeleteUser);
 router.get('/hard/:id', getUserDelete);
 
-router.get('/:id/roles', getUserWithRoles);
 router.get('/:id', getUser);
 router.put('/:id', validate(editUserSchema), updateUser);
 router.delete('/:id', deleteUser);
@@ -51,10 +49,6 @@ export const userPaths = {
     delete: makeDelete(tag, 'Delete user', userIdSchemaSwagger),
   },
 
-  '/users/{id}/roles': {
-    get: makeGet(tag, 'Get user with roles', userSchemaSwagger),
-  },
-
   '/users/hard': {
     get: makeGet(tag, 'Get all users with deleted', userSchemaSwagger, true),
   },
@@ -67,4 +61,3 @@ export const userPaths = {
     delete: makeDelete(tag, 'Delete user permanently', userIdSchemaSwagger),
   },
 };
-

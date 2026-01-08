@@ -21,7 +21,10 @@ export const userRoleService = {
             'department.name as department_name',
             'designation.name as designation_name',
           ],
-          where: { 'user_role.user_id': userId },
+          where: {
+            'user_role.user_id': userId,
+            'role.is_deleted': 0,
+          },
           joinArray: [
             {
               table: 'role',
@@ -53,8 +56,8 @@ export const userRoleService = {
               join_type: 'LEFT',
             },
           ],
-          orderBy: [{ key: 'user_role.created_at', value: 'DESC' }],
-          deletedColumn: 'is_deleted',
+          orderBy: [{ key: 'role.name', value: 'ASC' }],
+          deletedColumn: 'user_role.is_deleted',
         },
         connection,
       );

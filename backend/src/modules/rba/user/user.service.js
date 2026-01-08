@@ -1,84 +1,11 @@
-import bcrypt from 'bcrypt';
-import { randomBytes } from 'crypto';
 import dbHelper from '../../../util/database/dbHelper.js';
 import ApiError from '../../../util/error/api.error.js';
 import { ServiceError } from '../../../util/error/service.error.js';
+import { generateUUID } from '../../../util/generateUUID.js';
+import { hashPassword } from '../../../util/user/hashPassword.js';
+import { formatUserResponse, formatRoleResponse } from './user.validation.js';
 import { userDetailService } from './user_detail/userDetail.service.js';
 import { userRoleService } from './user_role/userRole.service.js';
-
-// Generate default password
-const generateDefaultPassword = () => {
-  return randomBytes(8).toString('hex'); // 16 character random password
-};
-
-// Hash password
-const hashPassword = async (password) => {
-  const saltRounds = 10;
-  return await bcrypt.hash(password, saltRounds);
-};
-
-/**
- * Helper function to format user response with nested user_detail
- */
-const formatUserResponse = (user) => {
-  if (!user) return null;
-
-  return {
-    user_id: user.user_id,
-    uuid: user.uuid,
-    name: user.name,
-    email: user.email,
-    login_type: user.login_type,
-    email_verified: user.email_verified,
-    email_verified_at: user.email_verified_at,
-    is_active: user.is_active,
-    created_at: user.created_at,
-    updated_at: user.updated_at,
-    user_detail: user.user_detail_id
-      ? {
-          user_detail_id: user.user_detail_id,
-          phone: user.phone,
-          alternate_phone: user.alternate_phone,
-          country: user.country,
-          date_of_birth: user.date_of_birth,
-          gender: user.gender,
-          profile_picture_url: user.profile_picture_url,
-          bio: user.bio,
-        }
-      : null,
-  };
-};
-
-/**
- * Helper function to format role response with nested organization, department, designation
- */
-const formatRoleResponse = (role) => {
-  if (!role) return null;
-
-  return {
-    role_id: role.role_id,
-    name: role.role_name,
-    description: role.role_description,
-    organization: role.organization_id
-      ? {
-          organization_id: role.organization_id,
-          name: role.organization_name,
-        }
-      : null,
-    department: role.department_id
-      ? {
-          department_id: role.department_id,
-          name: role.department_name,
-        }
-      : null,
-    designation: role.designation_id
-      ? {
-          designation_id: role.designation_id,
-          name: role.designation_name,
-        }
-      : null,
-  };
-};
 
 export const userService = {
   async getAll() {
@@ -122,6 +49,8 @@ export const userService = {
           const formattedUser = formatUserResponse(user);
           // Fetch roles for this user
           const roles = await userRoleService.getByUserId(user.user_id);
+
+          console.log(roles, 'ROLESS');
           // Format roles with nested objects
           const formattedRoles = (roles || []).map(formatRoleResponse);
           return {
@@ -198,11 +127,14 @@ export const userService = {
     }
 
     try {
+      // Generate UUID if not provided
+      const userUUID = generateUUID();
+
       // Check if email/uuid already exists
       const existingUser = await dbHelper.getOneWithDeleted(
         {
           table: 'user',
-          where: { uuid: data.uuid },
+          where: { uuid: userUUID },
         },
         connection,
       );
@@ -211,15 +143,28 @@ export const userService = {
         throw new ApiError(400, 'User with this email/uuid already exists');
       }
 
+      // Also check if email already exists
+      const existingEmail = await dbHelper.getOneWithDeleted(
+        {
+          table: 'user',
+          where: { email: data.email },
+        },
+        connection,
+      );
+
+      if (existingEmail && existingEmail.is_deleted === 0) {
+        throw new ApiError(400, 'User with this email already exists');
+      }
+
       // Generate default password if not provided
-      const defaultPassword = data.password || generateDefaultPassword();
+      const defaultPassword = 'password';
       const hashedPassword = await hashPassword(defaultPassword);
 
       // Create user
       const result = await dbHelper.createOne(
         'user',
         {
-          uuid: data.uuid,
+          uuid: userUUID,
           name: data.name,
           email: data.email,
           password: hashedPassword,
@@ -507,11 +452,5 @@ export const userService = {
       await dbHelper.rollbackTransaction(connection);
       ServiceError(err, 'Failed to permanently delete user');
     }
-  },
-
-  async getUserWithRoles(id) {
-    // This method is now redundant as getById already includes roles
-    // Keeping for backward compatibility
-    return await this.getById(id);
   },
 };

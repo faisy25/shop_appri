@@ -2,6 +2,40 @@ import dbHelper from '../../../../util/database/dbHelper.js';
 import ApiError from '../../../../util/error/api.error.js';
 import { ServiceError } from '../../../../util/error/service.error.js';
 
+/**
+ * Format date to MySQL DATE format (YYYY-MM-DD)
+ * Handles ISO datetime strings, Date objects, and null values
+ */
+const formatDateForDB = (date) => {
+  if (!date || date === '' || date === null) {
+    return null;
+  }
+
+  try {
+    // If it's already in YYYY-MM-DD format, return as is
+    if (typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      return date;
+    }
+
+    // Parse the date (handles ISO strings, Date objects, etc.)
+    const dateObj = date instanceof Date ? date : new Date(date);
+
+    // Check if date is valid
+    if (isNaN(dateObj.getTime())) {
+      return null;
+    }
+
+    // Format to YYYY-MM-DD
+    const year = dateObj.getFullYear();
+    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const day = String(dateObj.getDate()).padStart(2, '0');
+
+    return `${year}-${month}-${day}`;
+  } catch (err) {
+    return null;
+  }
+};
+
 export const userDetailService = {
   async getByUserId(userId, connection = null) {
     try {
@@ -46,7 +80,7 @@ export const userDetailService = {
           phone: data.phone || null,
           alternate_phone: data.alternate_phone || null,
           country: data.country || null,
-          date_of_birth: data.date_of_birth || null,
+          date_of_birth: formatDateForDB(data.date_of_birth),
           gender: data.gender || null,
           profile_picture_url: data.profile_picture_url || null,
           bio: data.bio || null,
@@ -83,7 +117,7 @@ export const userDetailService = {
       if (data.phone !== undefined) detailData.phone = data.phone;
       if (data.alternate_phone !== undefined) detailData.alternate_phone = data.alternate_phone;
       if (data.country !== undefined) detailData.country = data.country;
-      if (data.date_of_birth !== undefined) detailData.date_of_birth = data.date_of_birth;
+      if (data.date_of_birth !== undefined) detailData.date_of_birth = formatDateForDB(data.date_of_birth);
       if (data.gender !== undefined) detailData.gender = data.gender;
       if (data.profile_picture_url !== undefined)
         detailData.profile_picture_url = data.profile_picture_url;
