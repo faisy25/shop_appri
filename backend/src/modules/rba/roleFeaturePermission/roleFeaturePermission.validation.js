@@ -1,5 +1,4 @@
 import Joi from 'joi';
-import j2s from 'joi-to-swagger';
 import { auditSchema } from '../../../config/docs/auditResponses.swagger.js';
 
 export const baseRoleFeaturePermissionSchema = Joi.object({
@@ -7,8 +6,6 @@ export const baseRoleFeaturePermissionSchema = Joi.object({
   feature_id: Joi.number().integer(),
   permission_id: Joi.string(),
 });
-
-const roleFeaturePermissionSchema = baseRoleFeaturePermissionSchema.concat(auditSchema);
 
 export const roleFeaturePermissionIdSchema = Joi.object({
   role_id: Joi.string().required(),
@@ -52,11 +49,5 @@ export const bulkRemovePermissionsSchema = Joi.object({
     .required(),
 });
 
-export const { swagger: roleFeaturePermissionSchemaSwagger } = j2s(roleFeaturePermissionSchema);
-export const { swagger: roleFeaturePermissionIdSchemaSwagger } = j2s(roleFeaturePermissionIdSchema);
-export const { swagger: createRoleFeaturePermissionSchemaSwagger } = j2s(
-  createRoleFeaturePermissionSchema,
-);
-export const { swagger: editRoleFeaturePermissionSchemaSwagger } = j2s(
-  editRoleFeaturePermissionSchema,
-);
+// Export roleFeaturePermissionSchema for swagger file
+export const roleFeaturePermissionSchema = baseRoleFeaturePermissionSchema.concat(auditSchema);

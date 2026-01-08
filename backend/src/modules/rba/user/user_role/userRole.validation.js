@@ -1,5 +1,4 @@
 import Joi from 'joi';
-import j2s from 'joi-to-swagger';
 
 /**
  * Base user role schema
@@ -125,11 +124,4 @@ export const validateUpdateRoleIds = (roleIds) => {
   }
   return value.role_ids || [];
 };
-
-// Swagger schemas for API documentation
-export const { swagger: assignRolesSchemaSwagger } = j2s(assignRolesSchema);
-export const { swagger: updateRolesSchemaSwagger } = j2s(updateRolesSchema);
-export const { swagger: assignRoleSchemaSwagger } = j2s(assignRoleSchema);
-export const { swagger: userIdParamSchemaSwagger } = j2s(userIdParamSchema);
-export const { swagger: roleIdParamSchemaSwagger } = j2s(roleIdParamSchema);
 

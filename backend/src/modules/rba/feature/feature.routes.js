@@ -34,7 +34,7 @@ import {
   createFeatureSchemaSwagger,
   editFeatureSchemaSwagger,
   featureIdSchemaSwagger,
-} from './feature.validation.js';
+} from './feature.swagger.js';
 
 const tag = 'Feature';
 export const featurePaths = {

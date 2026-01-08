@@ -1,5 +1,4 @@
 import Joi from 'joi';
-import j2s from 'joi-to-swagger';
 import { auditSchema } from '../../../config/docs/auditResponses.swagger.js';
 
 export const baseDepartmentSchema = Joi.object({
@@ -7,7 +6,6 @@ export const baseDepartmentSchema = Joi.object({
   name: Joi.string(),
   description: Joi.string(),
 });
-const departmentSchema = baseDepartmentSchema.concat(auditSchema);
 
 export const departmentIdSchema = Joi.object({
   department_id: Joi.string(),
@@ -24,7 +22,5 @@ export const editDepartmentSchema = Joi.object({
   description: Joi.string().max(100).allow(''),
 });
 
-export const { swagger: departmentSchemaSwagger } = j2s(departmentSchema);
-export const { swagger: departmentIdSchemaSwagger } = j2s(departmentIdSchema);
-export const { swagger: createDepartmentSchemaSwagger } = j2s(createDepartmentSchema);
-export const { swagger: editDepartmentSchemaSwagger } = j2s(editDepartmentSchema);
+// Export departmentSchema for swagger file
+export const departmentSchema = baseDepartmentSchema.concat(auditSchema);

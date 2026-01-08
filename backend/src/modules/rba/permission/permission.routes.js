@@ -34,7 +34,7 @@ import {
   createPermissionSchemaSwagger,
   editPermissionSchemaSwagger,
   permissionIdSchemaSwagger,
-} from './permission.validation.js';
+} from './permission.swagger.js';
 
 const tag = 'Permission';
 export const permissionPaths = {

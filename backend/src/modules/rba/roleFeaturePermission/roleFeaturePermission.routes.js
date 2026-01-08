@@ -50,7 +50,7 @@ import {
   createRoleFeaturePermissionSchemaSwagger,
   editRoleFeaturePermissionSchemaSwagger,
   roleFeaturePermissionIdSchemaSwagger,
-} from './roleFeaturePermission.validation.js';
+} from './roleFeaturePermission.swagger.js';
 
 const tag = 'Role Feature Permission';
 export const roleFeaturePermissionPaths = {

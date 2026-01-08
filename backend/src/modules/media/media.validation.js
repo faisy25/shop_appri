@@ -1,5 +1,4 @@
 import Joi from 'joi';
-import j2s from 'joi-to-swagger';
 import { auditSchema } from '../../config/docs/auditResponses.swagger.js';
 
 // DB-level base schema (for GET responses)
@@ -14,7 +13,6 @@ export const baseMediaSchema = Joi.object({
   is_primary: Joi.number().valid(0, 1),
   sort_order: Joi.number().integer(),
 });
-export const mediaSchema = baseMediaSchema.concat(auditSchema);
 
 export const updateMediaSchema = Joi.object({
   is_primary: Joi.number().integer().valid(0, 1),
@@ -25,7 +23,5 @@ export const mediaIdSchema = Joi.object({
   media_id: Joi.number().integer(),
 });
 
-// Swagger
-export const { swagger: mediaSchemaSwagger } = j2s(mediaSchema);
-export const { swagger: updateMediaSchemaSwagger } = j2s(updateMediaSchema);
-export const { swagger: mediaIdSchemaSwagger } = j2s(mediaIdSchema);
+// Export mediaSchema for swagger file
+export const mediaSchema = baseMediaSchema.concat(auditSchema);

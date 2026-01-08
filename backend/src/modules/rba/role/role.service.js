@@ -2,7 +2,7 @@ import dbHelper from '../../../util/database/dbHelper.js';
 import ApiError from '../../../util/error/api.error.js';
 import { ServiceError } from '../../../util/error/service.error.js';
 import { organizationDepartmentDesignationService } from '../organizationDepartmentDesignation/organizationDepartmentDesignation.service.js';
-import { formatRoleResponse } from './role.validation.js';
+import { formatRoleResponse } from './role.swagger.js';
 
 /**
  * Helper function to generate role_id from organization_id, department_id, and designation_id

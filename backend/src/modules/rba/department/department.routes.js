@@ -34,7 +34,7 @@ import {
   createDepartmentSchemaSwagger,
   editDepartmentSchemaSwagger,
   departmentIdSchemaSwagger,
-} from './department.validation.js';
+} from './department.swagger.js';
 
 const tag = 'Department';
 export const departmentPaths = {

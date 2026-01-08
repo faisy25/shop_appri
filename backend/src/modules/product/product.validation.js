@@ -1,5 +1,4 @@
 import Joi from 'joi';
-import j2s from 'joi-to-swagger';
 import { auditSchema } from '../../config/docs/auditResponses.swagger.js';
 
 export const baseProductSchema = Joi.object({
@@ -9,7 +8,6 @@ export const baseProductSchema = Joi.object({
   qty: Joi.number(),
   price: Joi.number(),
 });
-const productSchema = baseProductSchema.concat(auditSchema);
 
 export const productIdSchema = Joi.object({
   product_id: Joi.number().integer(),
@@ -35,7 +33,5 @@ export const editProductSchema = Joi.object({
   files: Joi.any().optional(),
 });
 
-export const { swagger: productSchemaSwagger } = j2s(productSchema);
-export const { swagger: productIdSchemaSwagger } = j2s(productIdSchema);
-export const { swagger: createProductSchemaSwagger } = j2s(createProductSchema);
-export const { swagger: editProductSchemaSwagger } = j2s(createProductSchema);
+// Export productSchema for swagger file
+export const productSchema = baseProductSchema.concat(auditSchema);

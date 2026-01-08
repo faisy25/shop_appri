@@ -8,7 +8,7 @@ import {
 import {
   // mediaSchemaSwagger,  updateMediaSchemaSwagger,  updateMediaSchema,
   mediaIdSchemaSwagger,
-} from './media.validation.js';
+} from './media.swagger.js';
 
 const router = Router();
 

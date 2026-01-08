@@ -35,7 +35,7 @@ import {
   createProductSchemaSwagger,
   editProductSchemaSwagger,
   productIdSchemaSwagger,
-} from './product.validation.js';
+} from './product.swagger.js';
 import { multerUploader } from '../../util/fileUpload/multerUploader.js';
 
 const tag = 'Product';

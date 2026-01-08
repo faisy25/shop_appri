@@ -34,7 +34,7 @@ import {
   createOrganizationSchemaSwagger,
   editOrganizationSchemaSwagger,
   organizationIdSchemaSwagger,
-} from './organization.validation.js';
+} from './organization.swagger.js';
 
 const tag = 'Organization';
 export const organizationPaths = {

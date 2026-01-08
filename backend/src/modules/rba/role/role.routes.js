@@ -34,7 +34,7 @@ import {
   createRoleSchemaSwagger,
   editRoleSchemaSwagger,
   roleIdSchemaSwagger,
-} from './role.validation.js';
+} from './role.swagger.js';
 
 const tag = 'Role';
 export const rolePaths = {

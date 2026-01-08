@@ -2,8 +2,8 @@ import dbHelper from '../../../util/database/dbHelper.js';
 import ApiError from '../../../util/error/api.error.js';
 import { ServiceError } from '../../../util/error/service.error.js';
 import { generateUUID } from '../../../util/generateUUID.js';
-import { hashPassword } from '../../../util/user/hashPassword.js';
-import { formatUserResponse, formatRoleResponse } from './user.validation.js';
+import { hashPassword } from '../../../util/user/userHelpers.js';
+import { formatUserResponse, formatRoleResponse } from './user.swagger.js';
 import { userDetailService } from './user_detail/userDetail.service.js';
 import { userRoleService } from './user_role/userRole.service.js';
 

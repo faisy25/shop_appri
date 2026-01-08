@@ -34,7 +34,7 @@ import {
   createDesignationSchemaSwagger,
   editDesignationSchemaSwagger,
   designationIdSchemaSwagger,
-} from './designation.validation.js';
+} from './designation.swagger.js';
 
 const tag = 'Designation';
 export const designationPaths = {

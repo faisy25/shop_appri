@@ -34,7 +34,7 @@ import {
   createUserSchemaSwagger,
   editUserSchemaSwagger,
   userIdSchemaSwagger,
-} from './user.validation.js';
+} from './user.swagger.js';
 
 const tag = 'User';
 export const userPaths = {
