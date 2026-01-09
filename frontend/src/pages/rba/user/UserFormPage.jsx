@@ -220,10 +220,8 @@ const UserFormPage = () => {
       elevation={3}
       sx={{
         p: 4,
-        maxWidth: 800,
-        mx: 'auto',
-        mt: 5,
-        borderRadius: 3,
+        mt: 4,
+        borderRadius: 2,
         bgcolor: 'background.paper',
       }}
     >

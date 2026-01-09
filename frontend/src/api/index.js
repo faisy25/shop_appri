@@ -40,7 +40,17 @@ export const designationApi = {
 };
 
 export const featureApi = {
-  getAll: () => axios.get(API_ENDPOINTS.FEATURES),
+  getAll: (filters = {}) => {
+    const params = new URLSearchParams();
+    if (filters.element_type) params.append('element_type', filters.element_type);
+    if (filters.parent_id !== undefined && filters.parent_id !== null && filters.parent_id !== '') {
+      params.append('parent_id', filters.parent_id);
+    }
+    const queryString = params.toString();
+    return axios.get(
+      queryString ? `${API_ENDPOINTS.FEATURES}?${queryString}` : API_ENDPOINTS.FEATURES,
+    );
+  },
   getOne: (id) => axios.get(API_ENDPOINTS.FEATURE_BY_ID(id)),
   create: (data) => axios.post(API_ENDPOINTS.FEATURES, data),
   update: (id, data) => axios.put(API_ENDPOINTS.FEATURE_BY_ID(id), data),

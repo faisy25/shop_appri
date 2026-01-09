@@ -1,5 +1,5 @@
-import { Box, Typography, Button, Paper } from '@mui/material';
-import handleInputWholeNumber from '../../util/input/handleInputWholeNumber';
+import { Box, Typography, Button, Paper, Grid } from '@mui/material';
+import { handleInputWholeNumber } from '../../utils/common/inputHelpers';
 import { useSelector, useDispatch } from 'react-redux';
 import { useEffect, useState } from 'react';
 import { fetchProductById, createProduct, updateProduct } from '../../redux/product/productThunk';
@@ -127,10 +127,8 @@ const ProductFormPage = () => {
       elevation={3}
       sx={{
         p: 4,
-        maxWidth: 500,
-        mx: 'auto',
-        mt: 5,
-        borderRadius: 3,
+        mt: 4,
+        borderRadius: 2,
         bgcolor: 'background.paper',
       }}
     >
@@ -165,100 +163,110 @@ const ProductFormPage = () => {
       <Box
         onSubmit={handleSubmit(onSubmit)} // Submit Handler
         component="form"
-        sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 3,
-        }}
       >
-        <CustomInput
-          name="name"
-          label="Product Name"
-          type="text"
-          isRequired={true}
-          validation={{
-            required: 'Product Name is required',
-            validate: validateProductName,
-          }}
-          register={register}
-          errors={errors}
-        />
+        <Grid container spacing={3}>
+          {/* Full width fields */}
+          <Grid item xs={12}>
+            <CustomInput
+              name="name"
+              label="Product Name"
+              type="text"
+              isRequired={true}
+              validation={{
+                required: 'Product Name is required',
+                validate: validateProductName,
+              }}
+              register={register}
+              errors={errors}
+            />
+          </Grid>
 
-        <CustomInput
-          name="description"
-          label="Description"
-          type="text"
-          multiline={true}
-          rows={3}
-          register={register}
-          errors={errors}
-        />
+          <Grid item xs={12}>
+            <CustomInput
+              name="description"
+              label="Description"
+              type="text"
+              multiline={true}
+              rows={3}
+              register={register}
+              errors={errors}
+            />
+          </Grid>
 
-        <CustomInput
-          name="qty"
-          label="Quantity"
-          type="number"
-          isRequired={true}
-          min={0}
-          step={1}
-          validation={{
-            required: 'Quantity is required',
-            validate: validateQuantity,
-          }}
-          htmlInput={{
-            onKeyDown: handleInputWholeNumber,
-          }}
-          register={register}
-          errors={errors}
-        />
+          {/* Row 2: Quantity and Price - 2 per row on larger screens */}
+          <Grid item xs={12} md={6}>
+            <CustomInput
+              name="qty"
+              label="Quantity"
+              type="number"
+              isRequired={true}
+              min={0}
+              step={1}
+              validation={{
+                required: 'Quantity is required',
+                validate: validateQuantity,
+              }}
+              htmlInput={{
+                onKeyDown: handleInputWholeNumber,
+              }}
+              register={register}
+              errors={errors}
+            />
+          </Grid>
 
-        <CustomInput
-          name="price"
-          label="Price"
-          type="decimal"
-          isRequired={true}
-          min={0}
-          step={0.01}
-          validation={{
-            required: 'Price is required',
-            validate: validatePrice,
-          }}
-          register={register}
-          errors={errors}
-        />
+          <Grid item xs={12} md={6}>
+            <CustomInput
+              name="price"
+              label="Price"
+              type="decimal"
+              isRequired={true}
+              min={0}
+              step={0.01}
+              validation={{
+                required: 'Price is required',
+                validate: validatePrice,
+              }}
+              register={register}
+              errors={errors}
+            />
+          </Grid>
 
-        {/* Upload file  */}
-        <MediaUploader
-          files={files}
-          setFiles={setFiles}
-          existingMedia={product?.media || []}
-          onMediaDeleted={handleMediaDeleted}
-          allowedTypes={['image', 'video']}
-          limits={{ image: 5, video: 1 }}
-        />
+          {/* Row 3: Media Upload - Full width */}
+          <Grid item xs={12}>
+            <MediaUploader
+              files={files}
+              setFiles={setFiles}
+              existingMedia={product?.media || []}
+              onMediaDeleted={handleMediaDeleted}
+              allowedTypes={['image', 'video']}
+              limits={{ image: 5, video: 1 }}
+            />
+          </Grid>
+        </Grid>
 
-        <Button
-          variant="contained"
-          color="primary"
-          size="large"
-          sx={{
-            mt: 1,
-            borderRadius: 2,
-            py: 1.2,
-            fontWeight: 600,
-            height: 48,
-          }}
-          type="submit"
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? (
-            <CircularProgress size={26} />
-          ) : product ? (
-            'Update Product'
-          ) : (
-            'Create Product'
-          )}
-        </Button>
+        <Box sx={{ mt: 3 }}>
+          <Button
+            variant="contained"
+            color="primary"
+            size="large"
+            fullWidth
+            sx={{
+              borderRadius: 2,
+              py: 1.5,
+              fontWeight: 600,
+            }}
+            type="submit"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <CircularProgress size={26} />
+            ) : product ? (
+              'Update Product'
+            ) : (
+              'Create Product'
+            )}
+          </Button>
+        </Box>
       </Box>
     </Paper>
   );

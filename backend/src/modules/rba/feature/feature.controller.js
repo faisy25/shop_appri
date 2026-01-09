@@ -3,7 +3,7 @@ import { success } from '../../../util/responses.js';
 import { featureService } from './feature.service.js';
 
 const getFeatures = asyncHandler(async (req, res) => {
-  const features = await featureService.getAll();
+  const features = await featureService.getAll(req.query);
   return success(res, 'Features retrieved successfully', features, 200);
 });
 

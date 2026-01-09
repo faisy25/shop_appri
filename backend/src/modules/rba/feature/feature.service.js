@@ -3,8 +3,24 @@ import ApiError from '../../../util/error/api.error.js';
 import { ServiceError } from '../../../util/error/service.error.js';
 
 export const featureService = {
-  async getAll() {
+  async getAll(filters = {}) {
     try {
+      const where = {};
+
+      // Filter by element_type if provided
+      if (filters.element_type) {
+        where['f.element_type'] = filters.element_type;
+      }
+
+      // Filter by parent_id if provided (including parent_id = 0 for root features)
+      if (
+        filters.parent_id !== undefined &&
+        filters.parent_id !== null &&
+        filters.parent_id !== ''
+      ) {
+        where['f.parent_id'] = parseInt(filters.parent_id);
+      }
+
       const features = await dbHelper.getAll({
         table: 'feature f',
         selectColumns: ['f.*', 'parent.name AS parent_feature'],
@@ -16,6 +32,7 @@ export const featureService = {
             join_type: 'LEFT',
           },
         ],
+        where: Object.keys(where).length > 0 ? where : undefined,
         orderBy: [
           { key: 'f.sort_order', value: 'ASC' },
           { key: 'f.created_at', value: 'DESC' },

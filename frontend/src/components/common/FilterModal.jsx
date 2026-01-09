@@ -1,23 +1,23 @@
 import {
   Dialog,
-  DialogTitle,
   DialogContent,
-  DialogActions,
   Button,
   Box,
   Typography,
   IconButton,
-  Divider,
   Chip,
   TextField,
   FormControlLabel,
   Checkbox,
   FormGroup,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Radio,
+  RadioGroup,
 } from '@mui/material';
-import { Close, FilterList } from '@mui/icons-material';
-import { useTheme } from '@mui/material';
+import { Close, ExpandMore, ArrowForward } from '@mui/icons-material';
 import { useMemo } from 'react';
-import Select from 'react-select';
 
 /**
  * Reusable Filter Modal Component
@@ -47,9 +47,6 @@ const FilterModal = ({
   onClearFilters,
   title = 'Filters',
 }) => {
-  const theme = useTheme();
-  const isDark = theme.palette.mode === 'dark';
-
   // Count active filters
   const activeFilterCount = useMemo(() => {
     return Object.values(filters).filter(
@@ -60,126 +57,6 @@ const FilterModal = ({
         !(Array.isArray(value) && value.length === 0),
     ).length;
   }, [filters]);
-
-  // Styles for react-select to match Material-UI TextField styling
-  const selectStyles = useMemo(
-    () => ({
-      control: (base, state) => {
-        const defaultBorderColor = isDark ? 'rgba(255, 255, 255, 0.23)' : 'rgba(0, 0, 0, 0.23)';
-        const focusedBorderColor = theme.palette.primary.main;
-        const hoverBorderColor = isDark ? 'rgba(255, 255, 255, 0.87)' : 'rgba(0, 0, 0, 0.87)';
-
-        return {
-          ...base,
-          minHeight: '40px',
-          backgroundColor: isDark ? '#313131' : theme.palette.background.paper,
-          borderColor: state.isFocused ? focusedBorderColor : defaultBorderColor,
-          borderWidth: '1px',
-          borderStyle: 'solid',
-          borderRadius: theme.shape.borderRadius || '4px',
-          boxShadow: state.isFocused ? `0 0 0 1px ${focusedBorderColor}` : 'none',
-          '&:hover': {
-            borderColor: hoverBorderColor,
-          },
-          cursor: 'pointer',
-        };
-      },
-      placeholder: (base) => ({
-        ...base,
-        color: theme.palette.text.secondary,
-        fontSize: '0.875rem',
-      }),
-      singleValue: (base) => ({
-        ...base,
-        color: theme.palette.text.primary,
-        fontSize: '0.875rem',
-      }),
-      multiValue: (base) => ({
-        ...base,
-        backgroundColor: theme.palette.primary.light || 'rgba(0, 82, 163, 0.1)',
-        borderRadius: '4px',
-      }),
-      multiValueLabel: (base) => ({
-        ...base,
-        color: theme.palette.primary.main,
-        fontSize: '0.875rem',
-      }),
-      multiValueRemove: (base) => ({
-        ...base,
-        color: theme.palette.primary.main,
-        '&:hover': {
-          backgroundColor: theme.palette.error.light,
-          color: theme.palette.error.main,
-        },
-      }),
-      input: (base) => ({
-        ...base,
-        color: theme.palette.text.primary,
-        fontSize: '0.875rem',
-        margin: 0,
-        padding: 0,
-      }),
-      menu: (base) => ({
-        ...base,
-        backgroundColor: theme.palette.background.paper,
-        border: `1px solid ${
-          theme.palette.divider || (isDark ? 'rgba(255, 255, 255, 0.23)' : 'rgba(0, 0, 0, 0.23)')
-        }`,
-        boxShadow: isDark ? theme.shadows[8] : theme.shadows[4],
-        marginTop: '4px',
-        borderRadius: theme.shape.borderRadius || '4px',
-        zIndex: 1300,
-      }),
-      option: (base, state) => {
-        const selectedBg = theme.palette.primary.main;
-        const focusedBg = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.04)';
-
-        return {
-          ...base,
-          backgroundColor: state.isSelected
-            ? selectedBg
-            : state.isFocused
-            ? focusedBg
-            : 'transparent',
-          color: state.isSelected
-            ? theme.palette.primary.contrastText || (isDark ? '#1E1E1E' : '#fff')
-            : theme.palette.text.primary,
-          padding: '8px 12px',
-          fontSize: '0.875rem',
-          cursor: 'pointer',
-          '&:active': {
-            backgroundColor: selectedBg,
-            color: theme.palette.primary.contrastText || (isDark ? '#1E1E1E' : '#fff'),
-          },
-        };
-      },
-      indicatorSeparator: (base) => ({
-        ...base,
-        backgroundColor:
-          theme.palette.divider || (isDark ? 'rgba(255, 255, 255, 0.23)' : 'rgba(0, 0, 0, 0.23)'),
-        marginTop: '4px',
-        marginBottom: '4px',
-      }),
-      dropdownIndicator: (base, state) => ({
-        ...base,
-        color: state.isFocused ? theme.palette.primary.main : theme.palette.text.secondary,
-        padding: '6px',
-        '&:hover': {
-          color: theme.palette.primary.main,
-        },
-      }),
-      clearIndicator: (base) => ({
-        ...base,
-        color: theme.palette.text.secondary,
-        padding: '6px',
-        '&:hover': {
-          color: theme.palette.error.main,
-          backgroundColor: isDark ? 'rgba(211, 47, 47, 0.08)' : 'rgba(211, 47, 47, 0.04)',
-        },
-      }),
-    }),
-    [theme, isDark],
-  );
 
   const handleApplyFilters = () => {
     onClose();
@@ -195,40 +72,121 @@ const FilterModal = ({
     const fieldType = field.type || 'select';
 
     switch (fieldType) {
-      case 'select':
-      case 'multiselect': {
-        const isMulti = fieldType === 'multiselect';
-        let selectedOption = null;
-
-        if (isMulti) {
-          selectedOption = Array.isArray(currentValue)
-            ? field.options?.filter((opt) => currentValue.includes(opt.value)) || []
-            : [];
-        } else {
-          selectedOption = field.options?.find((opt) => opt.value === currentValue) || null;
-        }
-
+      case 'select': {
+        // Render as radio buttons for single select
         return (
-          <Select
-            value={selectedOption}
-            onChange={(selected) => {
-              const value = isMulti
-                ? (selected || []).map((opt) => opt.value)
-                : selected?.value || null;
-
+          <RadioGroup
+            value={currentValue !== null && currentValue !== undefined ? String(currentValue) : ''}
+            onChange={(e) => {
+              let value = e.target.value;
+              // Try to convert to number if it's a numeric string
+              if (value && !isNaN(value)) {
+                value = Number(value);
+              }
+              // Set null if empty string
+              if (value === '') {
+                value = null;
+              }
               if (onFilterChange) {
                 onFilterChange(field.key, value);
               } else if (field.onChange) {
                 field.onChange(value);
               }
             }}
-            options={field.options || []}
-            placeholder={field.placeholder || `Select ${field.label.toLowerCase()}...`}
-            isClearable
-            isMulti={isMulti}
-            styles={selectStyles}
-            classNamePrefix="filter-select"
-          />
+          >
+            {field.options?.map((option) => (
+              <FormControlLabel
+                key={option.value}
+                value={option.value}
+                control={
+                  <Radio
+                    size="small"
+                    sx={{
+                      color: 'text.secondary',
+                      '&.Mui-checked': {
+                        color: 'primary.main',
+                      },
+                      '&:hover': {
+                        bgcolor: (theme) => `${theme.palette.primary.main}08`,
+                      },
+                    }}
+                  />
+                }
+                label={
+                  <Typography sx={{ fontSize: '0.875rem', color: 'text.primary' }}>
+                    {option.label}
+                  </Typography>
+                }
+                sx={{
+                  mb: 0.5,
+                  '&:hover': {
+                    bgcolor: (theme) => `${theme.palette.primary.main}04`,
+                    borderRadius: 1,
+                  },
+                }}
+              />
+            ))}
+          </RadioGroup>
+        );
+      }
+
+      case 'multiselect': {
+        // Render as checkboxes for multi-select
+        const selectedValues = Array.isArray(currentValue) ? currentValue : [];
+
+        return (
+          <FormGroup>
+            {field.options?.map((option) => {
+              // Use loose comparison to handle type mismatches
+              const isChecked = selectedValues.some((v) => v == option.value);
+              return (
+                <FormControlLabel
+                  key={option.value}
+                  control={
+                    <Checkbox
+                      checked={isChecked}
+                      onChange={(e) => {
+                        let newValues = [...selectedValues];
+                        if (e.target.checked) {
+                          newValues.push(option.value);
+                        } else {
+                          // Use loose comparison to handle type mismatches
+                          newValues = newValues.filter((v) => v != option.value);
+                        }
+                        if (onFilterChange) {
+                          onFilterChange(field.key, newValues.length > 0 ? newValues : null);
+                        } else if (field.onChange) {
+                          field.onChange(newValues.length > 0 ? newValues : null);
+                        }
+                      }}
+                      size="small"
+                      sx={{
+                        color: 'text.secondary',
+                        '&.Mui-checked': {
+                          color: 'primary.main',
+                        },
+                        '&:hover': {
+                          bgcolor: (theme) => `${theme.palette.primary.main}08`,
+                        },
+                      }}
+                    />
+                  }
+                  label={
+                    <Typography sx={{ fontSize: '0.875rem', color: 'text.primary' }}>
+                      {option.label}
+                    </Typography>
+                  }
+                  sx={{
+                    mb: 0.5,
+                    '&:hover': {
+                      bgcolor: (theme) => `${theme.palette.primary.main}04`,
+                      borderRadius: 1,
+                    },
+                  }}
+                />
+              );
+            })}
+          </FormGroup>
         );
       }
 
@@ -251,26 +209,95 @@ const FilterModal = ({
               }
             }}
             placeholder={field.placeholder || `Enter ${field.label.toLowerCase()}...`}
-            slotProps={{
-              input: {
-                sx: {
-                  fontSize: '0.875rem',
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                borderRadius: 0,
+                fontSize: '0.875rem',
+                '& fieldset': {
+                  borderColor: (theme) =>
+                    theme.palette.mode === 'dark'
+                      ? 'rgba(255, 255, 255, 0.12)'
+                      : 'rgba(0, 0, 0, 0.12)',
+                },
+                '&:hover fieldset': {
+                  borderColor: (theme) =>
+                    theme.palette.mode === 'dark'
+                      ? 'rgba(255, 255, 255, 0.23)'
+                      : 'rgba(0, 0, 0, 0.23)',
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: 'text.primary',
+                  borderWidth: '1px',
                 },
               },
-              inputLabel: {
-                sx: {
-                  fontSize: '0.8125rem',
+              '& .MuiOutlinedInput-input': {
+                fontSize: '0.875rem',
+                fontWeight: 400,
+                padding: '10px 12px',
+                '&::placeholder': {
                   color: 'text.secondary',
-                  zIndex: 1,
-                  '&.MuiInputLabel-shrink': {
-                    zIndex: 2,
-                    backgroundColor: 'background.paper',
-                    padding: '0 4px',
-                  },
+                  opacity: 1,
                 },
               },
             }}
           />
+        );
+      }
+
+      case 'radio': {
+        return (
+          <RadioGroup
+            value={currentValue !== null && currentValue !== undefined ? String(currentValue) : ''}
+            onChange={(e) => {
+              let value = e.target.value;
+              // Try to convert to number if it's a numeric string
+              if (value && !isNaN(value)) {
+                value = Number(value);
+              }
+              // Set null if empty string
+              if (value === '') {
+                value = null;
+              }
+              if (onFilterChange) {
+                onFilterChange(field.key, value);
+              } else if (field.onChange) {
+                field.onChange(value);
+              }
+            }}
+          >
+            {field.options?.map((option) => (
+              <FormControlLabel
+                key={option.value}
+                value={String(option.value)}
+                control={
+                  <Radio
+                    size="small"
+                    sx={{
+                      color: 'text.secondary',
+                      '&.Mui-checked': {
+                        color: 'primary.main',
+                      },
+                      '&:hover': {
+                        bgcolor: (theme) => `${theme.palette.primary.main}08`,
+                      },
+                    }}
+                  />
+                }
+                label={
+                  <Typography sx={{ fontSize: '0.875rem', color: 'text.primary' }}>
+                    {option.label}
+                  </Typography>
+                }
+                sx={{
+                  mb: 0.5,
+                  '&:hover': {
+                    bgcolor: (theme) => `${theme.palette.primary.main}04`,
+                    borderRadius: 1,
+                  },
+                }}
+              />
+            ))}
+          </RadioGroup>
         );
       }
 
@@ -294,6 +321,15 @@ const FilterModal = ({
                     }
                   }}
                   size="small"
+                  sx={{
+                    color: 'text.secondary',
+                    '&.Mui-checked': {
+                      color: 'primary.main',
+                    },
+                    '&:hover': {
+                      bgcolor: (theme) => `${theme.palette.primary.main}08`,
+                    },
+                  }}
                 />
               }
               label={
@@ -301,6 +337,13 @@ const FilterModal = ({
                   {field.checkboxLabel || field.label}
                 </Typography>
               }
+              sx={{
+                mb: 0.5,
+                '&:hover': {
+                  bgcolor: (theme) => `${theme.palette.primary.main}04`,
+                  borderRadius: 1,
+                },
+              }}
             />
           </FormGroup>
         );
@@ -333,6 +376,15 @@ const FilterModal = ({
                         }
                       }}
                       size="small"
+                      sx={{
+                        color: 'text.secondary',
+                        '&.Mui-checked': {
+                          color: 'primary.main',
+                        },
+                        '&:hover': {
+                          bgcolor: (theme) => `${theme.palette.primary.main}08`,
+                        },
+                      }}
                     />
                   }
                   label={
@@ -340,6 +392,13 @@ const FilterModal = ({
                       {option.label}
                     </Typography>
                   }
+                  sx={{
+                    mb: 0.5,
+                    '&:hover': {
+                      bgcolor: (theme) => `${theme.palette.primary.main}04`,
+                      borderRadius: 1,
+                    },
+                  }}
                 />
               );
             })}
@@ -352,116 +411,259 @@ const FilterModal = ({
     }
   };
 
+  // Get applied filter labels for display
+  const appliedFilters = useMemo(() => {
+    const applied = [];
+    filterFields.forEach((field) => {
+      const value = filters[field.key];
+      if (value !== null && value !== undefined && value !== '') {
+        if (Array.isArray(value) && value.length > 0) {
+          value.forEach((val) => {
+            const option = field.options?.find((opt) => opt.value == val); // Use == for loose comparison
+            if (option) {
+              applied.push({ key: field.key, value: val, label: option.label });
+            }
+          });
+        } else {
+          // Don't use "if (value)" as 0 is falsy but valid
+          const option = field.options?.find((opt) => opt.value == value); // Use == for loose comparison
+          applied.push({
+            key: field.key,
+            value: value,
+            label: option ? option.label : value,
+          });
+        }
+      }
+    });
+    return applied;
+  }, [filters, filterFields]);
+
+  const handleRemoveFilter = (key, value) => {
+    const currentValue = filters[key];
+
+    if (Array.isArray(currentValue)) {
+      const newValue = currentValue.filter((v) => v !== value);
+      onFilterChange(key, newValue.length > 0 ? newValue : null);
+    } else {
+      onFilterChange(key, null);
+    }
+  };
+
   return (
     <Dialog
       open={open}
       onClose={onClose}
-      maxWidth="sm"
+      maxWidth="xs"
       fullWidth
       slotProps={{
         paper: {
           sx: {
-            borderRadius: 2,
+            borderRadius: 0,
             bgcolor: 'background.paper',
-            maxHeight: '90vh',
+            height: '100vh',
+            maxHeight: '100vh',
+            m: 0,
+            position: 'fixed',
+            right: 0,
+            top: 0,
           },
         },
       }}
+      sx={{
+        '& .MuiDialog-container': {
+          justifyContent: 'flex-end',
+        },
+      }}
     >
-      <DialogTitle
+      {/* Header */}
+      <Box
         sx={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
+          p: 2,
           borderBottom: '1px solid',
           borderColor: 'divider',
-          pb: 1.5,
-          pt: 2,
-          px: 2.5,
         }}
       >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <FilterList sx={{ color: 'primary.main', fontSize: '1.25rem' }} />
-          <Typography variant="subtitle1" sx={{ fontWeight: 600, fontSize: '1rem' }}>
-            {title}
-          </Typography>
-          {activeFilterCount > 0 && (
-            <Chip
-              label={activeFilterCount}
-              size="small"
-              color="primary"
-              sx={{ ml: 0.5, minWidth: '20px', height: '20px', fontSize: '0.75rem' }}
-            />
-          )}
-        </Box>
-        <IconButton onClick={onClose} size="small" sx={{ color: 'text.secondary' }}>
-          <Close fontSize="small" />
-        </IconButton>
-      </DialogTitle>
-
-      <DialogContent sx={{ pt: 2, px: 2.5, pb: 1 }}>
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, my: 2 }}>
-          {filterFields.map((field) => {
-            // Don't show label for checkbox (single) as it's inline
-            const showLabel = field.type !== 'checkbox';
-
-            return (
-              <Box key={field.key}>
-                {showLabel && (
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      mb: 1,
-                      color: 'text.secondary',
-                      fontSize: '0.8125rem',
-                      fontWeight: 500,
-                    }}
-                  >
-                    {field.label}
-                  </Typography>
-                )}
-                {renderField(field)}
-              </Box>
-            );
-          })}
-        </Box>
-      </DialogContent>
-
-      <Divider />
-
-      <DialogActions sx={{ px: 2.5, py: 1.5, gap: 1 }}>
-        <Button
-          onClick={handleClearAll}
-          variant="outlined"
-          disabled={activeFilterCount === 0}
-          size="small"
+        <Typography
+          variant="h6"
           sx={{
-            textTransform: 'none',
-            fontWeight: 500,
-            fontSize: '0.875rem',
-            px: 2,
-            py: 0.75,
+            fontWeight: 700,
+            fontSize: '1rem',
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
           }}
         >
-          Clear All
-        </Button>
-        <Box sx={{ flex: 1 }} />
+          {title}
+        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Button
+            onClick={handleClearAll}
+            disabled={activeFilterCount === 0}
+            sx={{
+              textTransform: 'none',
+              fontWeight: 600,
+              fontSize: '0.8125rem',
+              color: 'primary.main',
+              textDecoration: 'underline',
+              minWidth: 'auto',
+              p: 0.5,
+              '&:hover': {
+                bgcolor: 'transparent',
+                textDecoration: 'underline',
+                color: 'primary.dark',
+              },
+              '&:disabled': {
+                color: 'text.disabled',
+                textDecoration: 'none',
+              },
+            }}
+          >
+            Clear all
+          </Button>
+          <IconButton
+            onClick={onClose}
+            size="small"
+            sx={{
+              color: 'text.primary',
+            }}
+          >
+            <Close fontSize="small" />
+          </IconButton>
+        </Box>
+      </Box>
+
+      {/* Applied Filters */}
+      {appliedFilters.length > 0 && (
+        <Box sx={{ p: 2, bgcolor: 'background.default' }}>
+          <Typography
+            variant="subtitle2"
+            sx={{
+              fontWeight: 600,
+              fontSize: '0.875rem',
+              mb: 1.5,
+              color: 'text.primary',
+            }}
+          >
+            Applied filters
+          </Typography>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+            {appliedFilters.map((filter, idx) => (
+              <Chip
+                key={`${filter.key}-${filter.value}-${idx}`}
+                label={filter.label}
+                onDelete={() => handleRemoveFilter(filter.key, filter.value)}
+                size="medium"
+                sx={{
+                  bgcolor: 'background.paper',
+                  border: '1px solid',
+                  borderColor: 'divider',
+                  fontWeight: 400,
+                  fontSize: '0.8125rem',
+                  '& .MuiChip-deleteIcon': {
+                    fontSize: '1rem',
+                    color: 'text.secondary',
+                    '&:hover': {
+                      color: 'primary.main',
+                    },
+                  },
+                }}
+              />
+            ))}
+          </Box>
+        </Box>
+      )}
+
+      {/* Content */}
+      <DialogContent sx={{ p: 0, overflow: 'auto' }}>
+        {filterFields.map((field, index) => {
+          const isLast = index === filterFields.length - 1;
+
+          return (
+            <Accordion
+              key={field.key}
+              disableGutters
+              elevation={0}
+              defaultExpanded={index === 0}
+              sx={{
+                '&:before': { display: 'none' },
+                borderBottom: isLast ? 'none' : '1px solid',
+                borderColor: 'divider',
+              }}
+            >
+              <AccordionSummary
+                expandIcon={<ExpandMore />}
+                sx={{
+                  px: 2,
+                  py: 1.5,
+                  minHeight: 'auto',
+                  '&.Mui-expanded': {
+                    minHeight: 'auto',
+                  },
+                  '& .MuiAccordionSummary-content': {
+                    margin: '8px 0',
+                    '&.Mui-expanded': {
+                      margin: '8px 0',
+                    },
+                  },
+                }}
+              >
+                <Typography
+                  sx={{
+                    fontWeight: 600,
+                    fontSize: '0.875rem',
+                    color: 'text.primary',
+                  }}
+                >
+                  {field.label}
+                </Typography>
+              </AccordionSummary>
+              <AccordionDetails sx={{ px: 2, pb: 2, pt: 0 }}>{renderField(field)}</AccordionDetails>
+            </Accordion>
+          );
+        })}
+
+        {filterFields.length === 0 && (
+          <Box sx={{ textAlign: 'center', py: 8, px: 3 }}>
+            <Typography variant="body2" color="text.secondary">
+              No filter options available
+            </Typography>
+          </Box>
+        )}
+      </DialogContent>
+
+      {/* Footer with item count and Apply button */}
+      <Box
+        sx={{
+          p: 2,
+          borderTop: '1px solid',
+          borderColor: 'divider',
+          bgcolor: 'background.paper',
+        }}
+      >
         <Button
           onClick={handleApplyFilters}
           variant="contained"
           color="primary"
-          size="small"
+          fullWidth
+          endIcon={<ArrowForward />}
           sx={{
             textTransform: 'none',
-            fontWeight: 500,
-            fontSize: '0.875rem',
-            px: 2,
-            py: 0.75,
+            fontWeight: 600,
+            fontSize: '0.9375rem',
+            py: 1.5,
+            borderRadius: 0,
+            boxShadow: 'none',
+            '&:hover': {
+              boxShadow: 'none',
+              filter: 'brightness(0.95)',
+            },
           }}
         >
-          Apply Filters
+          Apply
         </Button>
-      </DialogActions>
+      </Box>
     </Dialog>
   );
 };

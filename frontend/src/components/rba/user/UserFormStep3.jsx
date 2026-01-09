@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Box } from '@mui/material';
+import { Grid } from '@mui/material';
 import { useFormContext } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
 import { updateFormData } from '../../../redux/rba/user/userSlice';
@@ -44,88 +44,106 @@ const UserFormStep3 = () => {
   ]);
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-      <CustomInput
-        name="phone"
-        label="Phone"
-        type="text"
-        validation={{
-          validate: validatePhone,
-        }}
-        register={register}
-        errors={errors}
-      />
+    <Grid container spacing={3}>
+      {/* Row 1: Phone and Alternate Phone - 2 per row on larger screens */}
+      <Grid item xs={12} md={6}>
+        <CustomInput
+          name="phone"
+          label="Phone"
+          type="text"
+          validation={{
+            validate: validatePhone,
+          }}
+          register={register}
+          errors={errors}
+        />
+      </Grid>
 
-      <CustomInput
-        name="alternate_phone"
-        label="Alternate Phone"
-        type="text"
-        validation={{
-          validate: validatePhone,
-        }}
-        register={register}
-        errors={errors}
-      />
+      <Grid item xs={12} md={6}>
+        <CustomInput
+          name="alternate_phone"
+          label="Alternate Phone"
+          type="text"
+          validation={{
+            validate: validatePhone,
+          }}
+          register={register}
+          errors={errors}
+        />
+      </Grid>
 
-      <CustomInput
-        name="country"
-        label="Country"
-        type="text"
-        register={register}
-        errors={errors}
-      />
+      {/* Row 2: Country, Date of Birth, Gender - 3 per row on larger screens */}
+      <Grid item xs={12} md={4}>
+        <CustomInput
+          name="country"
+          label="Country"
+          type="text"
+          register={register}
+          errors={errors}
+        />
+      </Grid>
 
-      <CustomDatePicker
-        name="date_of_birth"
-        control={control}
-        label="Date of Birth"
-        placeholder="Select date..."
-        isRequired={false}
-        error={errors.date_of_birth}
-        helperText={errors.date_of_birth?.message}
-        validation={{
-          validate: validateDateOfBirth,
-        }}
-        maxDate={new Date()} // Prevent future dates
-      />
+      <Grid item xs={12} md={4}>
+        <CustomDatePicker
+          name="date_of_birth"
+          control={control}
+          label="Date of Birth"
+          placeholder="Select date..."
+          isRequired={false}
+          error={errors.date_of_birth}
+          helperText={errors.date_of_birth?.message}
+          validation={{
+            validate: validateDateOfBirth,
+          }}
+          maxDate={new Date()} // Prevent future dates
+        />
+      </Grid>
 
-      <CustomSelect
-        name="gender"
-        control={control}
-        options={[
-          { label: 'Male', value: 'male' },
-          { label: 'Female', value: 'female' },
-          { label: 'Other', value: 'other' },
-        ]}
-        label="Gender"
-        placeholder="Select gender..."
-        isMulti={false}
-        isRequired={false}
-        error={errors.gender}
-        helperText={errors.gender?.message}
-      />
+      <Grid item xs={12} md={4}>
+        <CustomSelect
+          name="gender"
+          control={control}
+          options={[
+            { label: 'Male', value: 'male' },
+            { label: 'Female', value: 'female' },
+            { label: 'Other', value: 'other' },
+          ]}
+          label="Gender"
+          placeholder="Select gender..."
+          isMulti={false}
+          isRequired={false}
+          error={errors.gender}
+          helperText={errors.gender?.message}
+        />
+      </Grid>
 
-      <CustomInput
-        name="profile_picture_url"
-        label="Profile Picture URL"
-        type="text"
-        validation={{
-          validate: validateURL,
-        }}
-        register={register}
-        errors={errors}
-      />
+      {/* Row 3: Profile Picture URL - Full width */}
+      <Grid item xs={12}>
+        <CustomInput
+          name="profile_picture_url"
+          label="Profile Picture URL"
+          type="text"
+          validation={{
+            validate: validateURL,
+          }}
+          register={register}
+          errors={errors}
+        />
+      </Grid>
 
-      <CustomInput
-        name="bio"
-        label="Bio"
-        type="text"
-        multiline={true}
-        rows={4}
-        register={register}
-        errors={errors}
-      />
-    </Box>
+      {/* Row 4: Bio - Full width textarea */}
+      <Grid item xs={12}>
+        <CustomInput
+          name="bio"
+          label="Bio"
+          type="text"
+          multiline={true}
+          rows={4}
+          register={register}
+          errors={errors}
+        />
+      </Grid>
+    </Grid>
   );
 };
 

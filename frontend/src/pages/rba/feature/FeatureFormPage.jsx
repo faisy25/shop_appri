@@ -1,4 +1,4 @@
-import { Box, Typography, Button, Paper } from '@mui/material';
+import { Box, Typography, Button, Paper, Grid } from '@mui/material';
 import { useSelector, useDispatch } from 'react-redux';
 import { useEffect, useState, useMemo } from 'react';
 import {
@@ -16,7 +16,7 @@ import { toast } from 'react-toastify';
 import { CircularProgress } from '@mui/material';
 import CustomSelect from '../../../components/common/CustomSelect';
 import CustomInput from '../../../components/common/CustomInput';
-import { FEATURE_ELEMENT_TYPES } from '../../../util/constants';
+import { FEATURE_ELEMENT_TYPES } from '../../../constants';
 import {
   validateFeatureName,
   validateFkId,
@@ -142,10 +142,8 @@ const FeatureFormPage = () => {
       elevation={3}
       sx={{
         p: 4,
-        maxWidth: 600,
-        mx: 'auto',
-        mt: 5,
-        borderRadius: 3,
+        mt: 4,
+        borderRadius: 2,
         bgcolor: 'background.paper',
       }}
     >
@@ -169,114 +167,127 @@ const FeatureFormPage = () => {
         </Typography>
       </Box>
 
-      <Box
-        onSubmit={handleSubmit(onSubmit)}
-        component="form"
-        sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 3,
-        }}
-      >
-        <CustomInput
-          name="name"
-          label="Feature Name"
-          type="text"
-          isRequired={true}
-          validation={{
-            required: 'Feature Name is required',
-            validate: validateFeatureName,
-          }}
-          register={register}
-          errors={errors}
-        />
+      <Box onSubmit={handleSubmit(onSubmit)} component="form">
+        <Grid container spacing={3}>
+          {/* Row 1: Name and Element Type - 2 per row on larger screens */}
+          <Grid item xs={12} md={6}>
+            <CustomInput
+              name="name"
+              label="Feature Name"
+              type="text"
+              isRequired={true}
+              validation={{
+                required: 'Feature Name is required',
+                validate: validateFeatureName,
+              }}
+              register={register}
+              errors={errors}
+            />
+          </Grid>
 
-        <CustomSelect
-          name="element_type"
-          control={control}
-          options={FEATURE_ELEMENT_TYPES}
-          label="Element Type"
-          placeholder="Select element type..."
-          isMulti={false}
-          isRequired={true}
-          error={errors.element_type}
-          helperText={errors.element_type?.message}
-        />
+          <Grid item xs={12} md={6}>
+            <CustomSelect
+              name="element_type"
+              control={control}
+              options={FEATURE_ELEMENT_TYPES}
+              label="Element Type"
+              placeholder="Select element type..."
+              isMulti={false}
+              isRequired={true}
+              error={errors.element_type}
+              helperText={errors.element_type?.message}
+            />
+          </Grid>
 
-        <CustomInput
-          name="icon"
-          label="Icon (Optional)"
-          type="text"
-          placeholder="e.g., Dashboard, Settings"
-          register={register}
-          errors={errors}
-        />
+          {/* Row 2: Icon, FK ID, Sort Order - 3 per row on larger screens */}
+          <Grid item xs={12} md={4}>
+            <CustomInput
+              name="icon"
+              label="Icon (Optional)"
+              type="text"
+              placeholder="e.g., Dashboard, Settings"
+              register={register}
+              errors={errors}
+            />
+          </Grid>
 
-        <CustomInput
-          name="description"
-          label="Description"
-          type="text"
-          multiline={true}
-          rows={3}
-          register={register}
-          errors={errors}
-        />
+          <Grid item xs={12} md={4}>
+            <CustomInput
+              name="fk_id"
+              label="FK ID"
+              type="number"
+              validation={{
+                validate: validateFkId,
+              }}
+              register={register}
+              errors={errors}
+            />
+          </Grid>
 
-        <CustomSelect
-          name="parent_id"
-          control={control}
-          options={featureOptions}
-          label="Parent Feature (Optional)"
-          placeholder="Select parent feature..."
-          isMulti={false}
-          isLoading={loading}
-          error={errors.parent_id}
-        />
+          <Grid item xs={12} md={4}>
+            <CustomInput
+              name="sort_order"
+              label="Sort Order"
+              type="number"
+              validation={{
+                validate: validateSortOrder,
+              }}
+              register={register}
+              errors={errors}
+            />
+          </Grid>
 
-        <CustomInput
-          name="fk_id"
-          label="FK ID"
-          type="number"
-          validation={{
-            validate: validateFkId,
-          }}
-          register={register}
-          errors={errors}
-        />
+          {/* Row 3: Description - Full width */}
+          <Grid item xs={12}>
+            <CustomInput
+              name="description"
+              label="Description"
+              type="text"
+              multiline={true}
+              rows={3}
+              register={register}
+              errors={errors}
+            />
+          </Grid>
 
-        <CustomInput
-          name="sort_order"
-          label="Sort Order"
-          type="number"
-          validation={{
-            validate: validateSortOrder,
-          }}
-          register={register}
-          errors={errors}
-        />
+          {/* Row 4: Parent Feature - Full width */}
+          <Grid item xs={12}>
+            <CustomSelect
+              name="parent_id"
+              control={control}
+              options={featureOptions}
+              label="Parent Feature (Optional)"
+              placeholder="Select parent feature..."
+              isMulti={false}
+              isLoading={loading}
+              error={errors.parent_id}
+            />
+          </Grid>
+        </Grid>
 
-        <Button
-          variant="contained"
-          color="primary"
-          size="large"
-          sx={{
-            mt: 1,
-            borderRadius: 2,
-            py: 1.2,
-            fontWeight: 600,
-            height: 48,
-          }}
-          type="submit"
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? (
-            <CircularProgress size={26} />
-          ) : feature ? (
-            'Update Feature'
-          ) : (
-            'Create Feature'
-          )}
-        </Button>
+        <Box sx={{ mt: 3 }}>
+          <Button
+            variant="contained"
+            color="primary"
+            size="large"
+            fullWidth
+            sx={{
+              borderRadius: 2,
+              py: 1.5,
+              fontWeight: 600,
+            }}
+            type="submit"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <CircularProgress size={26} />
+            ) : feature ? (
+              'Update Feature'
+            ) : (
+              'Create Feature'
+            )}
+          </Button>
+        </Box>
       </Box>
     </Paper>
   );

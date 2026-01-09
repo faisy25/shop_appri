@@ -27,3 +27,24 @@ export const ORGANIZATION_TYPE_VALUES = {
   BRAND: 'brand',
   OUTSOURCED: 'outsourced',
 };
+
+/**
+ * Feature Element Type Options
+ * Used in FeatureFormPage for the element_type dropdown
+ */
+export const FEATURE_ELEMENT_TYPES = [
+  { label: 'Menu', value: 'menu' },
+  { label: 'Button', value: 'button' },
+  { label: 'Link', value: 'link' },
+  { label: 'Action', value: 'action' },
+];
+
+/**
+ * Feature Element Type Values (for validation/type checking)
+ */
+export const FEATURE_ELEMENT_TYPE_VALUES = {
+  MENU: 'menu',
+  BUTTON: 'button',
+  LINK: 'link',
+  ACTION: 'action',
+};

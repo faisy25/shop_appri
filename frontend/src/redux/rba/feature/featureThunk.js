@@ -1,9 +1,9 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { featureApi } from '../../../api';
 
-export const fetchFeatures = createAsyncThunk('features/fetchAll', async (_, thunkAPI) => {
+export const fetchFeatures = createAsyncThunk('features/fetchAll', async (filters = {}, thunkAPI) => {
   try {
-    const res = await featureApi.getAll();
+    const res = await featureApi.getAll(filters);
     return res.data;
   } catch (err) {
     return thunkAPI.rejectWithValue(

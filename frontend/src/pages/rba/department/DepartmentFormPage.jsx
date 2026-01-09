@@ -1,4 +1,4 @@
-import { Box, Typography, Button, Paper } from '@mui/material';
+import { Box, Typography, Button, Paper, Grid } from '@mui/material';
 import { useSelector, useDispatch } from 'react-redux';
 import { useEffect, useState } from 'react';
 import {
@@ -94,10 +94,8 @@ const DepartmentFormPage = () => {
       elevation={3}
       sx={{
         p: 4,
-        maxWidth: 600,
-        mx: 'auto',
-        mt: 5,
-        borderRadius: 3,
+        mt: 4,
+        borderRadius: 2,
         bgcolor: 'background.paper',
       }}
     >
@@ -121,74 +119,77 @@ const DepartmentFormPage = () => {
         </Typography>
       </Box>
 
-      <Box
-        onSubmit={handleSubmit(onSubmit)}
-        component="form"
-        sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 3,
-        }}
-      >
-        <CustomInput
-          name="department_id"
-          label="Department ID"
-          type="text"
-          isRequired={true}
-          disabled={!!department}
-          validation={{
-            required: 'Department ID is required',
-            validate: validateDepartmentId,
-          }}
-          register={register}
-          errors={errors}
-        />
+      <Box onSubmit={handleSubmit(onSubmit)} component="form">
+        <Grid container spacing={3}>
+          {/* Row 1: Department ID and Name - 2 per row on larger screens */}
+          <Grid item xs={12} md={6}>
+            <CustomInput
+              name="department_id"
+              label="Department ID"
+              type="text"
+              isRequired={true}
+              disabled={!!department}
+              validation={{
+                required: 'Department ID is required',
+                validate: validateDepartmentId,
+              }}
+              register={register}
+              errors={errors}
+            />
+          </Grid>
 
-        <CustomInput
-          name="name"
-          label="Department Name"
-          type="text"
-          isRequired={true}
-          validation={{
-            required: 'Department Name is required',
-            validate: validateDepartmentName,
-          }}
-          register={register}
-          errors={errors}
-        />
+          <Grid item xs={12} md={6}>
+            <CustomInput
+              name="name"
+              label="Department Name"
+              type="text"
+              isRequired={true}
+              validation={{
+                required: 'Department Name is required',
+                validate: validateDepartmentName,
+              }}
+              register={register}
+              errors={errors}
+            />
+          </Grid>
 
-        <CustomInput
-          name="description"
-          label="Description"
-          type="text"
-          multiline={true}
-          rows={3}
-          register={register}
-          errors={errors}
-        />
+          {/* Row 2: Description - Full width */}
+          <Grid item xs={12}>
+            <CustomInput
+              name="description"
+              label="Description"
+              type="text"
+              multiline={true}
+              rows={3}
+              register={register}
+              errors={errors}
+            />
+          </Grid>
+        </Grid>
 
-        <Button
-          variant="contained"
-          color="primary"
-          size="large"
-          sx={{
-            mt: 1,
-            borderRadius: 2,
-            py: 1.2,
-            fontWeight: 600,
-            height: 48,
-          }}
-          type="submit"
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? (
-            <CircularProgress size={26} />
-          ) : department ? (
-            'Update Department'
-          ) : (
-            'Create Department'
-          )}
-        </Button>
+        <Box sx={{ mt: 3 }}>
+          <Button
+            variant="contained"
+            color="primary"
+            size="large"
+            fullWidth
+            sx={{
+              borderRadius: 2,
+              py: 1.5,
+              fontWeight: 600,
+            }}
+            type="submit"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <CircularProgress size={26} />
+            ) : department ? (
+              'Update Department'
+            ) : (
+              'Create Department'
+            )}
+          </Button>
+        </Box>
       </Box>
     </Paper>
   );

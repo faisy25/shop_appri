@@ -1,4 +1,4 @@
-import { Box, Typography, Button, Paper } from '@mui/material';
+import { Box, Typography, Button, Paper, Grid } from '@mui/material';
 import { useSelector, useDispatch } from 'react-redux';
 import { useEffect, useState, useMemo } from 'react';
 import {
@@ -7,7 +7,7 @@ import {
   updateRole,
   fetchRoles,
 } from '../../../redux/rba/role/roleThunk';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
 import { clearSelectedRole } from '../../../redux/rba/role/roleSlice';
 import { ROUTES } from '../../../routes/routes';
@@ -118,10 +118,8 @@ const RoleFormPage = () => {
       elevation={3}
       sx={{
         p: 4,
-        maxWidth: 600,
-        mx: 'auto',
-        mt: 5,
-        borderRadius: 3,
+        mt: 4,
+        borderRadius: 2,
         bgcolor: 'background.paper',
       }}
     >
@@ -145,74 +143,79 @@ const RoleFormPage = () => {
         </Typography>
       </Box>
 
-      <Box
-        onSubmit={handleSubmit(onSubmit)}
-        component="form"
-        sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 3,
-        }}
-      >
-        <OrganizationDepartmentDesignationFilter
-          control={control}
-          errors={errors}
-          organizationRequired={true}
-          departmentRequired={true}
-          designationRequired={true}
-        />
+      <Box onSubmit={handleSubmit(onSubmit)} component="form">
+        <Grid container spacing={3}>
+          {/* Row 1: Organization, Department, Designation - 3 per row on larger screens */}
+          <Grid item xs={12}>
+            <OrganizationDepartmentDesignationFilter
+              control={control}
+              errors={errors}
+              organizationRequired={true}
+              departmentRequired={true}
+              designationRequired={true}
+              direction="row"
+              spacing={3}
+            />
+          </Grid>
 
-        {/* Preview of auto-generated role name */}
-        {previewRoleName && (
-          <Box
+          {/* Preview of auto-generated role name */}
+          {previewRoleName && (
+            <Grid item xs={12}>
+              <Box
+                sx={{
+                  p: 2,
+                  bgcolor: 'background.default',
+                  borderRadius: 1,
+                  border: '1px solid',
+                  borderColor: 'divider',
+                }}
+              >
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+                  Role Name (Auto-generated):
+                </Typography>
+                <Typography variant="body1" fontWeight={500}>
+                  {previewRoleName}
+                </Typography>
+              </Box>
+            </Grid>
+          )}
+
+          {/* Row 2: Description - Full width */}
+          <Grid item xs={12}>
+            <CustomInput
+              name="description"
+              label="Description"
+              type="text"
+              multiline={true}
+              rows={3}
+              placeholder="Enter description..."
+              isRequired={false}
+              validation={{
+                validate: validateRoleDescription,
+              }}
+              register={register}
+              errors={errors}
+            />
+          </Grid>
+        </Grid>
+
+        <Box sx={{ mt: 3 }}>
+          <Button
+            variant="contained"
+            color="primary"
+            size="large"
+            fullWidth
             sx={{
-              p: 2,
-              bgcolor: 'background.default',
-              borderRadius: 1,
-              border: '1px solid',
-              borderColor: 'divider',
+              borderRadius: 2,
+              py: 1.5,
+              fontWeight: 600,
             }}
+            type="submit"
+            disabled={isSubmitting}
           >
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
-              Role Name (Auto-generated):
-            </Typography>
-            <Typography variant="body1" fontWeight={500}>
-              {previewRoleName}
-            </Typography>
-          </Box>
-        )}
-
-        <CustomInput
-          name="description"
-          label="Description"
-          type="text"
-          multiline={true}
-          rows={3}
-          placeholder="Enter description..."
-          isRequired={false}
-          validation={{
-            validate: validateRoleDescription,
-          }}
-          register={register}
-          errors={errors}
-        />
-
-        <Button
-          variant="contained"
-          color="primary"
-          size="large"
-          sx={{
-            mt: 1,
-            borderRadius: 2,
-            py: 1.2,
-            fontWeight: 600,
-            height: 48,
-          }}
-          type="submit"
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? <CircularProgress size={26} /> : role ? 'Update Role' : 'Create Role'}
-        </Button>
+            {isSubmitting ? <CircularProgress size={26} /> : role ? 'Update Role' : 'Create Role'}
+          </Button>
+        </Box>
       </Box>
     </Paper>
   );

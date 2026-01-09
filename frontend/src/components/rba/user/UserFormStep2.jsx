@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Box } from '@mui/material';
+import { Grid } from '@mui/material';
 import { useFormContext } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
 import { updateFormData } from '../../../redux/rba/user/userSlice';
@@ -27,33 +27,38 @@ const UserFormStep2 = () => {
   }, [watchedValues.name, watchedValues.email, dispatch]);
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-      <CustomInput
-        name="name"
-        label="Full Name"
-        type="text"
-        isRequired={true}
-        validation={{
-          required: 'Full Name is required',
-          validate: (value) => validateMinLength(value, 2, 'Full Name'),
-        }}
-        register={register}
-        errors={errors}
-      />
+    <Grid container spacing={3}>
+      {/* Row 1: Full Name and Email - 2 per row on larger screens */}
+      <Grid item xs={12} md={6}>
+        <CustomInput
+          name="name"
+          label="Full Name"
+          type="text"
+          isRequired={true}
+          validation={{
+            required: 'Full Name is required',
+            validate: (value) => validateMinLength(value, 2, 'Full Name'),
+          }}
+          register={register}
+          errors={errors}
+        />
+      </Grid>
 
-      <CustomInput
-        name="email"
-        label="Email"
-        type="email"
-        isRequired={true}
-        validation={{
-          required: 'Email is required',
-          validate: validateEmail,
-        }}
-        register={register}
-        errors={errors}
-      />
-    </Box>
+      <Grid item xs={12} md={6}>
+        <CustomInput
+          name="email"
+          label="Email"
+          type="email"
+          isRequired={true}
+          validation={{
+            required: 'Email is required',
+            validate: validateEmail,
+          }}
+          register={register}
+          errors={errors}
+        />
+      </Grid>
+    </Grid>
   );
 };
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo } from 'react';
-import { Box } from '@mui/material';
+import { Grid } from '@mui/material';
 import { useFormContext } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateFormData } from '../../../redux/rba/user/userSlice';
@@ -75,25 +75,33 @@ const UserFormStep1 = () => {
   }, [roles, formData.step1]);
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-      <OrganizationDepartmentDesignationFilter
-        organizationRequired={false}
-        departmentRequired={false}
-        designationRequired={false}
-      />
+    <Grid container spacing={3}>
+      {/* Row 1: Organization, Department, Designation - 3 per row on larger screens */}
+      <Grid item xs={12}>
+        <OrganizationDepartmentDesignationFilter
+          organizationRequired={false}
+          departmentRequired={false}
+          designationRequired={false}
+          direction="row"
+          spacing={3}
+        />
+      </Grid>
 
-      <CustomSelect
-        name="role_ids"
-        control={control}
-        options={filteredRoleOptions}
-        label="Assign Roles"
-        placeholder="Select roles..."
-        isMulti={true}
-        isRequired={true}
-        error={errors.role_ids}
-        helperText={errors.role_ids?.message}
-      />
-    </Box>
+      {/* Row 2: Role Selection - Full width */}
+      <Grid item xs={12}>
+        <CustomSelect
+          name="role_ids"
+          control={control}
+          options={filteredRoleOptions}
+          label="Assign Roles"
+          placeholder="Select roles..."
+          isMulti={true}
+          isRequired={true}
+          error={errors.role_ids}
+          helperText={errors.role_ids?.message}
+        />
+      </Grid>
+    </Grid>
   );
 };
 

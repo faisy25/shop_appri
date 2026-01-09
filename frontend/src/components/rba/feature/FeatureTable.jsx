@@ -3,25 +3,31 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { deleteFeature, fetchFeatures } from '../../../redux/rba/feature/featureThunk';
 import { ROUTES } from '../../../routes/routes';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Typography } from '@mui/material';
 import { toast } from 'react-toastify';
 
-const FeatureTable = () => {
+const FeatureTable = ({ filters = {} }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const { list, loading, error } = useSelector((state) => state.features);
+  const { list = [], loading, error } = useSelector((state) => state.features);
+
+  // Memoize filter key to avoid unnecessary re-fetches
+  const filterKey = useMemo(() => JSON.stringify(filters), [filters]);
 
   useEffect(() => {
-    dispatch(fetchFeatures());
-  }, [dispatch]);
+    dispatch(fetchFeatures(filters));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, filterKey]);
 
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this feature?')) {
       try {
         await dispatch(deleteFeature(id)).unwrap();
         toast.success('Feature deleted successfully!');
+        // Refetch after delete
+        dispatch(fetchFeatures(filters));
       } catch (err) {
         toast.error(err || 'Failed to delete feature');
       }

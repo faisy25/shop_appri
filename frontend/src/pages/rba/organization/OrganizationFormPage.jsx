@@ -1,4 +1,4 @@
-import { Box, Typography, Button, Paper } from '@mui/material';
+import { Box, Typography, Button, Paper, Grid } from '@mui/material';
 import { useSelector, useDispatch } from 'react-redux';
 import { useEffect, useState, useMemo } from 'react';
 import {
@@ -19,7 +19,7 @@ import { toast } from 'react-toastify';
 import { CircularProgress } from '@mui/material';
 import CustomSelect from '../../../components/common/CustomSelect';
 import CustomInput from '../../../components/common/CustomInput';
-import { ORGANIZATION_TYPES } from '../../../util/constants';
+import { ORGANIZATION_TYPES } from '../../../constants';
 import { validateOrganizationName } from '../../../utils/validation/commonValidation';
 
 const OrganizationFormPage = () => {
@@ -133,10 +133,8 @@ const OrganizationFormPage = () => {
       elevation={3}
       sx={{
         p: 4,
-        maxWidth: 600,
-        mx: 'auto',
-        mt: 5,
-        borderRadius: 3,
+        mt: 4,
+        borderRadius: 2,
         bgcolor: 'background.paper',
       }}
     >
@@ -160,73 +158,76 @@ const OrganizationFormPage = () => {
         </Typography>
       </Box>
 
-      <Box
-        onSubmit={handleSubmit(onSubmit)}
-        component="form"
-        sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 3,
-        }}
-      >
-        <CustomInput
-          name="name"
-          label="Organization Name"
-          type="text"
-          isRequired={true}
-          validation={{
-            required: 'Organization Name is required',
-            validate: validateOrganizationName,
-          }}
-          register={register}
-          errors={errors}
-        />
+      <Box onSubmit={handleSubmit(onSubmit)} component="form">
+        <Grid container spacing={3}>
+          {/* Row 1: Organization Name - Full width */}
+          <Grid item xs={12}>
+            <CustomInput
+              name="name"
+              label="Organization Name"
+              type="text"
+              isRequired={true}
+              validation={{
+                required: 'Organization Name is required',
+                validate: validateOrganizationName,
+              }}
+              register={register}
+              errors={errors}
+            />
+          </Grid>
 
-        <CustomSelect
-          name="type"
-          control={control}
-          options={typeOptions}
-          label="Type"
-          placeholder="Select organization type..."
-          isMulti={false}
-          isRequired={true}
-          error={errors.type}
-          helperText={errors.type?.message}
-        />
+          {/* Row 2: Type and Parent Organization - 2 per row on larger screens */}
+          <Grid item xs={12} md={6}>
+            <CustomSelect
+              name="type"
+              control={control}
+              options={typeOptions}
+              label="Type"
+              placeholder="Select organization type..."
+              isMulti={false}
+              isRequired={true}
+              error={errors.type}
+              helperText={errors.type?.message}
+            />
+          </Grid>
 
-        <CustomSelect
-          name="parent_id"
-          control={control}
-          options={organizationOptions}
-          label="Parent Organization (Optional)"
-          placeholder="Select parent organization..."
-          isMulti={false}
-          isLoading={loading}
-          error={errors.parent_id}
-        />
+          <Grid item xs={12} md={6}>
+            <CustomSelect
+              name="parent_id"
+              control={control}
+              options={organizationOptions}
+              label="Parent Organization (Optional)"
+              placeholder="Select parent organization..."
+              isMulti={false}
+              isLoading={loading}
+              error={errors.parent_id}
+            />
+          </Grid>
+        </Grid>
 
-        <Button
-          variant="contained"
-          color="primary"
-          size="large"
-          sx={{
-            mt: 1,
-            borderRadius: 2,
-            py: 1.2,
-            fontWeight: 600,
-            height: 48,
-          }}
-          type="submit"
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? (
-            <CircularProgress size={26} />
-          ) : organization ? (
-            'Update Organization'
-          ) : (
-            'Create Organization'
-          )}
-        </Button>
+        <Box sx={{ mt: 3 }}>
+          <Button
+            variant="contained"
+            color="primary"
+            size="large"
+            fullWidth
+            sx={{
+              borderRadius: 2,
+              py: 1.5,
+              fontWeight: 600,
+            }}
+            type="submit"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <CircularProgress size={26} />
+            ) : organization ? (
+              'Update Organization'
+            ) : (
+              'Create Organization'
+            )}
+          </Button>
+        </Box>
       </Box>
     </Paper>
   );

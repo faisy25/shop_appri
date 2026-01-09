@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo } from 'react';
-import { Box } from '@mui/material';
+import { Box, Grid } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import { useFormContext } from 'react-hook-form';
 import { fetchOrganizations } from '../../redux/rba/organization/organizationThunk';
@@ -31,6 +31,7 @@ import CustomSelect from './CustomSelect';
  * @param {string} props.departmentPlaceholder - Custom placeholder for department
  * @param {string} props.designationPlaceholder - Custom placeholder for designation
  * @param {string} props.spacing - Gap between fields (default: 3)
+ * @param {string} props.direction - Layout direction: 'row' or 'column' (default: 'column')
  */
 const OrganizationDepartmentDesignationFilter = ({
   showOrganization = true,
@@ -49,6 +50,7 @@ const OrganizationDepartmentDesignationFilter = ({
   departmentPlaceholder = 'Select department...',
   designationPlaceholder = 'Select designation...',
   spacing = 3,
+  direction = 'column',
 }) => {
   const dispatch = useDispatch();
 
@@ -131,6 +133,62 @@ const OrganizationDepartmentDesignationFilter = ({
     return null;
   }
 
+  // Use Grid for horizontal layout, Box for vertical
+  if (direction === 'row') {
+    return (
+      <Grid container spacing={spacing}>
+        {showOrganization && (
+          <Grid item xs={12} md={4}>
+            <CustomSelect
+              name="organization_id"
+              control={control}
+              options={organizationOptions}
+              label={organizationLabel}
+              placeholder={organizationPlaceholder}
+              isMulti={false}
+              isRequired={organizationRequired}
+              error={errors.organization_id}
+              helperText={errors.organization_id?.message}
+            />
+          </Grid>
+        )}
+
+        {showDepartment && (
+          <Grid item xs={12} md={4}>
+            <CustomSelect
+              name="department_id"
+              control={control}
+              options={departmentOptions}
+              label={departmentLabel}
+              placeholder={departmentPlaceholder}
+              isMulti={false}
+              isRequired={departmentRequired}
+              error={errors.department_id}
+              helperText={errors.department_id?.message}
+            />
+          </Grid>
+        )}
+
+        {showDesignation && (
+          <Grid item xs={12} md={4}>
+            <CustomSelect
+              name="designation_id"
+              control={control}
+              options={designationOptions}
+              label={designationLabel}
+              placeholder={designationPlaceholder}
+              isMulti={false}
+              isRequired={designationRequired}
+              error={errors.designation_id}
+              helperText={errors.designation_id?.message}
+            />
+          </Grid>
+        )}
+      </Grid>
+    );
+  }
+
+  // Vertical layout (default)
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: spacing }}>
       {showOrganization && (
