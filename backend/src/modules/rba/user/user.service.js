@@ -49,8 +49,6 @@ export const userService = {
           const formattedUser = formatUserResponse(user);
           // Fetch roles for this user
           const roles = await userRoleService.getByUserId(user.user_id);
-
-          console.log(roles, 'ROLESS');
           // Format roles with nested objects
           const formattedRoles = (roles || []).map(formatRoleResponse);
           return {
