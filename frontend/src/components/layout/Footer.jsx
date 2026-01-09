@@ -1,4 +1,5 @@
 import { Box, Typography, useMediaQuery, useTheme } from '@mui/material';
+import { getCurrentYear } from '../../utils/common/dateHelpers';
 
 export default function Footer() {
   const theme = useTheme();
@@ -16,7 +17,7 @@ export default function Footer() {
       }}
     >
       <Typography variant={isMobile ? 'body2' : 'body1'} color="text.secondary">
-        © {new Date().getFullYear()} Shop — All rights reserved.
+        © {getCurrentYear()} Shop — All rights reserved.
       </Typography>
     </Box>
   );

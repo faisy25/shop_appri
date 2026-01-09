@@ -47,12 +47,12 @@ const UserTable = () => {
       },
     },
     {
-      accessorKey: 'user_detail',
+      accessorKey: 'phone',
       header: 'Phone',
       cell: ({ row }) => row.original.user_detail?.phone || '-',
     },
     {
-      accessorKey: 'user_detail',
+      accessorKey: 'country',
       header: 'Country',
       cell: ({ row }) => row.original.user_detail?.country || '-',
     },
@@ -78,4 +78,3 @@ const UserTable = () => {
 };
 
 export default UserTable;
-

@@ -13,6 +13,11 @@ import { CircularProgress } from '@mui/material';
 
 import MediaUploader from '../../components/media/MediaUploader';
 import CustomInput from '../../components/common/CustomInput';
+import {
+  validateProductName,
+  validateQuantity,
+  validatePrice,
+} from '../../utils/validation/commonValidation';
 
 const ProductFormPage = () => {
   const dispatch = useDispatch();
@@ -171,6 +176,10 @@ const ProductFormPage = () => {
           label="Product Name"
           type="text"
           isRequired={true}
+          validation={{
+            required: 'Product Name is required',
+            validate: validateProductName,
+          }}
           register={register}
           errors={errors}
         />
@@ -192,6 +201,10 @@ const ProductFormPage = () => {
           isRequired={true}
           min={0}
           step={1}
+          validation={{
+            required: 'Quantity is required',
+            validate: validateQuantity,
+          }}
           htmlInput={{
             onKeyDown: handleInputWholeNumber,
           }}
@@ -206,6 +219,10 @@ const ProductFormPage = () => {
           isRequired={true}
           min={0}
           step={0.01}
+          validation={{
+            required: 'Price is required',
+            validate: validatePrice,
+          }}
           register={register}
           errors={errors}
         />

@@ -17,6 +17,11 @@ import { CircularProgress } from '@mui/material';
 import CustomSelect from '../../../components/common/CustomSelect';
 import CustomInput from '../../../components/common/CustomInput';
 import { FEATURE_ELEMENT_TYPES } from '../../../util/constants';
+import {
+  validateFeatureName,
+  validateFkId,
+  validateSortOrder,
+} from '../../../utils/validation/commonValidation';
 
 const FeatureFormPage = () => {
   const dispatch = useDispatch();
@@ -178,6 +183,10 @@ const FeatureFormPage = () => {
           label="Feature Name"
           type="text"
           isRequired={true}
+          validation={{
+            required: 'Feature Name is required',
+            validate: validateFeatureName,
+          }}
           register={register}
           errors={errors}
         />
@@ -228,6 +237,9 @@ const FeatureFormPage = () => {
           name="fk_id"
           label="FK ID"
           type="number"
+          validation={{
+            validate: validateFkId,
+          }}
           register={register}
           errors={errors}
         />
@@ -236,6 +248,9 @@ const FeatureFormPage = () => {
           name="sort_order"
           label="Sort Order"
           type="number"
+          validation={{
+            validate: validateSortOrder,
+          }}
           register={register}
           errors={errors}
         />

@@ -1,10 +1,12 @@
 import { Box, Typography, Button, Paper } from '@mui/material';
 import { useSelector, useDispatch } from 'react-redux';
 import { useEffect, useState, useMemo } from 'react';
-import { fetchRoleById, createRole, updateRole, fetchRoles } from '../../../redux/rba/role/roleThunk';
-import { fetchOrganizations } from '../../../redux/rba/organization/organizationThunk';
-import { fetchDepartments } from '../../../redux/rba/department/departmentThunk';
-import { fetchDesignations } from '../../../redux/rba/designation/designationThunk';
+import {
+  fetchRoleById,
+  createRole,
+  updateRole,
+  fetchRoles,
+} from '../../../redux/rba/role/roleThunk';
 import { useForm, Controller } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
 import { clearSelectedRole } from '../../../redux/rba/role/roleSlice';
@@ -12,8 +14,9 @@ import { ROUTES } from '../../../routes/routes';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { toast } from 'react-toastify';
 import { CircularProgress } from '@mui/material';
-import CustomSelect from '../../../components/common/CustomSelect';
 import CustomInput from '../../../components/common/CustomInput';
+import OrganizationDepartmentDesignationFilter from '../../../components/common/OrganizationDepartmentDesignationFilter';
+import { validateRoleDescription } from '../../../utils/validation/commonValidation';
 
 const RoleFormPage = () => {
   const dispatch = useDispatch();
@@ -21,35 +24,9 @@ const RoleFormPage = () => {
   const { id } = useParams();
 
   const { role } = useSelector((state) => state.roles);
-  const { list: organizations } = useSelector((state) => state.organizations);
   const { list: departments } = useSelector((state) => state.departments);
   const { list: designations } = useSelector((state) => state.designations);
   const [errMsg, setErrMsg] = useState('');
-
-  // Format options for dropdowns
-  const organizationOptions = useMemo(() => {
-    if (!organizations || !Array.isArray(organizations)) return [];
-    return organizations.map((org) => ({
-      label: org.name,
-      value: org.organization_id,
-    }));
-  }, [organizations]);
-
-  const departmentOptions = useMemo(() => {
-    if (!departments || !Array.isArray(departments)) return [];
-    return departments.map((dept) => ({
-      label: dept.name,
-      value: dept.department_id,
-    }));
-  }, [departments]);
-
-  const designationOptions = useMemo(() => {
-    if (!designations || !Array.isArray(designations)) return [];
-    return designations.map((desig) => ({
-      label: desig.name,
-      value: desig.designation_id,
-    }));
-  }, [designations]);
 
   const {
     register,
@@ -69,7 +46,6 @@ const RoleFormPage = () => {
   });
 
   // Watch selected values to show preview of auto-generated role name
-  const selectedOrganization = watch('organization_id');
   const selectedDepartment = watch('department_id');
   const selectedDesignation = watch('designation_id');
 
@@ -89,13 +65,6 @@ const RoleFormPage = () => {
     const firstError = Object.keys(errors)[0];
     if (firstError) setFocus(firstError);
   }, [errors, setFocus]);
-
-  // Fetch organizations, departments, and designations on mount
-  useEffect(() => {
-    dispatch(fetchOrganizations());
-    dispatch(fetchDepartments());
-    dispatch(fetchDesignations());
-  }, [dispatch]);
 
   useEffect(() => {
     if (!id) {
@@ -185,40 +154,12 @@ const RoleFormPage = () => {
           gap: 3,
         }}
       >
-        <CustomSelect
-          name="organization_id"
+        <OrganizationDepartmentDesignationFilter
           control={control}
-          options={organizationOptions}
-          label="Organization"
-          placeholder="Select organization..."
-          isMulti={false}
-          isRequired={true}
-          error={errors.organization_id}
-          helperText={errors.organization_id?.message}
-        />
-
-        <CustomSelect
-          name="department_id"
-          control={control}
-          options={departmentOptions}
-          label="Department"
-          placeholder="Select department..."
-          isMulti={false}
-          isRequired={true}
-          error={errors.department_id}
-          helperText={errors.department_id?.message}
-        />
-
-        <CustomSelect
-          name="designation_id"
-          control={control}
-          options={designationOptions}
-          label="Designation"
-          placeholder="Select designation..."
-          isMulti={false}
-          isRequired={true}
-          error={errors.designation_id}
-          helperText={errors.designation_id?.message}
+          errors={errors}
+          organizationRequired={true}
+          departmentRequired={true}
+          designationRequired={true}
         />
 
         {/* Preview of auto-generated role name */}
@@ -249,6 +190,9 @@ const RoleFormPage = () => {
           rows={3}
           placeholder="Enter description..."
           isRequired={false}
+          validation={{
+            validate: validateRoleDescription,
+          }}
           register={register}
           errors={errors}
         />
@@ -267,13 +211,7 @@ const RoleFormPage = () => {
           type="submit"
           disabled={isSubmitting}
         >
-          {isSubmitting ? (
-            <CircularProgress size={26} />
-          ) : role ? (
-            'Update Role'
-          ) : (
-            'Create Role'
-          )}
+          {isSubmitting ? <CircularProgress size={26} /> : role ? 'Update Role' : 'Create Role'}
         </Button>
       </Box>
     </Paper>

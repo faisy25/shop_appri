@@ -1,7 +1,11 @@
 import { Box, Typography, Button, Paper } from '@mui/material';
 import { useSelector, useDispatch } from 'react-redux';
 import { useEffect, useState } from 'react';
-import { fetchDepartmentById, createDepartment, updateDepartment } from '../../../redux/rba/department/departmentThunk';
+import {
+  fetchDepartmentById,
+  createDepartment,
+  updateDepartment,
+} from '../../../redux/rba/department/departmentThunk';
 import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
 import { clearSelectedDepartment } from '../../../redux/rba/department/departmentSlice';
@@ -10,6 +14,10 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { toast } from 'react-toastify';
 import { CircularProgress } from '@mui/material';
 import CustomInput from '../../../components/common/CustomInput';
+import {
+  validateDepartmentId,
+  validateDepartmentName,
+} from '../../../utils/validation/commonValidation';
 
 const DepartmentFormPage = () => {
   const dispatch = useDispatch();
@@ -128,6 +136,10 @@ const DepartmentFormPage = () => {
           type="text"
           isRequired={true}
           disabled={!!department}
+          validation={{
+            required: 'Department ID is required',
+            validate: validateDepartmentId,
+          }}
           register={register}
           errors={errors}
         />
@@ -137,6 +149,10 @@ const DepartmentFormPage = () => {
           label="Department Name"
           type="text"
           isRequired={true}
+          validation={{
+            required: 'Department Name is required',
+            validate: validateDepartmentName,
+          }}
           register={register}
           errors={errors}
         />
@@ -179,4 +195,3 @@ const DepartmentFormPage = () => {
 };
 
 export default DepartmentFormPage;
-

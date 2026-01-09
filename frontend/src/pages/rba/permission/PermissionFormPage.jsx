@@ -1,7 +1,11 @@
 import { Box, Typography, Button, Paper } from '@mui/material';
 import { useSelector, useDispatch } from 'react-redux';
 import { useEffect, useState } from 'react';
-import { fetchPermissionById, createPermission, updatePermission } from '../../../redux/rba/permission/permissionThunk';
+import {
+  fetchPermissionById,
+  createPermission,
+  updatePermission,
+} from '../../../redux/rba/permission/permissionThunk';
 import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
 import { clearSelectedPermission } from '../../../redux/rba/permission/permissionSlice';
@@ -10,6 +14,10 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { toast } from 'react-toastify';
 import { CircularProgress } from '@mui/material';
 import CustomInput from '../../../components/common/CustomInput';
+import {
+  validatePermissionId,
+  validatePermissionName,
+} from '../../../utils/validation/commonValidation';
 
 const PermissionFormPage = () => {
   const dispatch = useDispatch();
@@ -129,8 +137,8 @@ const PermissionFormPage = () => {
           isRequired={true}
           disabled={!!permission}
           validation={{
-            minLength: { value: 10, message: 'Must be exactly 10 characters' },
-            maxLength: { value: 10, message: 'Must be exactly 10 characters' },
+            required: 'Permission ID is required',
+            validate: validatePermissionId,
           }}
           register={register}
           errors={errors}
@@ -141,6 +149,10 @@ const PermissionFormPage = () => {
           label="Permission Name"
           type="text"
           isRequired={true}
+          validation={{
+            required: 'Permission Name is required',
+            validate: validatePermissionName,
+          }}
           register={register}
           errors={errors}
         />
@@ -183,4 +195,3 @@ const PermissionFormPage = () => {
 };
 
 export default PermissionFormPage;
-

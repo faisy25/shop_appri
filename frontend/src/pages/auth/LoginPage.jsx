@@ -16,6 +16,7 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import { ROUTES } from '../../routes/routes';
+import { getCurrentYear } from '../../utils/common/dateHelpers';
 
 const LoginPage = () => {
   const theme = useTheme();
@@ -207,7 +208,8 @@ const LoginPage = () => {
                     zIndex: 1,
                     '&.MuiInputLabel-shrink': {
                       zIndex: 2,
-                      backgroundColor: theme.palette.mode === 'dark' ? theme.palette.background.paper : '#ffffff',
+                      backgroundColor:
+                        theme.palette.mode === 'dark' ? theme.palette.background.paper : '#ffffff',
                       padding: '0 4px',
                     },
                   },
@@ -238,12 +240,13 @@ const LoginPage = () => {
               }}
               slotProps={{
                 inputLabel: {
-                  sx: { 
+                  sx: {
                     fontSize: isMobile ? '0.9rem' : '1rem',
                     zIndex: 1,
                     '&.MuiInputLabel-shrink': {
                       zIndex: 2,
-                      backgroundColor: theme.palette.mode === 'dark' ? theme.palette.background.paper : '#ffffff',
+                      backgroundColor:
+                        theme.palette.mode === 'dark' ? theme.palette.background.paper : '#ffffff',
                       padding: '0 4px',
                     },
                   },
@@ -310,7 +313,7 @@ const LoginPage = () => {
                 fontSize: isMobile ? '0.75rem' : '0.8125rem',
               }}
             >
-              © {new Date().getFullYear()} Firma. All rights reserved.
+              © {getCurrentYear()} Firma. All rights reserved.
             </Typography>
           </Box>
         </Paper>

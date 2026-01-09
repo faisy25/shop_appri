@@ -1,7 +1,11 @@
 import { Box, Typography, Button, Paper } from '@mui/material';
 import { useSelector, useDispatch } from 'react-redux';
 import { useEffect, useState } from 'react';
-import { fetchDesignationById, createDesignation, updateDesignation } from '../../../redux/rba/designation/designationThunk';
+import {
+  fetchDesignationById,
+  createDesignation,
+  updateDesignation,
+} from '../../../redux/rba/designation/designationThunk';
 import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
 import { clearSelectedDesignation } from '../../../redux/rba/designation/designationSlice';
@@ -10,6 +14,10 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { toast } from 'react-toastify';
 import { CircularProgress } from '@mui/material';
 import CustomInput from '../../../components/common/CustomInput';
+import {
+  validateDesignationId,
+  validateDesignationName,
+} from '../../../utils/validation/commonValidation';
 
 const DesignationFormPage = () => {
   const dispatch = useDispatch();
@@ -129,8 +137,8 @@ const DesignationFormPage = () => {
           isRequired={true}
           disabled={!!designation}
           validation={{
-            minLength: { value: 10, message: 'Must be exactly 10 characters' },
-            maxLength: { value: 10, message: 'Must be exactly 10 characters' },
+            required: 'Designation ID is required',
+            validate: validateDesignationId,
           }}
           register={register}
           errors={errors}
@@ -141,6 +149,10 @@ const DesignationFormPage = () => {
           label="Designation Name"
           type="text"
           isRequired={true}
+          validation={{
+            required: 'Designation Name is required',
+            validate: validateDesignationName,
+          }}
           register={register}
           errors={errors}
         />
@@ -183,4 +195,3 @@ const DesignationFormPage = () => {
 };
 
 export default DesignationFormPage;
-

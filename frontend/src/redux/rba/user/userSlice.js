@@ -1,11 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import {
-  fetchUsers,
-  createUser,
-  fetchUserById,
-  updateUser,
-  deleteUser,
-} from './userThunk';
+import { fetchUsers, createUser, fetchUserById, updateUser, deleteUser } from './userThunk';
 
 const initialState = {
   list: [],
@@ -50,6 +44,8 @@ const userSlice = createSlice({
     // Multi-step form actions
     updateFormData: (state, action) => {
       const { step, data } = action.payload;
+      // Data should already be serialized (ISO strings) when passed from components
+      // This ensures Redux state remains serializable
       state.formData[step] = { ...state.formData[step], ...data };
     },
     setCurrentStep: (state, action) => {
@@ -72,7 +68,6 @@ const userSlice = createSlice({
         };
 
         // Step 2: Basic user info
-        const nameParts = user.name ? user.name.split(' ') : ['', ''];
         state.formData.step2 = {
           name: user.name || '',
           email: user.email || '',
@@ -104,6 +99,7 @@ const userSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
+
       .addCase(fetchUserById.pending, (state) => {
         state.loading = true;
       })
@@ -115,6 +111,7 @@ const userSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
+
       .addCase(createUser.pending, (state) => {
         state.loading = true;
       })
@@ -131,6 +128,7 @@ const userSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
+
       .addCase(updateUser.pending, (state) => {
         state.loading = true;
       })
@@ -149,6 +147,7 @@ const userSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
+
       .addCase(deleteUser.pending, (state) => {
         state.loading = true;
       })
@@ -176,4 +175,3 @@ export const {
 } = userSlice.actions;
 
 export default userSlice.reducer;
-

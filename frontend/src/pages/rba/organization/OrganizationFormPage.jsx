@@ -20,6 +20,7 @@ import { CircularProgress } from '@mui/material';
 import CustomSelect from '../../../components/common/CustomSelect';
 import CustomInput from '../../../components/common/CustomInput';
 import { ORGANIZATION_TYPES } from '../../../util/constants';
+import { validateOrganizationName } from '../../../utils/validation/commonValidation';
 
 const OrganizationFormPage = () => {
   const dispatch = useDispatch();
@@ -173,6 +174,10 @@ const OrganizationFormPage = () => {
           label="Organization Name"
           type="text"
           isRequired={true}
+          validation={{
+            required: 'Organization Name is required',
+            validate: validateOrganizationName,
+          }}
           register={register}
           errors={errors}
         />
