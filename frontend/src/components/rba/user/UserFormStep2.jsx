@@ -1,10 +1,11 @@
 import React, { useEffect } from 'react';
-import { Grid } from '@mui/material';
+
 import { useFormContext } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
 import { updateFormData } from '../../../redux/rba/user/userSlice';
 import CustomInput from '../../common/CustomInput';
 import { validateEmail, validateMinLength } from '../../../utils/validation/commonValidation';
+import { Box } from '@mui/material';
 
 const UserFormStep2 = () => {
   const dispatch = useDispatch();
@@ -27,9 +28,19 @@ const UserFormStep2 = () => {
   }, [watchedValues.name, watchedValues.email, dispatch]);
 
   return (
-    <Grid container spacing={3}>
-      {/* Row 1: Full Name and Email - 2 per row on larger screens */}
-      <Grid item xs={12} md={6}>
+    <>
+      <Box
+        sx={{
+          display: 'grid',
+          width: '100%',
+          gridTemplateColumns: {
+            xs: '1fr',
+            md: 'repeat(2, 1fr)',
+            lg: 'repeat(3, 1fr)',
+          },
+          gap: 2,
+        }}
+      >
         <CustomInput
           name="name"
           label="Full Name"
@@ -42,9 +53,7 @@ const UserFormStep2 = () => {
           register={register}
           errors={errors}
         />
-      </Grid>
 
-      <Grid item xs={12} md={6}>
         <CustomInput
           name="email"
           label="Email"
@@ -57,10 +66,9 @@ const UserFormStep2 = () => {
           register={register}
           errors={errors}
         />
-      </Grid>
-    </Grid>
+      </Box>
+    </>
   );
 };
 
 export default UserFormStep2;
-

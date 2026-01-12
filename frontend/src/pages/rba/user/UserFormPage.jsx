@@ -261,15 +261,11 @@ const UserFormPage = () => {
             display: 'flex',
             flexDirection: 'column',
             gap: 3,
+            maxWidth: '100%',
+            mx: 'auto',
           }}
         >
           {renderStepContent()}
-
-          {errMsg && (
-            <Typography color="error" variant="body2">
-              {errMsg}
-            </Typography>
-          )}
 
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3 }}>
             <Button

@@ -1,12 +1,16 @@
 import React, { useEffect } from 'react';
-import { Grid } from '@mui/material';
+import { Box } from '@mui/material';
 import { useFormContext } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
 import { updateFormData } from '../../../redux/rba/user/userSlice';
 import CustomInput from '../../common/CustomInput';
 import CustomSelect from '../../common/CustomSelect';
 import CustomDatePicker from '../../common/CustomDatePicker';
-import { validatePhone, validateURL, validateDateOfBirth } from '../../../utils/validation/commonValidation';
+import {
+  validatePhone,
+  validateURL,
+  validateDateOfBirth,
+} from '../../../utils/validation/commonValidation';
 import { serializeDateForRedux } from '../../../utils/common/dateHelpers';
 
 const UserFormStep3 = () => {
@@ -44,9 +48,19 @@ const UserFormStep3 = () => {
   ]);
 
   return (
-    <Grid container spacing={3}>
-      {/* Row 1: Phone and Alternate Phone - 2 per row on larger screens */}
-      <Grid item xs={12} md={6}>
+    <>
+      <Box
+        sx={{
+          display: 'grid',
+          width: '100%',
+          gridTemplateColumns: {
+            xs: '1fr',
+            md: 'repeat(2, 1fr)',
+            lg: 'repeat(3, 1fr)',
+          },
+          gap: 2,
+        }}
+      >
         <CustomInput
           name="phone"
           label="Phone"
@@ -57,9 +71,7 @@ const UserFormStep3 = () => {
           register={register}
           errors={errors}
         />
-      </Grid>
 
-      <Grid item xs={12} md={6}>
         <CustomInput
           name="alternate_phone"
           label="Alternate Phone"
@@ -70,10 +82,7 @@ const UserFormStep3 = () => {
           register={register}
           errors={errors}
         />
-      </Grid>
 
-      {/* Row 2: Country, Date of Birth, Gender - 3 per row on larger screens */}
-      <Grid item xs={12} md={4}>
         <CustomInput
           name="country"
           label="Country"
@@ -81,9 +90,7 @@ const UserFormStep3 = () => {
           register={register}
           errors={errors}
         />
-      </Grid>
 
-      <Grid item xs={12} md={4}>
         <CustomDatePicker
           name="date_of_birth"
           control={control}
@@ -97,9 +104,7 @@ const UserFormStep3 = () => {
           }}
           maxDate={new Date()} // Prevent future dates
         />
-      </Grid>
 
-      <Grid item xs={12} md={4}>
         <CustomSelect
           name="gender"
           control={control}
@@ -115,37 +120,30 @@ const UserFormStep3 = () => {
           error={errors.gender}
           helperText={errors.gender?.message}
         />
-      </Grid>
+      </Box>
 
-      {/* Row 3: Profile Picture URL - Full width */}
-      <Grid item xs={12}>
-        <CustomInput
-          name="profile_picture_url"
-          label="Profile Picture URL"
-          type="text"
-          validation={{
-            validate: validateURL,
-          }}
-          register={register}
-          errors={errors}
-        />
-      </Grid>
+      <CustomInput
+        name="bio"
+        label="Bio"
+        type="text"
+        multiline={true}
+        rows={4}
+        register={register}
+        errors={errors}
+      />
 
-      {/* Row 4: Bio - Full width textarea */}
-      <Grid item xs={12}>
-        <CustomInput
-          name="bio"
-          label="Bio"
-          type="text"
-          multiline={true}
-          rows={4}
-          register={register}
-          errors={errors}
-        />
-      </Grid>
-    </Grid>
+      <CustomInput
+        name="profile_picture_url"
+        label="Profile Picture URL"
+        type="text"
+        validation={{
+          validate: validateURL,
+        }}
+        register={register}
+        errors={errors}
+      />
+    </>
   );
 };
 
 export default UserFormStep3;
-
