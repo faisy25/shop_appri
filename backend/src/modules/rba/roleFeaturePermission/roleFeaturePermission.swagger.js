@@ -1,56 +1,38 @@
 import j2s from 'joi-to-swagger';
-import { makeGet, makePost, makePut, makeDelete } from '../../../config/docs/method.swagger.js';
+import { makeGet, makePost } from '../../../config/docs/method.swagger.js';
 import {
   bulkAssignPermissionsSchema,
   bulkRemovePermissionsSchema,
-  createRoleFeaturePermissionSchema,
-  editRoleFeaturePermissionSchema,
-  roleFeaturePermissionIdSchema,
-  roleFeaturePermissionSchema,
+  permissionResponseSchema,
 } from './roleFeaturePermission.validation.js';
 
 // Swagger schema exports
-export const { swagger: roleFeaturePermissionSchemaSwagger } = j2s(roleFeaturePermissionSchema);
-export const { swagger: roleFeaturePermissionIdSchemaSwagger } = j2s(roleFeaturePermissionIdSchema);
-export const { swagger: createRoleFeaturePermissionSchemaSwagger } = j2s(
-  createRoleFeaturePermissionSchema,
-);
-export const { swagger: editRoleFeaturePermissionSchemaSwagger } = j2s(
-  editRoleFeaturePermissionSchema,
-);
+export const { swagger: permissionResponseSchemaSwagger } = j2s(permissionResponseSchema);
 export const { swagger: bulkAssignPermissionsSchemaSwagger } = j2s(bulkAssignPermissionsSchema);
 export const { swagger: bulkRemovePermissionsSchemaSwagger } = j2s(bulkRemovePermissionsSchema);
 
 // For redoc documentation
 const tag = 'Role Feature Permission';
 export const roleFeaturePermissionPaths = {
-  '/role-feature-permissions': {
-    get: makeGet(tag, 'Get all role feature permissions', roleFeaturePermissionSchemaSwagger, true),
+  '/role-feature-permission/role/{roleId}': {
+    get: makeGet(tag, 'Get permissions by role', permissionResponseSchemaSwagger, true),
+  },
+
+  '/role-feature-permission/role/{roleId}/bulk-assign': {
     post: makePost(
       tag,
-      'Create role feature permission',
-      createRoleFeaturePermissionSchemaSwagger,
-      roleFeaturePermissionIdSchemaSwagger,
+      'Bulk assign permissions to role',
+      bulkAssignPermissionsSchemaSwagger,
+      bulkAssignPermissionsSchemaSwagger,
     ),
   },
 
-  '/role-feature-permissions/{roleId}/{featureId}/{permissionId}': {
-    get: makeGet(tag, 'Get role feature permission', roleFeaturePermissionSchemaSwagger),
-    put: makePut(
+  '/role-feature-permission/role/{roleId}/bulk-remove': {
+    post: makePost(
       tag,
-      'Update role feature permission',
-      editRoleFeaturePermissionSchemaSwagger,
-      roleFeaturePermissionIdSchemaSwagger,
-    ),
-    delete: makeDelete(tag, 'Delete role feature permission', roleFeaturePermissionIdSchemaSwagger),
-  },
-
-  '/role-feature-permissions/hard/{roleId}/{featureId}/{permissionId}': {
-    delete: makeDelete(
-      tag,
-      'Delete role feature permission permanently',
-      roleFeaturePermissionIdSchemaSwagger,
+      'Bulk remove permissions from role',
+      bulkRemovePermissionsSchemaSwagger,
+      bulkRemovePermissionsSchemaSwagger,
     ),
   },
 };
-

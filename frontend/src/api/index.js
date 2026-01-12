@@ -87,3 +87,11 @@ export const userApi = {
   update: (id, data) => axios.put(API_ENDPOINTS.USER_BY_ID(id), data),
   delete: (id) => axios.delete(API_ENDPOINTS.USER_BY_ID(id)),
 };
+
+export const roleFeaturePermissionApi = {
+  getByRole: (roleId) => axios.get(API_ENDPOINTS.ROLE_FEATURE_PERMISSION_BY_ROLE(roleId)),
+  bulkAssign: (roleId, data) =>
+    axios.post(API_ENDPOINTS.ROLE_FEATURE_PERMISSION_BULK_ASSIGN(roleId), data),
+  bulkRemove: (roleId, data) =>
+    axios.post(API_ENDPOINTS.ROLE_FEATURE_PERMISSION_BULK_REMOVE(roleId), data),
+};

@@ -8,6 +8,7 @@ import {
   hardDeleteUser,
   updateUser,
   getUsersWithDeleted,
+  getUsersWithAccess,
 } from './user.controller.js';
 import { validate } from '../../../middleware/validate.middleware.js';
 import { createUserSchema, editUserSchema } from './user.validation.js';
@@ -20,6 +21,8 @@ router.post('/', validate(createUserSchema), createUser);
 router.get('/hard', getUsersWithDeleted);
 router.delete('/hard/:id', hardDeleteUser);
 router.get('/hard/:id', getUserDelete);
+
+router.get('/access', getUsersWithAccess);
 
 router.get('/:id', getUser);
 router.put('/:id', validate(editUserSchema), updateUser);

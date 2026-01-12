@@ -6,6 +6,7 @@ import { hashPassword } from '../../../util/user/userHelpers.js';
 import { formatUserResponse, formatRoleResponse } from './user.validation.js';
 import { userDetailService } from './user_detail/userDetail.service.js';
 import { userRoleService } from './user_role/userRole.service.js';
+import { roleFeaturePermissionService } from '../roleFeaturePermission/roleFeaturePermission.service.js';
 
 export const userService = {
   async getAll() {
@@ -43,7 +44,7 @@ export const userService = {
         deletedColumn: 'user.is_deleted',
       });
 
-      // Format users and fetch roles for each user
+      // Format users and fetch roles for each user (without permissions)
       const formattedUsers = await Promise.all(
         users.map(async (user) => {
           const formattedUser = formatUserResponse(user);
@@ -51,6 +52,7 @@ export const userService = {
           const roles = await userRoleService.getByUserId(user.user_id);
           // Format roles with nested objects
           const formattedRoles = (roles || []).map(formatRoleResponse);
+
           return {
             ...formattedUser,
             roles: formattedRoles,
@@ -109,9 +111,15 @@ export const userService = {
       // Format roles with nested objects
       const formattedRoles = (roles || []).map(formatRoleResponse);
 
+      // Get user permissions across all roles
+      const permissions = await roleFeaturePermissionService.getPermissionsByUser(id);
+      const user_access = permissions ? permissions.length : 0;
+
       return {
         ...formattedUser,
         roles: formattedRoles,
+        permissions: permissions || [],
+        user_access,
       };
     } catch (err) {
       ServiceError(err, 'Failed to get user');
@@ -351,6 +359,59 @@ export const userService = {
       return formattedUsers;
     } catch (err) {
       ServiceError(err, 'Failed to load users with deleted');
+    }
+  },
+
+  async getAllWithAccess() {
+    try {
+      const users = await dbHelper.getAll({
+        table: 'user',
+        selectColumns: [
+          'user.user_id',
+          'user.uuid',
+          'user.name',
+          'user.email',
+          'user_detail.phone',
+          'user.is_active',
+          'user.created_at',
+          'user.updated_at',
+        ],
+        joinArray: [
+          {
+            table: 'user_detail',
+            condition: 'user.user_id = user_detail.user_id',
+            join_type: 'LEFT',
+          },
+        ],
+        orderBy: [{ key: 'user.created_at', value: 'DESC' }],
+        deletedColumn: 'user.is_deleted',
+      });
+
+      // Format users and fetch roles and permissions for each user
+      const formattedUsers = await Promise.all(
+        users.map(async (user) => {
+          const formattedUser = formatUserResponse(user);
+          // Fetch roles for this user
+          const roles = await userRoleService.getByUserId(user.user_id);
+          // Format roles with nested objects
+          const formattedRoles = (roles || []).map(formatRoleResponse);
+
+          // Get user permissions across all roles
+          const permissions = await roleFeaturePermissionService.getPermissionsByUser(user.user_id);
+          const user_access = permissions ? permissions.length : 0;
+
+          return {
+            ...formattedUser,
+            roles: formattedRoles,
+            permissions: permissions || [],
+            user_access,
+          };
+        }),
+      );
+
+      return formattedUsers;
+    } catch (err) {
+      ServiceError(err, 'Failed to load users with access');
     }
   },
 

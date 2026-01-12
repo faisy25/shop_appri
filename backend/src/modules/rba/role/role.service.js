@@ -2,6 +2,7 @@ import dbHelper from '../../../util/database/dbHelper.js';
 import ApiError from '../../../util/error/api.error.js';
 import { ServiceError } from '../../../util/error/service.error.js';
 import { organizationDepartmentDesignationService } from '../organizationDepartmentDesignation/organizationDepartmentDesignation.service.js';
+import { roleFeaturePermissionService } from '../roleFeaturePermission/roleFeaturePermission.service.js';
 import { formatRoleResponse } from './role.validation.js';
 
 /**
@@ -139,7 +140,14 @@ export const roleService = {
         throw new ApiError(404, 'Role not found');
       }
 
-      return formatRoleResponse(role);
+      const formattedRole = formatRoleResponse(role);
+
+      // Get permissions for this role
+      const permissions = await roleFeaturePermissionService.getPermissionsByRole(id);
+      formattedRole.permissions = permissions || [];
+      formattedRole.permission_count = permissions ? permissions.length : 0;
+
+      return formattedRole;
     } catch (err) {
       ServiceError(err, 'Failed to get role');
     }

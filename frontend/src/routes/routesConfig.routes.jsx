@@ -52,6 +52,9 @@ const UserPage = lazy(() => import('../pages/rba/user/UserPage'));
 const UserListPage = lazy(() => import('../pages/rba/user/UserListPage'));
 const UserFormPage = lazy(() => import('../pages/rba/user/UserFormPage'));
 
+const AccessPage = lazy(() => import('../pages/rba/access/AccessPage'));
+const AccessListPage = lazy(() => import('../pages/rba/access/AccessListPage'));
+
 // Menu Groups Configuration - Define groups once with their icons
 export const menuGroups = {
   DASHBOARD: {
@@ -304,6 +307,23 @@ export const routeConfig = [
       {
         path: ROUTES.RBA.USER.EDIT_FORM(':id'),
         element: <UserFormPage />,
+        showInMenu: false,
+      },
+    ],
+  },
+  // RBA Modules - Access
+  {
+    path: ROUTES.RBA.ACCESS.ROOT,
+    element: <AccessPage />,
+    label: 'Access',
+    showInMenu: true,
+    menuGroup: 'USER MANAGEMENT',
+    icon: Security,
+    children: [
+      {
+        index: true,
+        path: ROUTES.RBA.ACCESS.ROOT,
+        element: <AccessListPage />,
         showInMenu: false,
       },
     ],

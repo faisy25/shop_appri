@@ -8,6 +8,7 @@ import featureReducer from './rba/feature/featureSlice';
 import permissionReducer from './rba/permission/permissionSlice';
 import roleReducer from './rba/role/roleSlice';
 import userReducer from './rba/user/userSlice';
+import roleFeaturePermissionReducer from './rba/roleFeaturePermission/roleFeaturePermissionSlice';
 
 export const store = configureStore({
   reducer: {
@@ -20,5 +21,6 @@ export const store = configureStore({
     permissions: permissionReducer,
     roles: roleReducer,
     users: userReducer,
+    roleFeaturePermissions: roleFeaturePermissionReducer,
   },
 });

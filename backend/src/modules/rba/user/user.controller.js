@@ -32,6 +32,11 @@ const getUsersWithDeleted = asyncHandler(async (req, res) => {
   return success(res, 'Users retrieved successfully', users, 200);
 });
 
+const getUsersWithAccess = asyncHandler(async (req, res) => {
+  const users = await userService.getAllWithAccess();
+  return success(res, 'Users with access retrieved successfully', users, 200);
+});
+
 const getUserDelete = asyncHandler(async (req, res) => {
   const user = await userService.getByIdWithDeleted(req.params.id);
   return success(res, 'User retrieved successfully', user, 200);
@@ -51,4 +56,5 @@ export {
   hardDeleteUser,
   getUserDelete,
   getUsersWithDeleted,
+  getUsersWithAccess,
 };
