@@ -167,103 +167,106 @@ const FeatureFormPage = () => {
         </Typography>
       </Box>
 
-      <Box onSubmit={handleSubmit(onSubmit)} component="form">
-        <Grid container spacing={3}>
-          {/* Row 1: Name and Element Type - 2 per row on larger screens */}
-          <Grid item xs={12} md={6}>
-            <CustomInput
-              name="name"
-              label="Feature Name"
-              type="text"
-              isRequired={true}
-              validation={{
-                required: 'Feature Name is required',
-                validate: validateFeatureName,
-              }}
-              register={register}
-              errors={errors}
-            />
-          </Grid>
+      <Box
+        onSubmit={handleSubmit(onSubmit)}
+        component="form"
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 3, // 🔥 Global vertical spacing
+          maxWidth: '100%', // Prevents over-stretching on large screens
+          mx: 'auto', // Center horizontally
+        }}
+      >
+        <Box
+          sx={{
+            display: 'grid',
+            width: '100%',
+            gridTemplateColumns: {
+              xs: '1fr',
+              md: 'repeat(2, 1fr)',
+              lg: 'repeat(3, 1fr)',
+            },
+            gap: 2,
+          }}
+        >
+          <CustomInput
+            name="name"
+            label="Feature Name"
+            type="text"
+            isRequired={true}
+            validation={{
+              required: 'Feature Name is required',
+              validate: validateFeatureName,
+            }}
+            register={register}
+            errors={errors}
+          />
 
-          <Grid item xs={12} md={6}>
-            <CustomSelect
-              name="element_type"
-              control={control}
-              options={FEATURE_ELEMENT_TYPES}
-              label="Element Type"
-              placeholder="Select element type..."
-              isMulti={false}
-              isRequired={true}
-              error={errors.element_type}
-              helperText={errors.element_type?.message}
-            />
-          </Grid>
+          <CustomInput
+            name="fk_id"
+            label="FK ID"
+            type="number"
+            validation={{
+              validate: validateFkId,
+            }}
+            register={register}
+            errors={errors}
+          />
 
-          {/* Row 2: Icon, FK ID, Sort Order - 3 per row on larger screens */}
-          <Grid item xs={12} md={4}>
-            <CustomInput
-              name="icon"
-              label="Icon (Optional)"
-              type="text"
-              placeholder="e.g., Dashboard, Settings"
-              register={register}
-              errors={errors}
-            />
-          </Grid>
+          <CustomInput
+            name="sort_order"
+            label="Sort Order"
+            type="number"
+            validation={{
+              validate: validateSortOrder,
+            }}
+            register={register}
+            errors={errors}
+          />
 
-          <Grid item xs={12} md={4}>
-            <CustomInput
-              name="fk_id"
-              label="FK ID"
-              type="number"
-              validation={{
-                validate: validateFkId,
-              }}
-              register={register}
-              errors={errors}
-            />
-          </Grid>
+          <CustomSelect
+            name="element_type"
+            control={control}
+            options={FEATURE_ELEMENT_TYPES}
+            label="Element Type"
+            placeholder="Select element type..."
+            isMulti={false}
+            isRequired={true}
+            error={errors.element_type}
+            helperText={errors.element_type?.message}
+          />
 
-          <Grid item xs={12} md={4}>
-            <CustomInput
-              name="sort_order"
-              label="Sort Order"
-              type="number"
-              validation={{
-                validate: validateSortOrder,
-              }}
-              register={register}
-              errors={errors}
-            />
-          </Grid>
+          <CustomSelect
+            name="parent_id"
+            control={control}
+            options={featureOptions}
+            label="Parent Feature (Optional)"
+            placeholder="Select parent feature..."
+            isMulti={false}
+            isLoading={loading}
+            error={errors.parent_id}
+          />
 
-          {/* Row 3: Description - Full width */}
-          <Grid item xs={12}>
-            <CustomInput
-              name="description"
-              label="Description"
-              type="text"
-              multiline={true}
-              rows={3}
-              register={register}
-              errors={errors}
-            />
-          </Grid>
+          <CustomInput
+            name="icon"
+            label="Icon (Optional)"
+            type="text"
+            placeholder="e.g., Dashboard, Settings"
+            register={register}
+            errors={errors}
+          />
+        </Box>
 
-          {/* Row 4: Parent Feature - Full width */}
-          <Grid item xs={12}>
-            <CustomSelect
-              name="parent_id"
-              control={control}
-              options={featureOptions}
-              label="Parent Feature (Optional)"
-              placeholder="Select parent feature..."
-              isMulti={false}
-              isLoading={loading}
-              error={errors.parent_id}
-            />
-          </Grid>
-        </Grid>
+        <CustomInput
+          name="description"
+          label="Description"
+          type="text"
+          multiline={true}
+          rows={3}
+          register={register}
+          errors={errors}
+        />
 
         <Box sx={{ mt: 3 }}>
           <Button

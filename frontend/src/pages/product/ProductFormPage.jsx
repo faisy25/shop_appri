@@ -1,4 +1,4 @@
-import { Box, Typography, Button, Paper, Grid } from '@mui/material';
+import { Box, Typography, Button, Paper } from '@mui/material';
 import { handleInputWholeNumber } from '../../utils/common/inputHelpers';
 import { useSelector, useDispatch } from 'react-redux';
 import { useEffect, useState } from 'react';
@@ -161,102 +161,113 @@ const ProductFormPage = () => {
       </Box>
 
       <Box
-        onSubmit={handleSubmit(onSubmit)} // Submit Handler
         component="form"
+        onSubmit={handleSubmit(onSubmit)}
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 3, // 🔥 Global vertical spacing
+          maxWidth: '100%', // Prevents over-stretching on large screens
+          mx: 'auto', // Center horizontally
+        }}
       >
-        <Grid container spacing={3}>
-          {/* Full width fields */}
-          <Grid item xs={12}>
-            <CustomInput
-              name="name"
-              label="Product Name"
-              type="text"
-              isRequired={true}
-              validation={{
-                required: 'Product Name is required',
-                validate: validateProductName,
-              }}
-              register={register}
-              errors={errors}
-            />
-          </Grid>
+        {/* Grid Section */}
+        <Box
+          sx={{
+            display: 'grid',
+            width: '100%',
+            gridTemplateColumns: {
+              xs: '1fr',
+              md: 'repeat(2, 1fr)',
+              lg: 'repeat(3, 1fr)',
+            },
+            gap: 2,
+          }}
+        >
+          <CustomInput
+            name="name"
+            label="Product Name"
+            type="text"
+            isRequired
+            validation={{
+              required: 'Product Name is required',
+              validate: validateProductName,
+            }}
+            register={register}
+            errors={errors}
+          />
 
-          <Grid item xs={12}>
-            <CustomInput
-              name="description"
-              label="Description"
-              type="text"
-              multiline={true}
-              rows={3}
-              register={register}
-              errors={errors}
-            />
-          </Grid>
+          <CustomInput
+            name="qty"
+            label="Quantity"
+            type="number"
+            isRequired
+            min={0}
+            step={1}
+            validation={{
+              required: 'Quantity is required',
+              validate: validateQuantity,
+            }}
+            htmlInput={{
+              onKeyDown: handleInputWholeNumber,
+            }}
+            register={register}
+            errors={errors}
+          />
 
-          {/* Row 2: Quantity and Price - 2 per row on larger screens */}
-          <Grid item xs={12} md={6}>
-            <CustomInput
-              name="qty"
-              label="Quantity"
-              type="number"
-              isRequired={true}
-              min={0}
-              step={1}
-              validation={{
-                required: 'Quantity is required',
-                validate: validateQuantity,
-              }}
-              htmlInput={{
-                onKeyDown: handleInputWholeNumber,
-              }}
-              register={register}
-              errors={errors}
-            />
-          </Grid>
+          <CustomInput
+            name="price"
+            label="Price"
+            type="decimal"
+            isRequired
+            min={0}
+            step={0.01}
+            validation={{
+              required: 'Price is required',
+              validate: validatePrice,
+            }}
+            register={register}
+            errors={errors}
+          />
+        </Box>
 
-          <Grid item xs={12} md={6}>
-            <CustomInput
-              name="price"
-              label="Price"
-              type="decimal"
-              isRequired={true}
-              min={0}
-              step={0.01}
-              validation={{
-                required: 'Price is required',
-                validate: validatePrice,
-              }}
-              register={register}
-              errors={errors}
-            />
-          </Grid>
+        {/* Description Section */}
+        <CustomInput
+          name="description"
+          label="Description"
+          type="text"
+          multiline
+          rows={3}
+          register={register}
+          errors={errors}
+        />
 
-          {/* Row 3: Media Upload - Full width */}
-          <Grid item xs={12}>
-            <MediaUploader
-              files={files}
-              setFiles={setFiles}
-              existingMedia={product?.media || []}
-              onMediaDeleted={handleMediaDeleted}
-              allowedTypes={['image', 'video']}
-              limits={{ image: 5, video: 1 }}
-            />
-          </Grid>
-        </Grid>
+        {/* Media Section */}
+        <Box>
+          <MediaUploader
+            files={files}
+            setFiles={setFiles}
+            existingMedia={product?.media || []}
+            onMediaDeleted={handleMediaDeleted}
+            allowedTypes={['image', 'video']}
+            limits={{ image: 5, video: 1 }}
+          />
+        </Box>
 
-        <Box sx={{ mt: 3 }}>
+        {/* Submit Button */}
+        <Box>
           <Button
+            type="submit"
             variant="contained"
             color="primary"
             size="large"
             fullWidth
+            disabled={isSubmitting}
             sx={{
               borderRadius: 2,
               py: 1.5,
               fontWeight: 600,
             }}
-            type="submit"
-            disabled={isSubmitting}
           >
             {isSubmitting ? (
               <CircularProgress size={26} />

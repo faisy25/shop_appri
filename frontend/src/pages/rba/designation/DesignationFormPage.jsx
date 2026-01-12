@@ -1,4 +1,4 @@
-import { Box, Typography, Button, Paper, Grid } from '@mui/material';
+import { Box, Typography, Button, Paper } from '@mui/material';
 import { useSelector, useDispatch } from 'react-redux';
 import { useEffect, useState } from 'react';
 import {
@@ -119,53 +119,66 @@ const DesignationFormPage = () => {
         </Typography>
       </Box>
 
-      <Box onSubmit={handleSubmit(onSubmit)} component="form">
-        <Grid container spacing={3}>
-          {/* Row 1: Designation ID and Name - 2 per row on larger screens */}
-          <Grid item xs={12} md={6}>
-            <CustomInput
-              name="designation_id"
-              label="Designation ID (10 characters)"
-              type="text"
-              isRequired={true}
-              disabled={!!designation}
-              validation={{
-                required: 'Designation ID is required',
-                validate: validateDesignationId,
-              }}
-              register={register}
-              errors={errors}
-            />
-          </Grid>
+      <Box
+        onSubmit={handleSubmit(onSubmit)}
+        component="form"
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 3, // 🔥 Global vertical spacing
+          maxWidth: '100%', // Prevents over-stretching on large screens
+          mx: 'auto', // Center horizontally
+        }}
+      >
+        <Box
+          sx={{
+            display: 'grid',
+            width: '100%',
+            gridTemplateColumns: {
+              xs: '1fr',
+              md: 'repeat(2, 1fr)',
+              // lg: 'repeat(3, 1fr)',
+            },
+            gap: 2,
+          }}
+        >
+          <CustomInput
+            name="designation_id"
+            label="Designation ID (10 characters)"
+            type="text"
+            isRequired={true}
+            disabled={!!designation}
+            validation={{
+              required: 'Designation ID is required',
+              validate: validateDesignationId,
+            }}
+            register={register}
+            errors={errors}
+          />
 
-          <Grid item xs={12} md={6}>
-            <CustomInput
-              name="name"
-              label="Designation Name"
-              type="text"
-              isRequired={true}
-              validation={{
-                required: 'Designation Name is required',
-                validate: validateDesignationName,
-              }}
-              register={register}
-              errors={errors}
-            />
-          </Grid>
+          <CustomInput
+            name="name"
+            label="Designation Name"
+            type="text"
+            isRequired={true}
+            validation={{
+              required: 'Designation Name is required',
+              validate: validateDesignationName,
+            }}
+            register={register}
+            errors={errors}
+          />
+        </Box>
 
-          {/* Row 2: Description - Full width */}
-          <Grid item xs={12}>
-            <CustomInput
-              name="description"
-              label="Description"
-              type="text"
-              multiline={true}
-              rows={3}
-              register={register}
-              errors={errors}
-            />
-          </Grid>
-        </Grid>
+        <CustomInput
+          name="description"
+          label="Description"
+          type="text"
+          multiline={true}
+          rows={3}
+          register={register}
+          errors={errors}
+        />
 
         <Box sx={{ mt: 3 }}>
           <Button

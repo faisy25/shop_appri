@@ -1,4 +1,4 @@
-import { Box, Typography, Button, Paper, Grid } from '@mui/material';
+import { Box, Typography, Button, Paper } from '@mui/material';
 import { useSelector, useDispatch } from 'react-redux';
 import { useEffect, useState } from 'react';
 import {
@@ -119,77 +119,90 @@ const DepartmentFormPage = () => {
         </Typography>
       </Box>
 
-      <Box onSubmit={handleSubmit(onSubmit)} component="form">
-        <Grid container spacing={3}>
-          {/* Row 1: Department ID and Name - 2 per row on larger screens */}
-          <Grid item xs={12} md={6}>
-            <CustomInput
-              name="department_id"
-              label="Department ID"
-              type="text"
-              isRequired={true}
-              disabled={!!department}
-              validation={{
-                required: 'Department ID is required',
-                validate: validateDepartmentId,
-              }}
-              register={register}
-              errors={errors}
-            />
-          </Grid>
-
-          <Grid item xs={12} md={6}>
-            <CustomInput
-              name="name"
-              label="Department Name"
-              type="text"
-              isRequired={true}
-              validation={{
-                required: 'Department Name is required',
-                validate: validateDepartmentName,
-              }}
-              register={register}
-              errors={errors}
-            />
-          </Grid>
-
-          {/* Row 2: Description - Full width */}
-          <Grid item xs={12}>
-            <CustomInput
-              name="description"
-              label="Description"
-              type="text"
-              multiline={true}
-              rows={3}
-              register={register}
-              errors={errors}
-            />
-          </Grid>
-        </Grid>
-
-        <Box sx={{ mt: 3 }}>
-          <Button
-            variant="contained"
-            color="primary"
-            size="large"
-            fullWidth
-            sx={{
-              borderRadius: 2,
-              py: 1.5,
-              fontWeight: 600,
+      <Box
+        onSubmit={handleSubmit(onSubmit)}
+        component="form"
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 3, // 🔥 Global vertical spacing
+          maxWidth: '100%', // Prevents over-stretching on large screens
+          mx: 'auto', // Center horizontally
+        }}
+      >
+        <Box
+          sx={{
+            display: 'grid',
+            width: '100%',
+            gridTemplateColumns: {
+              xs: '1fr',
+              md: 'repeat(2, 1fr)',
+              // lg: 'repeat(3, 1fr)',
+            },
+            gap: 2,
+          }}
+        >
+          <CustomInput
+            name="department_id"
+            label="Department ID"
+            type="text"
+            isRequired={true}
+            disabled={!!department}
+            validation={{
+              required: 'Department ID is required',
+              validate: validateDepartmentId,
             }}
-            type="submit"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? (
-              <CircularProgress size={26} />
-            ) : department ? (
-              'Update Department'
-            ) : (
-              'Create Department'
-            )}
-          </Button>
+            register={register}
+            errors={errors}
+          />
+
+          <CustomInput
+            name="name"
+            label="Department Name"
+            type="text"
+            isRequired={true}
+            validation={{
+              required: 'Department Name is required',
+              validate: validateDepartmentName,
+            }}
+            register={register}
+            errors={errors}
+          />
         </Box>
+
+        <CustomInput
+          name="description"
+          label="Description"
+          type="text"
+          multiline={true}
+          rows={3}
+          register={register}
+          errors={errors}
+        />
+      </Box>
+
+      <Box sx={{ mt: 3 }}>
+        <Button
+          variant="contained"
+          color="primary"
+          size="large"
+          fullWidth
+          sx={{
+            borderRadius: 2,
+            py: 1.5,
+            fontWeight: 600,
+          }}
+          type="submit"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? (
+            <CircularProgress size={26} />
+          ) : department ? (
+            'Update Department'
+          ) : (
+            'Create Department'
+          )}
+        </Button>
       </Box>
     </Paper>
   );

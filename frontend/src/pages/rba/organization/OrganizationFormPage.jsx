@@ -1,4 +1,4 @@
-import { Box, Typography, Button, Paper, Grid } from '@mui/material';
+import { Box, Typography, Button, Paper } from '@mui/material';
 import { useSelector, useDispatch } from 'react-redux';
 import { useEffect, useState, useMemo } from 'react';
 import {
@@ -158,52 +158,65 @@ const OrganizationFormPage = () => {
         </Typography>
       </Box>
 
-      <Box onSubmit={handleSubmit(onSubmit)} component="form">
-        <Grid container spacing={3}>
-          {/* Row 1: Organization Name - Full width */}
-          <Grid item xs={12}>
-            <CustomInput
-              name="name"
-              label="Organization Name"
-              type="text"
-              isRequired={true}
-              validation={{
-                required: 'Organization Name is required',
-                validate: validateOrganizationName,
-              }}
-              register={register}
-              errors={errors}
-            />
-          </Grid>
+      <Box
+        onSubmit={handleSubmit(onSubmit)}
+        component="form"
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 3, // 🔥 Global vertical spacing
+          maxWidth: '100%', // Prevents over-stretching on large screens
+          mx: 'auto', // Center horizontally
+        }}
+      >
+        <Box
+          sx={{
+            display: 'grid',
+            width: '100%',
+            gridTemplateColumns: {
+              xs: '1fr',
+              md: 'repeat(2, 1fr)',
+              lg: 'repeat(3, 1fr)',
+            },
+            gap: 2,
+          }}
+        >
+          <CustomInput
+            name="name"
+            label="Organization Name"
+            type="text"
+            isRequired={true}
+            validation={{
+              required: 'Organization Name is required',
+              validate: validateOrganizationName,
+            }}
+            register={register}
+            errors={errors}
+          />
 
-          {/* Row 2: Type and Parent Organization - 2 per row on larger screens */}
-          <Grid item xs={12} md={6}>
-            <CustomSelect
-              name="type"
-              control={control}
-              options={typeOptions}
-              label="Type"
-              placeholder="Select organization type..."
-              isMulti={false}
-              isRequired={true}
-              error={errors.type}
-              helperText={errors.type?.message}
-            />
-          </Grid>
+          <CustomSelect
+            name="type"
+            control={control}
+            options={typeOptions}
+            label="Type"
+            placeholder="Select organization type..."
+            isMulti={false}
+            isRequired={true}
+            error={errors.type}
+            helperText={errors.type?.message}
+          />
 
-          <Grid item xs={12} md={6}>
-            <CustomSelect
-              name="parent_id"
-              control={control}
-              options={organizationOptions}
-              label="Parent Organization (Optional)"
-              placeholder="Select parent organization..."
-              isMulti={false}
-              isLoading={loading}
-              error={errors.parent_id}
-            />
-          </Grid>
-        </Grid>
+          <CustomSelect
+            name="parent_id"
+            control={control}
+            options={organizationOptions}
+            label="Parent Organization (Optional)"
+            placeholder="Select parent organization..."
+            isMulti={false}
+            isLoading={loading}
+            error={errors.parent_id}
+          />
+        </Box>
 
         <Box sx={{ mt: 3 }}>
           <Button

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo } from 'react';
-import { Box, Grid } from '@mui/material';
+import { Box } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import { useFormContext } from 'react-hook-form';
 import { fetchOrganizations } from '../../redux/rba/organization/organizationThunk';
@@ -136,55 +136,60 @@ const OrganizationDepartmentDesignationFilter = ({
   // Use Grid for horizontal layout, Box for vertical
   if (direction === 'row') {
     return (
-      <Grid container spacing={spacing}>
+      <Box
+        sx={{
+          display: 'grid',
+          width: '100%',
+          gridTemplateColumns: {
+            xs: '1fr',
+            md: 'repeat(2, 1fr)',
+            lg: 'repeat(3, 1fr)',
+          },
+          gap: spacing,
+        }}
+      >
         {showOrganization && (
-          <Grid item xs={12} md={4}>
-            <CustomSelect
-              name="organization_id"
-              control={control}
-              options={organizationOptions}
-              label={organizationLabel}
-              placeholder={organizationPlaceholder}
-              isMulti={false}
-              isRequired={organizationRequired}
-              error={errors.organization_id}
-              helperText={errors.organization_id?.message}
-            />
-          </Grid>
+          <CustomSelect
+            name="organization_id"
+            control={control}
+            options={organizationOptions}
+            label={organizationLabel}
+            placeholder={organizationPlaceholder}
+            isMulti={false}
+            isRequired={organizationRequired}
+            error={errors.organization_id}
+            helperText={errors.organization_id?.message}
+          />
         )}
 
         {showDepartment && (
-          <Grid item xs={12} md={4}>
-            <CustomSelect
-              name="department_id"
-              control={control}
-              options={departmentOptions}
-              label={departmentLabel}
-              placeholder={departmentPlaceholder}
-              isMulti={false}
-              isRequired={departmentRequired}
-              error={errors.department_id}
-              helperText={errors.department_id?.message}
-            />
-          </Grid>
+          <CustomSelect
+            name="department_id"
+            control={control}
+            options={departmentOptions}
+            label={departmentLabel}
+            placeholder={departmentPlaceholder}
+            isMulti={false}
+            isRequired={departmentRequired}
+            error={errors.department_id}
+            helperText={errors.department_id?.message}
+          />
         )}
 
         {showDesignation && (
-          <Grid item xs={12} md={4}>
-            <CustomSelect
-              name="designation_id"
-              control={control}
-              options={designationOptions}
-              label={designationLabel}
-              placeholder={designationPlaceholder}
-              isMulti={false}
-              isRequired={designationRequired}
-              error={errors.designation_id}
-              helperText={errors.designation_id?.message}
-            />
-          </Grid>
+          <CustomSelect
+            name="designation_id"
+            control={control}
+            options={designationOptions}
+            label={designationLabel}
+            placeholder={designationPlaceholder}
+            isMulti={false}
+            isRequired={designationRequired}
+            error={errors.designation_id}
+            helperText={errors.designation_id?.message}
+          />
         )}
-      </Grid>
+      </Box>
     );
   }
 
