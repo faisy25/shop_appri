@@ -4,12 +4,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import { deleteFeature, fetchFeatures } from '../../../redux/rba/feature/featureThunk';
 import { ROUTES } from '../../../routes/routes';
 import { useEffect, useMemo } from 'react';
-import { Typography } from '@mui/material';
+import { Typography, Box, useTheme } from '@mui/material';
 import { toast } from 'react-toastify';
 
 const FeatureTable = ({ filters = {} }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const theme = useTheme();
 
   const { list = [], loading, error } = useSelector((state) => state.features);
 
@@ -55,10 +56,49 @@ const FeatureTable = ({ filters = {} }) => {
       accessorKey: 'element_type',
       header: 'Element Type',
       cell: ({ row }) => {
-        return row.original.element_type.toUpperCase();
+        const elementType = row.original.element_type?.toUpperCase() || '-';
+        return (
+          <Typography
+            variant="body2"
+            sx={{
+              fontSize: '0.75rem',
+              fontWeight: 500,
+              color: theme.palette.text.secondary,
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px',
+            }}
+          >
+            {elementType}
+          </Typography>
+        );
       },
     },
-    { accessorKey: 'icon', header: 'Icon' },
+    {
+      accessorKey: 'icon',
+      header: 'Icon',
+      cell: ({ row }) => {
+        const icon = row.original.icon || '-';
+        return (
+          <Box
+            sx={{
+              display: 'inline-block',
+              px: 1,
+              py: 0.5,
+              border: 1,
+              borderColor: theme.palette.divider,
+              borderRadius: 1,
+              backgroundColor: theme.palette.background.paper,
+              fontSize: '0.75rem',
+              color: theme.palette.text.secondary,
+              minWidth: '40px',
+              textAlign: 'center',
+            }}
+          >
+            {icon}
+          </Box>
+        );
+      },
+    },
     { accessorKey: 'route', header: 'Route' },
     { accessorKey: 'fk_id', header: 'FK ID' },
     { accessorKey: 'sort_order', header: 'Sort Order' },
