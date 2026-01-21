@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { deleteFeature, fetchFeatures } from '../../../redux/rba/feature/featureThunk';
 import { ROUTES } from '../../../routes/routes';
 import { useEffect, useMemo } from 'react';
-import { Typography, Box, useTheme } from '@mui/material';
+import { Typography, Box, useTheme, Chip } from '@mui/material';
 import { toast } from 'react-toastify';
 
 const FeatureTable = ({ filters = {} }) => {
@@ -57,19 +57,37 @@ const FeatureTable = ({ filters = {} }) => {
       header: 'Element Type',
       cell: ({ row }) => {
         const elementType = row.original.element_type?.toUpperCase() || '-';
+        // Color mapping for element types
+        const getElementTypeColor = (type) => {
+          const colors = {
+            MENU: theme.palette.primary.main,
+            GROUP: theme.palette.secondary.main,
+            PAGE: theme.palette.success?.main || '#2e7d32',
+            BUTTON: theme.palette.warning?.main || '#ed6c02',
+            LINK: theme.palette.info?.main || '#0288d1',
+          };
+          return colors[type] || theme.palette.text.secondary;
+        };
+
         return (
-          <Typography
-            variant="body2"
+          <Chip
+            label={elementType}
+            size="small"
             sx={{
-              fontSize: '0.75rem',
+              fontSize: '0.7rem',
               fontWeight: 500,
-              color: theme.palette.text.secondary,
-              textTransform: 'uppercase',
-              letterSpacing: '0.5px',
+              height: '22px',
+              color: getElementTypeColor(elementType),
+              backgroundColor: theme.palette.mode === 'light' 
+                ? `${getElementTypeColor(elementType)}15` 
+                : `${getElementTypeColor(elementType)}25`,
+              border: `1px solid ${getElementTypeColor(elementType)}40`,
+              '& .MuiChip-label': {
+                px: 1,
+                py: 0.25,
+              },
             }}
-          >
-            {elementType}
-          </Typography>
+          />
         );
       },
     },
@@ -80,18 +98,26 @@ const FeatureTable = ({ filters = {} }) => {
         const icon = row.original.icon || '-';
         return (
           <Box
+            component="span"
             sx={{
-              display: 'inline-block',
-              px: 1,
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              px: 1.5,
               py: 0.5,
-              border: 1,
-              borderColor: theme.palette.divider,
+              border: `1px solid ${theme.palette.divider}`,
               borderRadius: 1,
-              backgroundColor: theme.palette.background.paper,
-              fontSize: '0.75rem',
+              backgroundColor: theme.palette.mode === 'light'
+                ? theme.palette.background.default
+                : theme.palette.background.paper,
+              fontSize: '0.7rem',
+              fontWeight: 400,
               color: theme.palette.text.secondary,
-              minWidth: '40px',
+              minWidth: '50px',
               textAlign: 'center',
+              boxShadow: theme.palette.mode === 'light' 
+                ? '0 1px 2px rgba(0,0,0,0.05)' 
+                : '0 1px 2px rgba(0,0,0,0.2)',
             }}
           >
             {icon}

@@ -97,7 +97,6 @@ const FeatureListPage = () => {
     ],
     [elementTypeOptions, parentFeatureOptions],
   );
-  
 
   // Prepare filters object for API (only include non-null values)
   const apiFilters = useMemo(() => {
