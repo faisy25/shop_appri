@@ -79,13 +79,18 @@ const FilterModal = ({
             value={currentValue !== null && currentValue !== undefined ? String(currentValue) : ''}
             onChange={(e) => {
               let value = e.target.value;
-              // Try to convert to number if it's a numeric string
-              if (value && !isNaN(value)) {
-                value = Number(value);
-              }
               // Set null if empty string
               if (value === '') {
                 value = null;
+              } else {
+                // Try to convert to number if it's a numeric string and the field options use numbers
+                // Check if any option value is a number to determine if we should convert
+                const hasNumericOptions = field.options?.some(
+                  (opt) => typeof opt.value === 'number' || (!isNaN(opt.value) && opt.value !== ''),
+                );
+                if (hasNumericOptions && !isNaN(value)) {
+                  value = Number(value);
+                }
               }
               if (onFilterChange) {
                 onFilterChange(field.key, value);
@@ -419,18 +424,47 @@ const FilterModal = ({
       if (value !== null && value !== undefined && value !== '') {
         if (Array.isArray(value) && value.length > 0) {
           value.forEach((val) => {
-            const option = field.options?.find((opt) => opt.value == val); // Use == for loose comparison
+            // Normalize both the filter value and option values for comparison
+            const normalizedVal =
+              typeof val === 'string' && !isNaN(val) && val !== '' ? Number(val) : val;
+            const option = field.options?.find((opt) => {
+              const normalizedOpt =
+                typeof opt.value === 'string' && !isNaN(opt.value) && opt.value !== ''
+                  ? Number(opt.value)
+                  : opt.value;
+              return (
+                normalizedOpt === normalizedVal ||
+                opt.value == val || // Fallback loose comparison
+                String(opt.value) === String(val) // Fallback string comparison
+              );
+            });
             if (option) {
               applied.push({ key: field.key, value: val, label: option.label });
+            } else {
+              // If option not found, still add it but try to get a better label
+              applied.push({ key: field.key, value: val, label: String(val) });
             }
           });
         } else {
           // Don't use "if (value)" as 0 is falsy but valid
-          const option = field.options?.find((opt) => opt.value == value); // Use == for loose comparison
+          // Normalize both the filter value and option values for comparison
+          const normalizedValue =
+            typeof value === 'string' && !isNaN(value) && value !== '' ? Number(value) : value;
+          const option = field.options?.find((opt) => {
+            const normalizedOpt =
+              typeof opt.value === 'string' && !isNaN(opt.value) && opt.value !== ''
+                ? Number(opt.value)
+                : opt.value;
+            return (
+              normalizedOpt === normalizedValue ||
+              opt.value == value || // Fallback loose comparison
+              String(opt.value) === String(value) // Fallback string comparison
+            );
+          });
           applied.push({
             key: field.key,
             value: value,
-            label: option ? option.label : value,
+            label: option ? option.label : String(value),
           });
         }
       }

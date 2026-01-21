@@ -36,15 +36,15 @@ const FeatureListPage = () => {
     const options = [
       {
         label: 'Show Root Features Only',
-        value: 0,
+        value: 0, // Keep as number 0
       },
     ];
 
-    // Add all root features
+    // Add all root features - ensure feature_id is a number
     rootFeatures.forEach((feature) => {
       options.push({
-        label: feature.name,
-        value: feature.feature_id,
+        label: feature.name || `Feature ${feature.feature_id}`,
+        value: Number(feature.feature_id), // Ensure it's a number
       });
     });
 
@@ -61,9 +61,14 @@ const FeatureListPage = () => {
   }, [dispatch]);
 
   const handleFilterChange = (filterName, value) => {
+    // Normalize parent_id to number to ensure consistent type
+    let normalizedValue = value;
+    if (filterName === 'parent_id' && value !== null && value !== undefined && value !== '') {
+      normalizedValue = Number(value);
+    }
     setFilters((prev) => ({
       ...prev,
-      [filterName]: value,
+      [filterName]: normalizedValue,
     }));
   };
 
@@ -92,6 +97,7 @@ const FeatureListPage = () => {
     ],
     [elementTypeOptions, parentFeatureOptions],
   );
+  
 
   // Prepare filters object for API (only include non-null values)
   const apiFilters = useMemo(() => {

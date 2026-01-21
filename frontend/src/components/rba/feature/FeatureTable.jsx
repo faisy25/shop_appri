@@ -59,6 +59,7 @@ const FeatureTable = ({ filters = {} }) => {
       },
     },
     { accessorKey: 'icon', header: 'Icon' },
+    { accessorKey: 'route', header: 'Route' },
     { accessorKey: 'fk_id', header: 'FK ID' },
     { accessorKey: 'sort_order', header: 'Sort Order' },
   ];

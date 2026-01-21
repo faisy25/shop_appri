@@ -63,6 +63,7 @@ const FeatureFormPage = () => {
       element_type: 'menu',
       icon: '',
       description: '',
+      route: '',
       fk_id: 0,
       parent_id: null,
       sort_order: 0,
@@ -87,6 +88,7 @@ const FeatureFormPage = () => {
         element_type: 'menu',
         icon: '',
         description: '',
+        route: '',
         fk_id: 0,
         parent_id: null,
         sort_order: 0,
@@ -103,6 +105,7 @@ const FeatureFormPage = () => {
         element_type: feature.element_type || 'menu',
         icon: feature.icon || '',
         description: feature.description || '',
+        route: feature.route || '',
         fk_id: feature.fk_id || 0,
         parent_id: feature.parent_id && feature.parent_id !== 0 ? feature.parent_id : null,
         sort_order: feature.sort_order || 0,
@@ -253,6 +256,15 @@ const FeatureFormPage = () => {
             label="Icon (Optional)"
             type="text"
             placeholder="e.g., Dashboard, Settings"
+            register={register}
+            errors={errors}
+          />
+
+          <CustomInput
+            name="route"
+            label="Route (Optional)"
+            type="text"
+            placeholder="e.g., /dashboard, /settings"
             register={register}
             errors={errors}
           />

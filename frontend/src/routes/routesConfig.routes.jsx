@@ -13,6 +13,7 @@ import {
   Dashboard,
   People,
   Person,
+  Accessibility,
 } from '@mui/icons-material';
 
 import HomePage from '../pages/HomePage';
@@ -318,7 +319,7 @@ export const routeConfig = [
     label: 'Access',
     showInMenu: true,
     menuGroup: 'USER MANAGEMENT',
-    icon: Security,
+    icon: Accessibility,
     children: [
       {
         index: true,
