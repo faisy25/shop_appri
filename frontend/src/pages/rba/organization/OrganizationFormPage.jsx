@@ -20,7 +20,7 @@ import { CircularProgress } from '@mui/material';
 import CustomSelect from '../../../components/common/CustomSelect';
 import CustomInput from '../../../components/common/CustomInput';
 import { ORGANIZATION_TYPES } from '../../../constants';
-import { validateOrganizationName } from '../../../utils/validation/commonValidation';
+import { validateOrganizationName } from './organizationValidation';
 
 const OrganizationFormPage = () => {
   const dispatch = useDispatch();

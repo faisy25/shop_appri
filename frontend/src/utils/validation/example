@@ -1,0 +1,14 @@
+export const userFormSchema = z.object({
+  name: z.string().min(3),
+  email: z.string().email(),
+  phone: z.string().regex(/^[6-9]\d{9}$/),
+  age: z.coerce.number().min(18),
+  role: z.enum(["ADMIN", "USER"]),
+  isActive: z.boolean(),
+  dob: z.coerce.date(),
+  profileImage: z
+    .instanceof(File)
+    .refine((f) => f.type.startsWith("image/"), "Only images")
+    .refine((f) => f.size <= 2 * 1024 * 1024, "Max 2MB"),
+  documents: z.array(z.instanceof(File)).optional(),
+});

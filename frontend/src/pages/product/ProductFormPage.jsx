@@ -17,7 +17,7 @@ import {
   validateProductName,
   validateQuantity,
   validatePrice,
-} from '../../utils/validation/commonValidation';
+} from './productValidation';
 
 const ProductFormPage = () => {
   const dispatch = useDispatch();

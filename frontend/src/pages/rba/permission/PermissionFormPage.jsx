@@ -17,7 +17,7 @@ import CustomInput from '../../../components/common/CustomInput';
 import {
   validatePermissionId,
   validatePermissionName,
-} from '../../../utils/validation/commonValidation';
+} from './permissionValidation';
 
 const PermissionFormPage = () => {
   const dispatch = useDispatch();

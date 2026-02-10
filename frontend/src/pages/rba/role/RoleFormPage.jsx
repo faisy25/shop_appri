@@ -16,7 +16,7 @@ import { toast } from 'react-toastify';
 import { CircularProgress } from '@mui/material';
 import CustomInput from '../../../components/common/CustomInput';
 import OrganizationDepartmentDesignationFilter from '../../../components/common/OrganizationDepartmentDesignationFilter';
-import { validateRoleDescription } from '../../../utils/validation/commonValidation';
+import { validateRoleDescription } from './roleValidation';
 
 const RoleFormPage = () => {
   const dispatch = useDispatch();

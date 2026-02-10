@@ -21,7 +21,7 @@ import {
   validateFeatureName,
   validateFkId,
   validateSortOrder,
-} from '../../../utils/validation/commonValidation';
+} from './featureValidation';
 
 const FeatureFormPage = () => {
   const dispatch = useDispatch();

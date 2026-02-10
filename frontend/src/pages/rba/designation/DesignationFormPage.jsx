@@ -17,7 +17,7 @@ import CustomInput from '../../../components/common/CustomInput';
 import {
   validateDesignationId,
   validateDesignationName,
-} from '../../../utils/validation/commonValidation';
+} from './designationValidation';
 
 const DesignationFormPage = () => {
   const dispatch = useDispatch();

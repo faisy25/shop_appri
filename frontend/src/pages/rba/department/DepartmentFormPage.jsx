@@ -17,7 +17,7 @@ import CustomInput from '../../../components/common/CustomInput';
 import {
   validateDepartmentId,
   validateDepartmentName,
-} from '../../../utils/validation/commonValidation';
+} from './departmentValidation';
 
 const DepartmentFormPage = () => {
   const dispatch = useDispatch();
@@ -179,30 +179,30 @@ const DepartmentFormPage = () => {
           register={register}
           errors={errors}
         />
-      </Box>
 
-      <Box sx={{ mt: 3 }}>
-        <Button
-          variant="contained"
-          color="primary"
-          size="large"
-          fullWidth
-          sx={{
-            borderRadius: 2,
-            py: 1.5,
-            fontWeight: 600,
-          }}
-          type="submit"
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? (
-            <CircularProgress size={26} />
-          ) : department ? (
-            'Update Department'
-          ) : (
-            'Create Department'
-          )}
-        </Button>
+        <Box sx={{ mt: 3 }}>
+          <Button
+            variant="contained"
+            color="primary"
+            size="large"
+            fullWidth
+            sx={{
+              borderRadius: 2,
+              py: 1.5,
+              fontWeight: 600,
+            }}
+            type="submit"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <CircularProgress size={26} />
+            ) : department ? (
+              'Update Department'
+            ) : (
+              'Create Department'
+            )}
+          </Button>
+        </Box>
       </Box>
     </Paper>
   );
