@@ -9,8 +9,12 @@ import organizationRoutes from '../modules/rba/organization/organization.routes.
 import roleRoutes from '../modules/rba/role/role.routes.js';
 import roleFeaturePermissionRoutes from '../modules/rba/roleFeaturePermission/roleFeaturePermission.routes.js';
 import userRoutes from '../modules/rba/user/user.routes.js';
+import authRoutes from '../modules/auth/auth.routes.js';
 
 const router = Router();
+
+// AUTH
+router.use('/auth', authRoutes);
 
 // ROLE BASED ACCESS MODELS
 router.use('/feature', featureRoutes);
