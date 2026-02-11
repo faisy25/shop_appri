@@ -17,11 +17,15 @@ import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import { ROUTES } from '../../routes/routes';
 import { getCurrentYear } from '../../utils/common/dateHelpers';
+import { useDispatch } from 'react-redux';
+import { login } from '../../redux/auth/authThunk';
+import { toast } from 'react-toastify';
 
 const LoginPage = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     username: '',
@@ -35,11 +39,28 @@ const LoginPage = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // TODO: Add actual authentication logic here
-    // For now, just navigate to home
-    navigate(ROUTES.HOME);
+
+    try {
+      const result = await dispatch(login({
+        email: formData.username,
+        password: formData.password,
+      }));
+
+      if (login.fulfilled.match(result)) {
+        toast.success("Login successful!");
+        navigate(ROUTES.HOME);
+      } else {
+        const errorMessage = typeof result.payload === 'string'
+          ? result.payload
+          : result.error?.message || "Login failed";
+        toast.error(errorMessage);
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      toast.error("An unexpected error occurred during login");
+    }
   };
 
   const handleTogglePassword = () => {

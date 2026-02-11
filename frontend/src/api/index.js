@@ -1,6 +1,13 @@
 import axios from './axiosInstance';
 import { API_ENDPOINTS } from './endpoints';
 
+export const authApi = {
+  login: (credentials) => axios.post(API_ENDPOINTS.LOGIN, credentials),
+  refreshToken: (token) => axios.post(API_ENDPOINTS.REFRESH_TOKEN, token),
+  logout: () => axios.post(API_ENDPOINTS.LOGOUT),
+  me: () => axios.get(API_ENDPOINTS.ME),
+};
+
 export const productApi = {
   getAll: () => axios.get(API_ENDPOINTS.PRODUCTS),
   getOne: (id) => axios.get(API_ENDPOINTS.PRODUCT_BY_ID(id)),

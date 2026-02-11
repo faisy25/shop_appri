@@ -13,12 +13,22 @@ import LightModeIcon from '@mui/icons-material/LightMode';
 import ChevronLeft from '@mui/icons-material/ChevronLeft';
 import ChevronRight from '@mui/icons-material/ChevronRight';
 import MenuIcon from '@mui/icons-material/Menu';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/routes/routes';
+import { useSelector, useDispatch } from 'react-redux';
+import { logout } from '../../redux/auth/authThunk';
 
 export default function Header({ mode, setMode, sidebarOpen, onMenuToggle }) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { isAuthenticated } = useSelector((state) => state.auth);
+
+  const handleLogout = async () => {
+    await dispatch(logout());
+    navigate(ROUTES.LOGIN);
+  };
 
   const toggleTheme = () => {
     setMode(mode === 'light' ? 'dark' : 'light');
@@ -52,7 +62,7 @@ export default function Header({ mode, setMode, sidebarOpen, onMenuToggle }) {
                 fontSize: '0.875rem',
               }}
             >
-              MENU
+              FIRMA
             </Typography>
           )}
           <IconButton
@@ -105,20 +115,25 @@ export default function Header({ mode, setMode, sidebarOpen, onMenuToggle }) {
                 <MenuIcon />
               </IconButton>
             )}
-            <Typography
+            <Box
               component={RouterLink}
               to="/"
-              variant={isMobile ? 'h6' : 'h5'}
               sx={{
-                fontWeight: 700,
-                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
                 textDecoration: 'none',
-                color: 'inherit',
-                fontSize: { xs: '1rem', sm: '1.25rem', md: '1.5rem' },
+                cursor: 'pointer',
               }}
             >
-              Firma
-            </Typography>
+              <img
+                src="/logo.svg"
+                alt="Firma Logo"
+                style={{
+                  height: isMobile ? '40px' : '50px',
+                  width: 'auto',
+                }}
+              />
+            </Box>
           </Box>
 
           {/* Right Side Actions */}
@@ -134,21 +149,38 @@ export default function Header({ mode, setMode, sidebarOpen, onMenuToggle }) {
               {mode === 'light' ? <DarkModeIcon /> : <LightModeIcon />}
             </IconButton>
 
-            <Button
-              component={RouterLink}
-              to={ROUTES.LOGIN}
-              variant="contained"
-              color="secondary"
-              sx={{
-                textTransform: 'none',
-                fontWeight: 600,
-                fontSize: { xs: '0.75rem', sm: '0.875rem' },
-                px: { xs: 1.5, sm: 2 },
-                py: { xs: 0.5, sm: 0.75 },
-              }}
-            >
-              Login
-            </Button>
+            {isAuthenticated ? (
+              <Button
+                onClick={handleLogout}
+                variant="outlined"
+                color="secondary"
+                sx={{
+                  textTransform: 'none',
+                  fontWeight: 600,
+                  fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                  px: { xs: 1.5, sm: 2 },
+                  py: { xs: 0.5, sm: 0.75 },
+                }}
+              >
+                Logout
+              </Button>
+            ) : (
+              <Button
+                component={RouterLink}
+                to={ROUTES.LOGIN}
+                variant="contained"
+                color="secondary"
+                sx={{
+                  textTransform: 'none',
+                  fontWeight: 600,
+                  fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                  px: { xs: 1.5, sm: 2 },
+                  py: { xs: 0.5, sm: 0.75 },
+                }}
+              >
+                Login
+              </Button>
+            )}
           </Box>
         </Toolbar>
       </AppBar>

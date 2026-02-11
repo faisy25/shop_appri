@@ -1,6 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit';
 import productReducer from './product/productSlice';
 import mediaReducer from './media/media.slice';
+import authReducer from './auth/auth.slice';
 import organizationReducer from './rba/organization/organizationSlice';
 import departmentReducer from './rba/department/departmentSlice';
 import designationReducer from './rba/designation/designationSlice';
@@ -12,6 +13,7 @@ import roleFeaturePermissionReducer from './rba/roleFeaturePermission/roleFeatur
 
 export const store = configureStore({
   reducer: {
+    auth: authReducer,
     products: productReducer,
     media: mediaReducer,
     organizations: organizationReducer,

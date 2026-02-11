@@ -1,0 +1,27 @@
+<svg width="500" height="500" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+
+  <!-- Rocket Body -->
+  <ellipse cx="250" cy="230" rx="70" ry="140" fill="#C1121F"/>
+
+  <!-- Rocket Nose -->
+  <polygon points="250,60 200,160 300,160" fill="#6B7280"/>
+
+  <!-- Left Fin -->
+  <path d="M180 260 Q120 320 190 350 L210 280 Z" fill="#6B7280"/>
+
+  <!-- Right Fin -->
+  <path d="M320 260 Q380 320 310 350 L290 280 Z" fill="#6B7280"/>
+
+  <!-- Window -->
+  <circle cx="250" cy="210" r="28" fill="#6B7280"/>
+  <circle cx="250" cy="210" r="18" fill="#C1121F"/>
+
+  <!-- Inventory Box Symbol Inside Rocket -->
+  <rect x="220" y="260" width="60" height="50" rx="6" fill="#6B7280"/>
+  <line x1="220" y1="285" x2="280" y2="285" stroke="#C1121F" stroke-width="4"/>
+  <line x1="250" y1="260" x2="250" y2="310" stroke="#C1121F" stroke-width="4"/>
+
+  <!-- Flame -->
+  <path d="M250 370 Q220 430 250 460 Q280 430 250 370 Z" fill="#C1121F"/>
+
+</svg>

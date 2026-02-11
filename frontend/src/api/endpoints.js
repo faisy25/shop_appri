@@ -1,4 +1,9 @@
 export const API_ENDPOINTS = {
+  LOGIN: '/auth/login',
+  REFRESH_TOKEN: '/auth/refresh',
+  LOGOUT: '/auth/logout',
+  ME: '/auth/me',
+
   PRODUCTS: '/products',
   PRODUCT_BY_ID: (id) => `/products/${id}`,
 
